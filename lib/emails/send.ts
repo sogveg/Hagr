@@ -1,5 +1,5 @@
 import { render } from '@react-email/components'
-import { resend } from '@/lib/resend'
+import { getResend } from '@/lib/resend'
 import { BookingConfirmedEmail } from './booking-confirmed'
 
 const FROM = 'TinyRent <hei@tinyrent.no>'
@@ -28,7 +28,7 @@ export async function sendBookingConfirmed(params: {
     })
   )
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: params.to,
     subject: `Booking bekreftet — ${params.productName}`,
