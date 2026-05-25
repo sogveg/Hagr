@@ -18,7 +18,6 @@ export default async function ProductPage({
 
   if (!location || !category || !product) notFound()
 
-  // Tell tilgjengelige lagerenheter
   const { count: availableCount } = await supabase
     .from('inventory_items')
     .select('*', { count: 'exact', head: true })
@@ -29,99 +28,120 @@ export default async function ProductPage({
   const isAvailable = (availableCount ?? 0) > 0
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
-      <header style={header}>
-        <div style={headerInner}>
-          <Link href="/" style={logoStyle}>TinyRent</Link>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <Link href="/login" style={navLink}>Logg inn</Link>
-            <Link href="/account" style={ctaSmall}>Min side</Link>
+    <main className="min-h-screen bg-[#F8F7F4]">
+
+      {/* Header */}
+      <header className="bg-white border-b border-black/[0.06] sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold text-[#2B2B2B] tracking-tight">TinyRent</Link>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors">Logg inn</Link>
+            <Link href="/account" className="text-sm bg-[#2B2B2B] text-white px-4 py-2 rounded-full font-semibold hover:opacity-90 transition-opacity">Min side</Link>
           </div>
         </div>
       </header>
 
-      <div style={inner}>
+      <div className="max-w-6xl mx-auto px-6 py-10 pb-24">
 
         {/* Breadcrumb */}
-        <p style={breadcrumb}>
-          <Link href={`/${locationSlug}`} style={bcLink}>{location.name}</Link>
-          {' / '}
-          <Link href={`/${locationSlug}/${categorySlug}`} style={bcLink}>{category.name}</Link>
-          {' / '}
-          <span style={{ color: 'var(--color-text)' }}>{product.name}</span>
-        </p>
+        <nav className="flex items-center gap-2 text-sm text-gray-400 mb-10">
+          <Link href={`/${locationSlug}`} className="hover:text-gray-600 transition-colors">{location.name}</Link>
+          <span>/</span>
+          <Link href={`/${locationSlug}/${categorySlug}`} className="hover:text-gray-600 transition-colors">{category.name}</Link>
+          <span>/</span>
+          <span className="text-[#2B2B2B] font-medium">{product.name}</span>
+        </nav>
 
-        <div style={layout}>
+        {/* Product layout */}
+        <div className="grid lg:grid-cols-[1fr_440px] gap-12 items-start">
 
-          {/* Venstre — bilde */}
-          <div style={imageArea}>
-            <div style={imagePlaceholder}>
-              <span style={{ fontSize: '80px' }}>📦</span>
-            </div>
+          {/* Left — image */}
+          <div className="bg-[#EAE4DA] rounded-3xl aspect-square flex items-center justify-center">
+            <span className="text-[120px]">📦</span>
           </div>
 
-          {/* Høyre — info */}
-          <div style={infoArea}>
-            {product.brand && <p style={brand}>{product.brand}</p>}
-            <h1 style={h1}>{product.name}</h1>
+          {/* Right — info */}
+          <div className="lg:sticky lg:top-24">
+
+            {product.brand && (
+              <p className="text-xs font-bold text-[#8FA68B] uppercase tracking-widest mb-2">{product.brand}</p>
+            )}
+            <h1 className="text-3xl md:text-4xl font-bold text-[#2B2B2B] tracking-tight leading-tight mb-3">
+              {product.name}
+            </h1>
             {product.short_description && (
-              <p style={shortDesc}>{product.short_description}</p>
+              <p className="text-[15px] text-gray-500 leading-relaxed mb-6">{product.short_description}</p>
             )}
 
-            {/* Tilgjengelighet */}
-            <div style={availBadge(isAvailable)}>
-              <span style={availDot(isAvailable)} />
-              {isAvailable ? 'Tilgjengelig i Bergen' : 'Ikke tilgjengelig nå'}
+            {/* Availability */}
+            <div className={`inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6 ${
+              isAvailable
+                ? 'bg-[#F0F5EF] text-[#5A7A55]'
+                : 'bg-gray-100 text-gray-400'
+            }`}>
+              <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-[#A8BFA3]' : 'bg-gray-300'}`} />
+              {isAvailable ? `Tilgjengelig i ${location.name}` : 'Ikke tilgjengelig nå'}
             </div>
 
-            {/* Priser */}
-            <div style={priceBox}>
+            {/* Pricing */}
+            <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden mb-5">
               {product.price_day && (
-                <div style={priceRow}>
-                  <span style={priceLabel}>Per dag</span>
-                  <span style={priceValue}>{product.price_day} kr</span>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.04]">
+                  <span className="text-sm text-gray-500">Per dag</span>
+                  <span className="text-base font-semibold text-[#2B2B2B]">{product.price_day} kr</span>
                 </div>
               )}
               {product.price_week && (
-                <div style={priceRow}>
-                  <span style={priceLabel}>Per uke</span>
-                  <span style={{ ...priceValue, color: 'var(--color-primary-dark)', fontWeight: '700' }}>
-                    {product.price_week} kr
-                  </span>
+                <div className="flex items-center justify-between px-5 py-4 bg-[#F8F7F4] border-b border-black/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500">Per uke</span>
+                    <span className="text-[10px] font-bold text-[#8FA68B] uppercase tracking-wide bg-[#F0F5EF] px-2 py-0.5 rounded-full">
+                      Mest populær
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-[#2B2B2B]">{product.price_week} kr</span>
                 </div>
               )}
               {product.price_month && (
-                <div style={priceRow}>
-                  <span style={priceLabel}>Per måned</span>
-                  <span style={priceValue}>{product.price_month} kr</span>
+                <div className="flex items-center justify-between px-5 py-4 border-b border-black/[0.04]">
+                  <span className="text-sm text-gray-500">Per måned</span>
+                  <span className="text-base font-semibold text-[#2B2B2B]">{product.price_month} kr</span>
                 </div>
               )}
               {product.deposit_amount > 0 && (
-                <div style={{ ...priceRow, borderTop: '1px solid #E5E7EB', marginTop: '8px', paddingTop: '12px' }}>
-                  <span style={priceLabel}>Depositum</span>
-                  <span style={{ ...priceValue, color: '#6B7280' }}>{product.deposit_amount} kr</span>
+                <div className="flex items-center justify-between px-5 py-4">
+                  <span className="text-sm text-gray-400">Depositum (refunderes)</span>
+                  <span className="text-sm font-medium text-gray-400">{product.deposit_amount} kr</span>
                 </div>
               )}
             </div>
 
             {/* CTA */}
             {isAvailable ? (
-              <Link href={`/register`} style={bookButton}>
+              <Link
+                href="/register"
+                className="flex items-center justify-center gap-2 w-full bg-[#2B2B2B] hover:opacity-90 text-white rounded-2xl py-4 text-base font-bold transition-opacity mb-3"
+              >
                 Lei nå
               </Link>
             ) : (
-              <div style={unavailButton}>Ikke tilgjengelig</div>
+              <div className="flex items-center justify-center w-full bg-gray-100 text-gray-400 rounded-2xl py-4 text-base font-semibold mb-3">
+                Ikke tilgjengelig
+              </div>
             )}
 
-            <p style={minRental}>Minimum {product.minimum_rental_days} dager</p>
+            <p className="text-center text-xs text-gray-400">
+              Minimum {product.minimum_rental_days} dagers leie
+            </p>
+
           </div>
         </div>
 
-        {/* Beskrivelse */}
+        {/* Description */}
         {product.description && (
-          <div style={descSection}>
-            <h2 style={h2}>Om produktet</h2>
-            <p style={descText}>{product.description}</p>
+          <div className="mt-20 pt-16 border-t border-black/[0.06] max-w-2xl">
+            <h2 className="text-2xl font-bold text-[#2B2B2B] mb-5">Om produktet</h2>
+            <p className="text-[15px] text-gray-600 leading-[1.9] whitespace-pre-line">{product.description}</p>
           </div>
         )}
 
@@ -129,40 +149,3 @@ export default async function ProductPage({
     </main>
   )
 }
-
-const header: React.CSSProperties = { backgroundColor: 'white', borderBottom: '1px solid rgba(0,0,0,0.06)', position: 'sticky', top: 0, zIndex: 50 }
-const headerInner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }
-const logoStyle: React.CSSProperties = { fontSize: '20px', fontWeight: '700', color: 'var(--color-text)', textDecoration: 'none' }
-const navLink: React.CSSProperties = { fontSize: '14px', color: '#6B7280', textDecoration: 'none', fontWeight: '500' }
-const ctaSmall: React.CSSProperties = { fontSize: '14px', backgroundColor: 'var(--color-text)', color: 'white', padding: '8px 18px', borderRadius: '999px', textDecoration: 'none', fontWeight: '600' }
-const inner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto', padding: '32px 24px 80px' }
-const breadcrumb: React.CSSProperties = { fontSize: '13px', color: '#9CA3AF', margin: '0 0 32px' }
-const bcLink: React.CSSProperties = { color: '#9CA3AF', textDecoration: 'none' }
-const layout: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', alignItems: 'start' }
-const imageArea: React.CSSProperties = {}
-const imagePlaceholder: React.CSSProperties = { borderRadius: '24px', backgroundColor: 'var(--color-sand)', aspectRatio: '1', display: 'flex', alignItems: 'center', justifyContent: 'center' }
-const infoArea: React.CSSProperties = {}
-const brand: React.CSSProperties = { fontSize: '12px', fontWeight: '700', color: 'var(--color-primary-dark)', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }
-const h1: React.CSSProperties = { fontSize: '32px', fontWeight: '700', color: 'var(--color-text)', margin: '0 0 12px', letterSpacing: '-0.5px', lineHeight: 1.2 }
-const shortDesc: React.CSSProperties = { fontSize: '16px', color: '#6B7280', margin: '0 0 20px', lineHeight: 1.6 }
-const availBadge = (available: boolean): React.CSSProperties => ({
-  display: 'inline-flex', alignItems: 'center', gap: '6px',
-  fontSize: '13px', fontWeight: '500',
-  color: available ? 'var(--color-primary-dark)' : '#9CA3AF',
-  backgroundColor: available ? '#F0F5EF' : '#F3F4F6',
-  padding: '6px 12px', borderRadius: '999px', marginBottom: '24px',
-})
-const availDot = (available: boolean): React.CSSProperties => ({
-  width: '6px', height: '6px', borderRadius: '50%',
-  backgroundColor: available ? 'var(--color-primary-dark)' : '#9CA3AF',
-})
-const priceBox: React.CSSProperties = { backgroundColor: 'white', borderRadius: '16px', padding: '20px', border: '1px solid rgba(0,0,0,0.06)', marginBottom: '24px' }
-const priceRow: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }
-const priceLabel: React.CSSProperties = { fontSize: '14px', color: '#6B7280' }
-const priceValue: React.CSSProperties = { fontSize: '16px', fontWeight: '600', color: 'var(--color-text)' }
-const bookButton: React.CSSProperties = { display: 'block', textAlign: 'center', backgroundColor: 'var(--color-text)', color: 'white', borderRadius: '999px', padding: '16px', fontSize: '16px', fontWeight: '700', textDecoration: 'none', marginBottom: '12px' }
-const unavailButton: React.CSSProperties = { display: 'block', textAlign: 'center', backgroundColor: '#F3F4F6', color: '#9CA3AF', borderRadius: '999px', padding: '16px', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }
-const minRental: React.CSSProperties = { fontSize: '12px', color: '#9CA3AF', textAlign: 'center', margin: 0 }
-const descSection: React.CSSProperties = { marginTop: '64px', paddingTop: '48px', borderTop: '1px solid #E5E7EB' }
-const h2: React.CSSProperties = { fontSize: '22px', fontWeight: '700', color: 'var(--color-text)', margin: '0 0 16px' }
-const descText: React.CSSProperties = { fontSize: '16px', color: '#4B5563', lineHeight: 1.8, maxWidth: '640px', margin: 0 }

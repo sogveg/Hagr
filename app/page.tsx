@@ -8,50 +8,97 @@ export default async function HomePage() {
   const { data: locations } = await supabase.from('locations').select('*').eq('active', true)
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
+    <main className="min-h-screen bg-[#F8F7F4]">
 
       {/* Header */}
-      <header style={header}>
-        <div style={headerInner}>
-          <span style={logoStyle}>TinyRent</span>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link href="/login" style={navLink}>Logg inn</Link>
-            <Link href="/register" style={ctaSmall}>Kom i gang</Link>
+      <header className="bg-white border-b border-black/[0.06] sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <span className="text-xl font-bold text-[#2B2B2B] tracking-tight">TinyRent</span>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors">
+              Logg inn
+            </Link>
+            <Link href="/register" className="text-sm bg-[#2B2B2B] text-white px-4 py-2 rounded-full font-semibold hover:opacity-90 transition-opacity">
+              Kom i gang
+            </Link>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section style={hero}>
-        <div style={heroInner}>
-          <h1 style={h1}>
-            Lei premium<br />babyutstyr i Bergen
+      <section className="bg-[#2B2B2B] px-6 py-24 md:py-32">
+        <div className="max-w-6xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/10 text-white/60 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 uppercase tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A8BFA3] shrink-0" />
+            Bergen, Norge
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-[-2.5px] mb-6 max-w-2xl">
+            Lei premium<br />babyutstyr
           </h1>
-          <p style={heroSub}>
-            Trygt, enkelt og bærekraftig. Velg leieperiode, vi leverer hjem til deg.
+          <p className="text-lg text-white/50 mb-10 max-w-sm leading-relaxed">
+            Trygt, enkelt og bærekraftig. Vi leverer kvalitetsutstyr hjem til deg.
           </p>
-          {locations?.map(loc => (
-            <Link key={loc.id} href={`/${loc.slug}`} style={heroCta}>
-              Se utstyr i {loc.name} →
-            </Link>
+          <div className="flex flex-wrap gap-3">
+            {locations?.map(loc => (
+              <Link
+                key={loc.id}
+                href={`/${loc.slug}`}
+                className="inline-flex items-center gap-2 bg-[#A8BFA3] hover:bg-[#8FA68B] text-white px-7 py-4 rounded-full text-base font-semibold transition-colors"
+              >
+                Se utstyr i {loc.name} <span>→</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust bar */}
+      <section className="bg-white border-b border-black/[0.06] px-6 py-4">
+        <div className="max-w-6xl mx-auto flex flex-wrap gap-6 text-sm text-gray-400 font-medium">
+          {['Fri levering i Bergen', 'Vaskede og kontrollerte produkter', 'Fleksibel leieperiode', 'Depositum refunderes'].map(t => (
+            <span key={t} className="flex items-center gap-1.5">
+              <span className="text-[#A8BFA3]">✓</span> {t}
+            </span>
           ))}
         </div>
       </section>
 
-      {/* Hvordan det fungerer */}
-      <section style={section}>
-        <div style={sectionInner}>
-          <h2 style={h2}>Slik fungerer det</h2>
-          <div style={stepsGrid}>
+      {/* How it works */}
+      <section className="px-6 py-24">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs font-bold text-[#A8BFA3] uppercase tracking-widest mb-4">Enkelt og trygt</p>
+          <h2 className="text-4xl font-bold text-[#2B2B2B] tracking-tight mb-12">Slik fungerer det</h2>
+          <div className="grid md:grid-cols-3 gap-5">
             {[
-              { num: '1', title: 'Velg produkt', text: 'Bla gjennom vårt utvalg og velg leieperiode.' },
-              { num: '2', title: 'Vi leverer', text: 'Admin planlegger levering til din adresse i Bergen.' },
-              { num: '3', title: 'Returner enkelt', text: 'Vi henter når du er ferdig. Depositumet refunderes.' },
+              { num: '01', title: 'Velg produkt', text: 'Bla gjennom vårt utvalg av premium babyutstyr og velg leieperiode.' },
+              { num: '02', title: 'Vi leverer hjem', text: 'Vi planlegger levering til din adresse i Bergen — raskt og fleksibelt.' },
+              { num: '03', title: 'Returner enkelt', text: 'Vi henter når du er ferdig. Depositumet refunderes etter kontroll.' },
             ].map(step => (
-              <div key={step.num} style={stepCard}>
-                <div style={stepNum}>{step.num}</div>
-                <h3 style={stepTitle}>{step.title}</h3>
-                <p style={stepText}>{step.text}</p>
+              <div key={step.num} className="bg-white rounded-3xl p-8 border border-black/[0.06]">
+                <div className="text-5xl font-bold text-[#EAE4DA] mb-6 leading-none">{step.num}</div>
+                <h3 className="text-lg font-bold text-[#2B2B2B] mb-3">{step.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-[15px]">{step.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why TinyRent */}
+      <section className="bg-[#EAE4DA] px-6 py-24">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs font-bold text-[#8FA68B] uppercase tracking-widest mb-4">Fordeler</p>
+          <h2 className="text-4xl font-bold text-[#2B2B2B] tracking-tight mb-12">Hvorfor leie fra oss?</h2>
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { emoji: '🧼', title: 'Grundig rengjort', text: 'Alt utstyr vaskes og kontrolleres grundig mellom hver leie.' },
+              { emoji: '🌱', title: 'Bærekraftig valg', text: 'Leie er mer miljøvennlig enn å kjøpe nytt til kortvarig bruk.' },
+              { emoji: '📦', title: 'Premium merker', text: 'Moonboon, Babyzen, Snüz — vi velger kun dokumenterte kvalitetsprodukter.' },
+            ].map(b => (
+              <div key={b.title} className="bg-white rounded-3xl p-8">
+                <div className="text-4xl mb-5">{b.emoji}</div>
+                <h3 className="text-lg font-bold text-[#2B2B2B] mb-2">{b.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm">{b.text}</p>
               </div>
             ))}
           </div>
@@ -59,37 +106,19 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer style={footerStyle}>
-        <div style={sectionInner}>
-          <p style={footerText}>© 2025 TinyRent · Bergen, Norge · <a href="mailto:hei@tinyrent.no" style={{ color: 'var(--color-primary-dark)' }}>hei@tinyrent.no</a></p>
+      <footer className="bg-[#2B2B2B] px-6 py-12">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <div className="text-base font-bold text-white mb-1">TinyRent</div>
+            <div className="text-sm text-white/40">Bergen, Norge</div>
+          </div>
+          <a href="mailto:hei@tinyrent.no" className="text-sm text-white/40 hover:text-white/70 transition-colors">
+            hei@tinyrent.no
+          </a>
+          <div className="text-sm text-white/25">© 2025 TinyRent</div>
         </div>
       </footer>
 
     </main>
   )
 }
-
-const header: React.CSSProperties = { backgroundColor: 'white', borderBottom: '1px solid rgba(0,0,0,0.06)', position: 'sticky', top: 0, zIndex: 50 }
-const headerInner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }
-const logoStyle: React.CSSProperties = { fontSize: '20px', fontWeight: '700', color: 'var(--color-text)' }
-const navLink: React.CSSProperties = { fontSize: '14px', color: '#6B7280', textDecoration: 'none', fontWeight: '500' }
-const ctaSmall: React.CSSProperties = { fontSize: '14px', backgroundColor: 'var(--color-text)', color: 'white', padding: '8px 18px', borderRadius: '999px', textDecoration: 'none', fontWeight: '600' }
-
-const hero: React.CSSProperties = { backgroundColor: '#2B2B2B', padding: '96px 24px' }
-const heroInner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' }
-const h1: React.CSSProperties = { fontSize: '56px', fontWeight: '700', color: 'white', margin: '0 0 20px', lineHeight: 1.1, letterSpacing: '-1px' }
-const heroSub: React.CSSProperties = { fontSize: '18px', color: '#9CA3AF', margin: '0 0 40px', maxWidth: '480px', lineHeight: 1.6 }
-const heroCta: React.CSSProperties = { display: 'inline-block', backgroundColor: 'var(--color-primary)', color: 'white', padding: '16px 36px', borderRadius: '999px', fontSize: '16px', fontWeight: '600', textDecoration: 'none' }
-
-const section: React.CSSProperties = { padding: '80px 24px' }
-const sectionInner: React.CSSProperties = { maxWidth: '1200px', margin: '0 auto' }
-const h2: React.CSSProperties = { fontSize: '32px', fontWeight: '700', color: 'var(--color-text)', margin: '0 0 40px' }
-
-const stepsGrid: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }
-const stepCard: React.CSSProperties = { backgroundColor: 'white', borderRadius: '24px', padding: '28px', border: '1px solid rgba(0,0,0,0.06)' }
-const stepNum: React.CSSProperties = { width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--color-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '16px', marginBottom: '16px' }
-const stepTitle: React.CSSProperties = { fontSize: '17px', fontWeight: '700', color: 'var(--color-text)', margin: '0 0 8px' }
-const stepText: React.CSSProperties = { fontSize: '14px', color: '#6B7280', margin: 0, lineHeight: 1.6 }
-
-const footerStyle: React.CSSProperties = { borderTop: '1px solid rgba(0,0,0,0.06)', padding: '32px 24px' }
-const footerText: React.CSSProperties = { fontSize: '13px', color: '#9CA3AF', margin: 0 }
