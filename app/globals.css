@@ -1,31 +1,86 @@
 @import "tailwindcss";
 
-:root {
+@theme inline {
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
+  
+  /* Colors - Primary */
   --color-primary: #A8BFA3;
   --color-primary-dark: #8FA68B;
+  --color-primary-light: #F0F5EF;
+  
+  /* Colors - Secondary */
   --color-sand: #EAE4DA;
   --color-background: #F8F7F4;
-  --color-text: #2B2B2B;
+  --color-foreground: #2B2B2B;
   --color-accent: #7A9EAF;
+  
+  /* Colors - Neutral */
+  --color-muted: #6B7280;
+  --color-muted-foreground: #9CA3AF;
   --color-border: rgba(0, 0, 0, 0.06);
-
-  --status-available: #8FA68B;
-  --status-reserved: #7A9EAF;
-  --status-active: #5B7C99;
-  --status-cleaning: #D6B980;
-  --status-overdue: #D98C5F;
-  --status-damaged: #C46A6A;
-  --status-completed: #6B8F71;
-  --status-cancelled: #9CA3AF;
-
-  --admin-bg: #111827;
-  --admin-surface: #1F2937;
-  --admin-border: #374151;
+  --color-border-strong: #D1D5DB;
+  
+  /* Status Colors */
+  --color-available: #8FA68B;
+  --color-reserved: #7A9EAF;
+  --color-active: #5B7C99;
+  --color-cleaning: #D6B980;
+  --color-overdue: #D98C5F;
+  --color-damaged: #C46A6A;
+  --color-completed: #6B8F71;
+  --color-cancelled: #9CA3AF;
+  
+  /* Admin Colors */
+  --color-admin-bg: #111827;
+  --color-admin-surface: #1F2937;
+  --color-admin-border: #374151;
+  
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
 }
 
+/* Base styles */
 body {
   background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: 'Inter', 'Manrope', system-ui, sans-serif;
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
 }

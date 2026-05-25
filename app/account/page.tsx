@@ -1,11 +1,16 @@
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase-server'
+import { Card } from '@/components/ui/card'
 import LogoutButton from './logout-button'
 
 export default async function AccountPage() {
   const supabase = await createClient()
+  
+  if (!supabase) redirect('/login')
+  
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
@@ -17,34 +22,31 @@ export default async function AccountPage() {
     .single()
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', padding: '48px 24px' }}>
-      <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+    <main className="min-h-screen bg-[var(--color-background)] py-12 px-6">
+      <div className="max-w-[640px] mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--color-text)', margin: 0 }}>
+            <Link href="/" className="text-sm text-[var(--color-primary-dark)] font-medium hover:underline mb-2 inline-block">
+              &larr; Tilbake til forsiden
+            </Link>
+            <h1 className="text-[28px] font-bold text-[var(--color-foreground)]">
               Min side
             </h1>
-            <p style={{ fontSize: '15px', color: '#6B7280', margin: '4px 0 0' }}>
+            <p className="text-[15px] text-[var(--color-muted)] mt-1">
               Hei, {customer?.first_name ?? user.email}
             </p>
           </div>
           <LogoutButton />
         </div>
 
-        <div style={card}>
-          <p style={{ color: '#6B7280', fontSize: '15px', margin: 0 }}>
+        {/* Content */}
+        <Card>
+          <p className="text-[var(--color-muted)] text-[15px]">
             Bookinger og dokumenter kommer snart.
           </p>
-        </div>
+        </Card>
       </div>
     </main>
   )
-}
-
-const card: React.CSSProperties = {
-  backgroundColor: 'white',
-  borderRadius: '24px',
-  padding: '32px',
-  border: '1px solid rgba(0,0,0,0.06)',
-  boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
 }

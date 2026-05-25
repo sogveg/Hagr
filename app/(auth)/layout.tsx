@@ -1,23 +1,18 @@
+import Link from 'next/link'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'var(--color-background)',
-      padding: '24px',
-    }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <a href="/" style={{ textDecoration: 'none' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--color-text)', margin: 0 }}>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] p-6">
+      <div className="w-full max-w-[420px]">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block">
+            <h1 className="text-[28px] font-bold text-[var(--color-foreground)]">
               TinyRent
             </h1>
-            <p style={{ fontSize: '14px', color: 'var(--color-primary-dark)', margin: '4px 0 0' }}>
+            <p className="text-sm text-[var(--color-primary-dark)] mt-1">
               Lei premium babyutstyr i Bergen
             </p>
-          </a>
+          </Link>
         </div>
         {children}
       </div>
