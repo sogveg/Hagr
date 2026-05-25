@@ -1,0 +1,101 @@
+export const dynamic = 'force-dynamic'
+
+import { createServiceClient } from '@/lib/supabase-server'
+
+const statusMap: Record<string, { label: string; className: string }> = {
+  draft: { label: 'Utkast', className: 'bg-gray-100 text-gray-500' },
+  pending_payment: { label: 'Venter betaling', className: 'bg-yellow-50 text-yellow-700' },
+  payment_failed: { label: 'Betaling feilet', className: 'bg-red-50 text-red-600' },
+  confirmed: { label: 'Bekreftet', className: 'bg-blue-50 text-blue-700' },
+  prepared: { label: 'Klar', className: 'bg-purple-50 text-purple-700' },
+  delivered: { label: 'Levert', className: 'bg-indigo-50 text-indigo-700' },
+  active_rental: { label: 'Aktiv leie', className: 'bg-green-50 text-green-700' },
+  returned: { label: 'Returnert', className: 'bg-gray-50 text-gray-600' },
+  completed: { label: 'Fullført', className: 'bg-gray-50 text-gray-500' },
+  cancelled: { label: 'Kansellert', className: 'bg-red-50 text-red-500' },
+}
+
+export default async function AdminBookings() {
+  const supabase = createServiceClient()
+
+  const { data: bookings } = await supabase
+    .from('bookings')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  // Hent kundene separat
+  const customerIds = [...new Set((bookings ?? []).map(b => b.customer_id).filter(Boolean))]
+  const { data: customers } = customerIds.length
+    ? await supabase.from('customers').select('id, first_name, last_name, email').in('id', customerIds as string[])
+    : { data: [] }
+
+  const customerMap = new Map((customers ?? []).map(c => [c.id, c]))
+
+  return (
+    <div className="p-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-[#2B2B2B] tracking-tight">Bookinger</h1>
+        <p className="text-sm text-gray-500 mt-1">{bookings?.length ?? 0} totalt</p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
+        {!bookings?.length ? (
+          <div className="px-6 py-16 text-center text-gray-400 text-sm">
+            Ingen bookinger ennå
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-black/[0.06] bg-[#F8F7F4]">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Booking</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Kunde</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Periode</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
+                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Beløp</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-black/[0.04]">
+              {bookings.map(booking => {
+                const customer = booking.customer_id ? customerMap.get(booking.customer_id) : null
+                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
+                return (
+                  <tr key={booking.id} className="hover:bg-[#F8F7F4] transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="font-mono text-xs text-gray-400">#{booking.id.slice(0, 8)}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(booking.created_at).toLocaleDateString('nb-NO')}
+                      </p>
+                    </td>
+                    <td className="px-4 py-4">
+                      {customer ? (
+                        <div>
+                          <p className="font-medium text-[#2B2B2B]">
+                            {customer.first_name} {customer.last_name}
+                          </p>
+                          <p className="text-xs text-gray-400">{customer.email}</p>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 text-gray-600">
+                      {booking.start_date} → {booking.end_date}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.className}`}>
+                        {s.label}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right font-semibold text-[#2B2B2B]">
+                      {booking.total_amount} kr
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}
