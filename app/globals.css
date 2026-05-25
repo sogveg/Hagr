@@ -6,21 +6,21 @@
   --font-heading: 'Inter', system-ui, sans-serif;
   
   /* Colors - Primary */
-  --color-primary: #1B5C40;
-  --color-primary-dark: #134530;
-  --color-primary-light: #E4F0EA;
+  --color-primary: #3D6B51;
+  --color-primary-dark: #2C5040;
+  --color-primary-light: #E5EFEA;
 
   /* Colors - Secondary */
-  --color-sand: #EDE5D8;
-  --color-background: #FAF9F6;
-  --color-foreground: #111110;
-  --color-accent: #C49A3C;
+  --color-sand: #E4D8C5;
+  --color-background: #F0EAE0;
+  --color-foreground: #18160F;
+  --color-accent: #C4935A;
 
   /* Colors - Neutral */
-  --color-muted: #5C5852;
-  --color-muted-foreground: #9C9890;
-  --color-border: rgba(0, 0, 0, 0.07);
-  --color-border-strong: #C8C2B8;
+  --color-muted: #7A6E62;
+  --color-muted-foreground: #A89F93;
+  --color-border: rgba(0, 0, 0, 0.06);
+  --color-border-strong: #CEC3B4;
   
   /* Status Colors */
   --color-available: #8FA68B;

@@ -57,7 +57,7 @@ export default async function HomePage() {
                   key={loc.id}
                   href={`/${loc.slug}`}
                   size="lg"
-                  className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
+                  className="bg-[#F0E8D8] hover:bg-white text-[#18160F] gap-2"
                 >
                   Se utstyr i {loc.name} <span>&rarr;</span>
                 </Button>
@@ -66,7 +66,7 @@ export default async function HomePage() {
               <Button 
                 href="/bergen"
                 size="lg"
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
+                className="bg-[#F0E8D8] hover:bg-white text-[#18160F] gap-2"
               >
                 Se utstyr i Bergen <span>&rarr;</span>
               </Button>
