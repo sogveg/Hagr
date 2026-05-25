@@ -13,26 +13,21 @@ import { ProductCard } from '@/components/ui/product-card'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
-  
-  // Hent lokasjoner, kategorier og produkter
-  const locations = supabase 
-    ? (await supabase.from('locations').select('*').eq('active', true)).data 
-    : null
 
-  const categories = supabase
-    ? (await supabase.from('categories').select('*').eq('active', true).order('sort_order')).data
-    : null
+  const [
+    { data: locations },
+    { data: categories },
+    { data: products },
+  ] = await Promise.all([
+    supabase.from('locations').select('*').eq('active', true),
+    supabase.from('categories').select('*').eq('active', true).order('sort_order'),
+    supabase.from('products').select('*').eq('published', true).limit(6),
+  ])
 
-  const products = supabase
-    ? (await supabase
-        .from('products')
-        .select('*, categories(slug)')
-        .eq('published', true)
-        .limit(6)
-      ).data
-    : null
+  // Bygg lookup fra category_id -> slug for ProductCard
+  const categorySlugMap = new Map((categories ?? []).map(c => [c.id, c.slug]))
 
-  // Finn foerste aktive lokasjon for lenker
+  // Finn første aktive lokasjon for lenker
   const defaultLocation = locations?.[0]
 
   return (
@@ -123,7 +118,7 @@ export default async function HomePage() {
                   key={product.id} 
                   product={product} 
                   locationSlug={defaultLocation?.slug ?? 'bergen'}
-                  categorySlug={(product.categories as { slug: string } | null)?.slug ?? 'babyutstyr'}
+                  categorySlug={categorySlugMap.get(product.category_id ?? '') ?? 'babyutstyr'}
                 />
               ))}
             </div>
