@@ -5,7 +5,9 @@ import Link from 'next/link'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
-  const { data: locations } = await supabase.from('locations').select('*').eq('active', true)
+  const locations = supabase 
+    ? (await supabase.from('locations').select('*').eq('active', true)).data 
+    : null
 
   return (
     <main className="min-h-screen bg-[#F8F7F4]">
