@@ -1,124 +1,208 @@
 export const dynamic = 'force-dynamic'
 
-import { createServiceClient } from '@/lib/supabase-server'
 import Link from 'next/link'
+import { createServiceClient } from '@/lib/supabase-server'
+import { Header } from '@/components/layout/header'
+import { Footer } from '@/components/layout/footer'
+import { TrustBadges } from '@/components/ui/trust-badges'
+import { HowItWorks } from '@/components/ui/how-it-works'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CategoryCard } from '@/components/ui/category-card'
+import { ProductCard } from '@/components/ui/product-card'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
-  const { data: locations } = await supabase.from('locations').select('*').eq('active', true)
+  
+  // Hent lokasjoner, kategorier og produkter
+  const locations = supabase 
+    ? (await supabase.from('locations').select('*').eq('active', true)).data 
+    : null
+
+  const categories = supabase
+    ? (await supabase.from('categories').select('*').eq('active', true).order('sort_order')).data
+    : null
+
+  const products = supabase
+    ? (await supabase
+        .from('products')
+        .select('*, categories(slug)')
+        .eq('published', true)
+        .limit(6)
+      ).data
+    : null
+
+  // Finn foerste aktive lokasjon for lenker
+  const defaultLocation = locations?.[0]
 
   return (
-    <main className="min-h-screen bg-[#F8F7F4]">
-
-      {/* Header */}
-      <header className="bg-white border-b border-black/[0.06] sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="text-xl font-bold text-[#2B2B2B] tracking-tight">TinyRent</span>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 font-medium transition-colors">
-              Logg inn
-            </Link>
-            <Link href="/register" className="text-sm bg-[#2B2B2B] text-white px-4 py-2 rounded-full font-semibold hover:opacity-90 transition-opacity">
-              Kom i gang
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[var(--color-background)]">
+      <Header />
 
       {/* Hero */}
-      <section className="bg-[#2B2B2B] px-6 py-24 md:py-32">
-        <div className="max-w-6xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white/60 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A8BFA3] shrink-0" />
+      <section className="bg-[var(--color-foreground)] px-6 py-24 md:py-32">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/10 text-white/60 text-xs font-semibold px-3 py-1.5 rounded-[var(--radius-full)] mb-8 uppercase tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shrink-0" />
             Bergen, Norge
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-[-2.5px] mb-6 max-w-2xl">
-            Lei premium<br />babyutstyr
+          
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance">
+            Lei premium babyutstyr
           </h1>
+          
           <p className="text-lg text-white/50 mb-10 max-w-sm leading-relaxed">
-            Trygt, enkelt og bærekraftig. Vi leverer kvalitetsutstyr hjem til deg.
+            Trygt, enkelt og baerekraftig. Vi leverer kvalitetsutstyr hjem til deg.
           </p>
+          
           <div className="flex flex-wrap gap-3">
-            {locations?.map(loc => (
-              <Link
-                key={loc.id}
-                href={`/${loc.slug}`}
-                className="inline-flex items-center gap-2 bg-[#A8BFA3] hover:bg-[#8FA68B] text-white px-7 py-4 rounded-full text-base font-semibold transition-colors"
+            {locations && locations.length > 0 ? (
+              locations.map(loc => (
+                <Button 
+                  key={loc.id}
+                  href={`/${loc.slug}`}
+                  size="lg"
+                  className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
+                >
+                  Se utstyr i {loc.name} <span>&rarr;</span>
+                </Button>
+              ))
+            ) : (
+              <Button 
+                href="/bergen"
+                size="lg"
+                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
               >
-                Se utstyr i {loc.name} <span>→</span>
-              </Link>
-            ))}
+                Se utstyr i Bergen <span>&rarr;</span>
+              </Button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Trust bar */}
-      <section className="bg-white border-b border-black/[0.06] px-6 py-4">
-        <div className="max-w-6xl mx-auto flex flex-wrap gap-6 text-sm text-gray-400 font-medium">
-          {['Fri levering i Bergen', 'Vaskede og kontrollerte produkter', 'Fleksibel leieperiode', 'Depositum refunderes'].map(t => (
-            <span key={t} className="flex items-center gap-1.5">
-              <span className="text-[#A8BFA3]">✓</span> {t}
-            </span>
-          ))}
-        </div>
-      </section>
+      <TrustBadges />
 
-      {/* How it works */}
-      <section className="px-6 py-24">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-bold text-[#A8BFA3] uppercase tracking-widest mb-4">Enkelt og trygt</p>
-          <h2 className="text-4xl font-bold text-[#2B2B2B] tracking-tight mb-12">Slik fungerer det</h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {[
-              { num: '01', title: 'Velg produkt', text: 'Bla gjennom vårt utvalg av premium babyutstyr og velg leieperiode.' },
-              { num: '02', title: 'Vi leverer hjem', text: 'Vi planlegger levering til din adresse i Bergen — raskt og fleksibelt.' },
-              { num: '03', title: 'Returner enkelt', text: 'Vi henter når du er ferdig. Depositumet refunderes etter kontroll.' },
-            ].map(step => (
-              <div key={step.num} className="bg-white rounded-3xl p-8 border border-black/[0.06]">
-                <div className="text-5xl font-bold text-[#EAE4DA] mb-6 leading-none">{step.num}</div>
-                <h3 className="text-lg font-bold text-[#2B2B2B] mb-3">{step.title}</h3>
-                <p className="text-gray-500 leading-relaxed text-[15px]">{step.text}</p>
+      {/* Kategorier */}
+      {categories && categories.length > 0 && (
+        <section className="bg-[var(--color-background)] px-6 py-24">
+          <div className="max-w-[1200px] mx-auto">
+            <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
+              Kategorier
+            </p>
+            <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
+              Hva trenger du?
+            </h2>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {categories.map(category => (
+                <CategoryCard 
+                  key={category.id} 
+                  category={category} 
+                  locationSlug={defaultLocation?.slug ?? 'bergen'} 
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Populaere produkter */}
+      {products && products.length > 0 && (
+        <section className="bg-[var(--color-sand)] px-6 py-24">
+          <div className="max-w-[1200px] mx-auto">
+            <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
+              Populaert
+            </p>
+            <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
+              Populaere produkter
+            </h2>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {products.map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  locationSlug={defaultLocation?.slug ?? 'bergen'}
+                  categorySlug={(product.categories as { slug: string } | null)?.slug ?? 'babyutstyr'}
+                />
+              ))}
+            </div>
+
+            {defaultLocation && (
+              <div className="text-center mt-12">
+                <Button 
+                  href={`/${defaultLocation.slug}`}
+                  variant="outline"
+                  size="lg"
+                >
+                  Se alt utstyr
+                </Button>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      <HowItWorks />
 
       {/* Why TinyRent */}
-      <section className="bg-[#EAE4DA] px-6 py-24">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-bold text-[#8FA68B] uppercase tracking-widest mb-4">Fordeler</p>
-          <h2 className="text-4xl font-bold text-[#2B2B2B] tracking-tight mb-12">Hvorfor leie fra oss?</h2>
+      <section className="bg-[var(--color-background)] px-6 py-24">
+        <div className="max-w-[1200px] mx-auto">
+          <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
+            Fordeler
+          </p>
+          <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
+            Hvorfor leie fra oss?
+          </h2>
+          
           <div className="grid md:grid-cols-3 gap-5">
             {[
-              { emoji: '🧼', title: 'Grundig rengjort', text: 'Alt utstyr vaskes og kontrolleres grundig mellom hver leie.' },
-              { emoji: '🌱', title: 'Bærekraftig valg', text: 'Leie er mer miljøvennlig enn å kjøpe nytt til kortvarig bruk.' },
-              { emoji: '📦', title: 'Premium merker', text: 'Moonboon, Babyzen, Snüz — vi velger kun dokumenterte kvalitetsprodukter.' },
+              { 
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                  </svg>
+                ),
+                title: 'Grundig rengjort', 
+                text: 'Alt utstyr vaskes og kontrolleres grundig mellom hver leie.' 
+              },
+              { 
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                    <line x1="9" x2="9.01" y1="9" y2="9"/>
+                    <line x1="15" x2="15.01" y1="9" y2="9"/>
+                  </svg>
+                ),
+                title: 'Baerekraftig valg', 
+                text: 'Leie er mer miljovennlig enn a kjope nytt til kortvarig bruk.' 
+              },
+              { 
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m7.5 4.27 9 5.15"/>
+                    <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                    <path d="m3.3 7 8.7 5 8.7-5"/>
+                    <path d="M12 22V12"/>
+                  </svg>
+                ),
+                title: 'Premium merker', 
+                text: 'Moonboon, Babyzen, Snuz — vi velger kun dokumenterte kvalitetsprodukter.' 
+              },
             ].map(b => (
-              <div key={b.title} className="bg-white rounded-3xl p-8">
-                <div className="text-4xl mb-5">{b.emoji}</div>
-                <h3 className="text-lg font-bold text-[#2B2B2B] mb-2">{b.title}</h3>
-                <p className="text-gray-500 leading-relaxed text-sm">{b.text}</p>
-              </div>
+              <Card key={b.title}>
+                <div className="text-[var(--color-primary-dark)] mb-5">{b.icon}</div>
+                <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-2">{b.title}</h3>
+                <p className="text-[var(--color-muted)] leading-relaxed text-sm">{b.text}</p>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#2B2B2B] px-6 py-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <div className="text-base font-bold text-white mb-1">TinyRent</div>
-            <div className="text-sm text-white/40">Bergen, Norge</div>
-          </div>
-          <a href="mailto:hei@tinyrent.no" className="text-sm text-white/40 hover:text-white/70 transition-colors">
-            hei@tinyrent.no
-          </a>
-          <div className="text-sm text-white/25">© 2025 TinyRent</div>
-        </div>
-      </footer>
-
+      <Footer />
     </main>
   )
 }
