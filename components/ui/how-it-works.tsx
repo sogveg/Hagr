@@ -12,20 +12,20 @@ interface HowItWorksProps {
 }
 
 const defaultSteps: Step[] = [
-  { 
-    number: '01', 
-    title: 'Velg produkt', 
-    description: 'Bla gjennom vårt utvalg av premium babyutstyr og velg leieperiode.' 
+  {
+    number: '01',
+    title: 'Velg hva du trenger',
+    description: 'Bla gjennom utstyret, velg leieperiode og bestill direkte på nettet. Tar under 5 minutter.'
   },
-  { 
-    number: '02', 
-    title: 'Vi leverer hjem', 
-    description: 'Vi planlegger levering til din adresse i Bergen — raskt og fleksibelt.' 
+  {
+    number: '02',
+    title: 'Vi leverer på din dør',
+    description: 'Vi avtaler et tidspunkt som passer deg og leverer alt ferdig montert og klart til bruk.'
   },
-  { 
-    number: '03', 
-    title: 'Returner enkelt', 
-    description: 'Vi henter når du er ferdig. Depositumet refunderes etter kontroll.' 
+  {
+    number: '03',
+    title: 'Vi henter det tilbake',
+    description: 'Når du er ferdig henter vi utstyret. Depositumet refunderes etter kontroll — enkelt og trygt.'
   },
 ]
 
@@ -34,11 +34,14 @@ export function HowItWorks({ steps = defaultSteps, className = '' }: HowItWorksP
     <section className={`px-6 py-24 ${className}`}>
       <div className="max-w-[1200px] mx-auto">
         <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
-          Enkelt og trygt
-        </p>
-        <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
           Slik fungerer det
+        </p>
+        <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-3">
+          Tre enkle steg
         </h2>
+        <p className="text-[var(--color-muted)] mb-12 max-w-md">
+          Vi har gjort det så enkelt som mulig — fordi du allerede har nok å tenke på.
+        </p>
         
         <div className="grid md:grid-cols-3 gap-5">
           {steps.map((step) => (
