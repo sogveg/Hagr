@@ -12,6 +12,7 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@react-email/components": "^1.0.12",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/postcss": "^4.3.0",
@@ -22,6 +23,7 @@
     "postcss": "^8.5.15",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-email": "^6.3.3",
     "resend": "^6.12.3",
     "stripe": "^22.1.1",
     "tailwindcss": "^4.3.0",
