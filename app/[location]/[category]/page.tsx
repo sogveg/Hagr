@@ -13,8 +13,6 @@ export default async function CategoryPage({
   const { location: locationSlug, category: categorySlug } = await params
   const supabase = createServiceClient()
 
-  if (!supabase) notFound()
-
   const [{ data: location }, { data: category }] = await Promise.all([
     supabase.from('locations').select('*').eq('slug', locationSlug).single(),
     supabase.from('categories').select('*').eq('slug', categorySlug).single(),
@@ -22,31 +20,42 @@ export default async function CategoryPage({
 
   if (!location || !category) notFound()
 
-  const { data: products } = await supabase
+  const { data: allProducts } = await supabase
     .from('products')
-    .select('*, product_locations!inner(location_id)')
+    .select('*')
     .eq('category_id', category.id)
     .eq('published', true)
-    .eq('product_locations.location_id', location.id)
+
+  const productIds = (allProducts ?? []).map(p => p.id)
+
+  const { data: productLocations } = productIds.length
+    ? await supabase
+        .from('product_locations')
+        .select('product_id')
+        .eq('location_id', location.id)
+        .in('product_id', productIds)
+    : { data: [] }
+
+  const locationProductIds = new Set((productLocations ?? []).map(pl => pl.product_id))
+  const products = (allProducts ?? []).filter(p => locationProductIds.has(p.id))
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
 
-      {/* Category hero */}
       <section className="bg-[var(--color-foreground)] px-6 py-16">
         <div className="max-w-[1200px] mx-auto">
           <div className="mb-5">
-            <Breadcrumb 
+            <Breadcrumb
               variant="dark"
               items={[
                 { label: 'Hjem', href: '/' },
                 { label: location.name, href: `/${locationSlug}` },
                 { label: category.name },
-              ]} 
+              ]}
             />
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
             {category.name}
           </h1>
@@ -58,11 +67,10 @@ export default async function CategoryPage({
         </div>
       </section>
 
-      {/* Products */}
       <section className="px-6 py-16">
         <div className="max-w-[1200px] mx-auto">
-          {!products?.length ? (
-            <p className="text-[var(--color-muted)]">Ingen produkter tilgjengelig.</p>
+          {!products.length ? (
+            <p className="text-[var(--color-muted)]">Ingen produkter tilgjengelig i {location.name}.</p>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {products.map(product => (

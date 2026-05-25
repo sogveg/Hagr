@@ -9,8 +9,6 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
   const { location: locationSlug } = await params
   const supabase = createServiceClient()
 
-  if (!supabase) notFound()
-
   const { data: location } = await supabase
     .from('locations')
     .select('*')

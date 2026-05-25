@@ -14,8 +14,6 @@ export default async function ProductPage({
   const { location: locationSlug, category: categorySlug, product: productSlug } = await params
   const supabase = createServiceClient()
 
-  if (!supabase) notFound()
-
   const [{ data: location }, { data: category }, { data: product }] = await Promise.all([
     supabase.from('locations').select('*').eq('slug', locationSlug).single(),
     supabase.from('categories').select('*').eq('slug', categorySlug).single(),
