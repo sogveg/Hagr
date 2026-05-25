@@ -43,7 +43,7 @@ export function HowItWorks({ steps = defaultSteps, className = '' }: HowItWorksP
         <div className="grid md:grid-cols-3 gap-5">
           {steps.map((step) => (
             <Card key={step.number}>
-              <div className="text-5xl font-bold text-[var(--color-sand)] mb-6 leading-none">
+              <div className="text-5xl font-bold text-[var(--color-primary-light)] mb-6 leading-none">
                 {step.number}
               </div>
               <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-3">
