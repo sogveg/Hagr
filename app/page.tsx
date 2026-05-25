@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import Link from 'next/link'
+import Image from 'next/image'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -32,18 +32,30 @@ export default async function HomePage() {
       <Header />
 
       {/* Hero */}
-      <section className="bg-[var(--color-sand)] px-6 py-20 md:py-28">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[var(--color-foreground)]/8 text-[var(--color-foreground)] text-xs font-semibold px-3 py-1.5 rounded-[var(--radius-full)] mb-8 uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shrink-0" />
+      <section className="relative bg-[var(--color-foreground)] px-6 py-24 md:py-36 overflow-hidden">
+        {/* Bakgrunnsbilde — legg hero.jpg i /public/images/ */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero.jpg"
+            alt="Moonboon hengekøye"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+          <div className="absolute inset-0 bg-[#18160F]/65" />
+        </div>
+
+        <div className="relative max-w-[1200px] mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/10 text-white/70 text-xs font-semibold px-3 py-1.5 rounded-[var(--radius-full)] mb-8 uppercase tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary-light)] shrink-0" />
             Bergen, Norge
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-[var(--color-foreground)] leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance">
+          <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance">
             Mer tid med babyen. Mindre styr.
           </h1>
 
-          <p className="text-lg text-[var(--color-muted)] mb-10 max-w-md leading-relaxed">
+          <p className="text-lg text-white/60 mb-10 max-w-md leading-relaxed">
             Grundig vasket babyutstyr fra merker du kjenner — hent selv eller få det levert hjem til deg i Bergen.
           </p>
 
@@ -54,12 +66,17 @@ export default async function HomePage() {
                   key={loc.id}
                   href={`/${loc.slug}`}
                   size="lg"
+                  className="bg-white hover:bg-[var(--color-sand)] text-[var(--color-foreground)] gap-2"
                 >
                   Se utstyr i {loc.name} <span>&rarr;</span>
                 </Button>
               ))
             ) : (
-              <Button href="/bergen" size="lg">
+              <Button
+                href="/bergen"
+                size="lg"
+                className="bg-white hover:bg-[var(--color-sand)] text-[var(--color-foreground)] gap-2"
+              >
                 Se utstyr i Bergen <span>&rarr;</span>
               </Button>
             )}
