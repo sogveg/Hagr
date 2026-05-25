@@ -2,7 +2,7 @@ import { render } from '@react-email/components'
 import { resend } from '@/lib/resend'
 import { BookingConfirmedEmail } from './booking-confirmed'
 
-const FROM = 'TinyRent <onboarding@resend.dev>'
+const FROM = 'TinyRent <hei@tinyrent.no>'
 const BASE_URL = process.env.NEXT_PUBLIC_URL ?? 'https://tinyrent-rouge.vercel.app'
 
 export async function sendBookingConfirmed(params: {
