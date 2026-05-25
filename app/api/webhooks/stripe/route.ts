@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { createServiceClient } from '@/lib/supabase-server'
+import { sendBookingConfirmed } from '@/lib/emails/send'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -57,7 +58,38 @@ export async function POST(req: Request) {
           metadata: { stripe_session_id: session.id },
         })
 
-        // TODO: send bekreftelses-e-post via Resend
+        // Hent booking, kunde og produkt for å sende e-post
+        const { data: booking } = await supabase
+          .from('bookings')
+          .select('start_date, end_date, total_amount, deposit_amount, customer_id')
+          .eq('id', bookingId)
+          .single()
+
+        const { data: bookingItem } = await supabase
+          .from('booking_items')
+          .select('product_id')
+          .eq('booking_id', bookingId)
+          .single()
+
+        if (booking?.customer_id && bookingItem?.product_id) {
+          const [{ data: customer }, { data: product }] = await Promise.all([
+            supabase.from('customers').select('first_name, last_name, email').eq('id', booking.customer_id).single(),
+            supabase.from('products').select('name').eq('id', bookingItem.product_id).single(),
+          ])
+
+          if (customer && product) {
+            await sendBookingConfirmed({
+              to: customer.email,
+              customerName: [customer.first_name, customer.last_name].filter(Boolean).join(' ') || 'der',
+              bookingId,
+              productName: product.name,
+              startDate: booking.start_date,
+              endDate: booking.end_date,
+              totalAmount: booking.total_amount,
+              depositAmount: booking.deposit_amount,
+            })
+          }
+        }
         break
       }
 
