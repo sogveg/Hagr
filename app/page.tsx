@@ -8,12 +8,32 @@ import { TrustBadges } from '@/components/ui/trust-badges'
 import { HowItWorks } from '@/components/ui/how-it-works'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { CategoryCard } from '@/components/ui/category-card'
+import { ProductCard } from '@/components/ui/product-card'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
+  
+  // Hent lokasjoner, kategorier og produkter
   const locations = supabase 
     ? (await supabase.from('locations').select('*').eq('active', true)).data 
     : null
+
+  const categories = supabase
+    ? (await supabase.from('categories').select('*').eq('active', true).order('sort_order')).data
+    : null
+
+  const products = supabase
+    ? (await supabase
+        .from('products')
+        .select('*, categories(slug)')
+        .eq('published', true)
+        .limit(6)
+      ).data
+    : null
+
+  // Finn foerste aktive lokasjon for lenker
+  const defaultLocation = locations?.[0]
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
@@ -36,25 +56,97 @@ export default async function HomePage() {
           </p>
           
           <div className="flex flex-wrap gap-3">
-            {locations?.map(loc => (
+            {locations && locations.length > 0 ? (
+              locations.map(loc => (
+                <Button 
+                  key={loc.id}
+                  href={`/${loc.slug}`}
+                  size="lg"
+                  className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
+                >
+                  Se utstyr i {loc.name} <span>&rarr;</span>
+                </Button>
+              ))
+            ) : (
               <Button 
-                key={loc.id}
-                href={`/${loc.slug}`}
+                href="/bergen"
                 size="lg"
                 className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white gap-2"
               >
-                Se utstyr i {loc.name} <span>&rarr;</span>
+                Se utstyr i Bergen <span>&rarr;</span>
               </Button>
-            ))}
+            )}
           </div>
         </div>
       </section>
 
       <TrustBadges />
+
+      {/* Kategorier */}
+      {categories && categories.length > 0 && (
+        <section className="bg-[var(--color-background)] px-6 py-24">
+          <div className="max-w-[1200px] mx-auto">
+            <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
+              Kategorier
+            </p>
+            <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
+              Hva trenger du?
+            </h2>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {categories.map(category => (
+                <CategoryCard 
+                  key={category.id} 
+                  category={category} 
+                  locationSlug={defaultLocation?.slug ?? 'bergen'} 
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Populaere produkter */}
+      {products && products.length > 0 && (
+        <section className="bg-[var(--color-sand)] px-6 py-24">
+          <div className="max-w-[1200px] mx-auto">
+            <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
+              Populaert
+            </p>
+            <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12">
+              Populaere produkter
+            </h2>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {products.map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product} 
+                  locationSlug={defaultLocation?.slug ?? 'bergen'}
+                  categorySlug={(product.categories as { slug: string } | null)?.slug ?? 'babyutstyr'}
+                />
+              ))}
+            </div>
+
+            {defaultLocation && (
+              <div className="text-center mt-12">
+                <Button 
+                  href={`/${defaultLocation.slug}`}
+                  variant="outline"
+                  size="lg"
+                >
+                  Se alt utstyr
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <HowItWorks />
 
       {/* Why TinyRent */}
-      <section className="bg-[var(--color-sand)] px-6 py-24">
+      <section className="bg-[var(--color-background)] px-6 py-24">
         <div className="max-w-[1200px] mx-auto">
           <p className="text-xs font-bold text-[var(--color-primary-dark)] uppercase tracking-widest mb-4">
             Fordeler
