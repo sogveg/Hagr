@@ -44,7 +44,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-lg text-[var(--color-muted)] mb-10 max-w-md leading-relaxed">
-            Vi leverer grundig vasket babyutstyr fra merker du kjenner, rett hjem til deg i Bergen. Du bestiller — vi ordner resten.
+            Grundig vasket babyutstyr fra merker du kjenner — hent selv eller få det levert hjem til deg i Bergen.
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -170,8 +170,8 @@ export default async function HomePage() {
                     <polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
                 ),
-                title: 'Levering rett hjem til deg',
-                text: 'Vi planlegger levering som passer deg. Ingen henting i butikk — bare ring på døra og vi ordner det.'
+                title: 'Hent selv eller få det levert',
+                text: 'Du velger hva som passer best. Hent på avtalt sted, eller få utstyret kjørt hjem til deg — vi tilpasser oss.'
               },
               {
                 icon: (

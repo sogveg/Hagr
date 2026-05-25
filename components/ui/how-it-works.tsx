@@ -19,8 +19,8 @@ const defaultSteps: Step[] = [
   },
   {
     number: '02',
-    title: 'Vi leverer på din dør',
-    description: 'Vi avtaler et tidspunkt som passer deg og leverer alt ferdig montert og klart til bruk.'
+    title: 'Hent eller få levert',
+    description: 'Velg selv: hent på avtalt sted, eller få utstyret kjørt hjem til deg. Vi avtaler tidspunkt som passer.'
   },
   {
     number: '03',

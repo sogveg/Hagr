@@ -4,7 +4,7 @@ interface TrustBadgesProps {
 
 const badges = [
   { icon: '✓', label: 'Grundig vasket og desinfisert' },
-  { icon: '✓', label: 'Levering hjem til deg' },
+  { icon: '✓', label: 'Hent selv eller få det levert' },
   { icon: '✓', label: 'Fleksibel leieperiode' },
   { icon: '✓', label: 'Depositum tilbake etter retur' },
 ]
