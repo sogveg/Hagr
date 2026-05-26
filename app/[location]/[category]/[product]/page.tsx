@@ -11,7 +11,7 @@ import { ProductSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
 ): Promise<Metadata> {
-  const { location: locationSlug, product: productSlug } = await params
+  const { location: locationSlug, category: categorySlug, product: productSlug } = await params
   const supabase = createServiceClient()
   const [{ data: location }, { data: product }] = await Promise.all([
     supabase.from('locations').select('name').eq('slug', locationSlug).single(),
