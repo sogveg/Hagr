@@ -2,8 +2,9 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 export const metadata = {
-  title: 'Personvern | TinyRent',
-  description: 'Personvernerklæring for TinyRent — slik behandler vi dine personopplysninger.',
+  title: 'Personvernerklæring',
+  description: 'Personvernerklæring for TinyRent — slik behandler vi dine personopplysninger i henhold til GDPR.',
+  robots: { index: true, follow: true },
 }
 
 const sections = [

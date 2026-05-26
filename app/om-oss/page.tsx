@@ -3,8 +3,13 @@ import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
 
 export const metadata = {
-  title: 'Om oss | TinyRent',
-  description: 'Lær mer om TinyRent — premium babyutstyr til leie i Bergen.',
+  title: 'Om oss',
+  description: 'Lær mer om TinyRent — vi gjør livet med baby litt enklere med premium babyutstyr til leie i Bergen.',
+  openGraph: {
+    title: 'Om oss | TinyRent',
+    description: 'Lær mer om TinyRent — premium babyutstyr til leie i Bergen.',
+    images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent — Om oss' }],
+  },
 }
 
 export default function OmOssPage() {

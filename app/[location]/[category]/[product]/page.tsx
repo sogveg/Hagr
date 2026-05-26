@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ProductSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
@@ -18,9 +19,24 @@ export async function generateMetadata(
   ])
   const locName = location?.name ?? locationSlug
   const prodName = product?.name ?? productSlug
+  const categoryImages: Record<string, string> = {
+    vogner: '/images/products/vogner.jpg',
+    soving: '/images/products/soving.jpg',
+    babyutstyr: '/images/products/babyutstyr.jpg',
+    leker: '/images/products/babyutstyr.jpg',
+  }
+  const ogImage = categoryImages[categorySlug] ?? '/images/hero.jpg'
+
   return {
-    title: `Lei ${prodName} i ${locName} | TinyRent`,
+    title: `Lei ${prodName} i ${locName}`,
     description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket og desinfisert. Hent selv eller få levert hjem.`,
+    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}/${categorySlug}/${productSlug}` },
+    openGraph: {
+      title: `Lei ${prodName} i ${locName} | TinyRent`,
+      description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${prodName} — TinyRent` }],
+      type: 'website',
+    },
   }
 }
 
@@ -51,6 +67,25 @@ export default async function ProductPage({
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
+      <ProductSchema
+        name={product.name}
+        description={product.short_description}
+        brand={product.brand}
+        imageUrl={product.image_url}
+        priceDay={product.price_day}
+        priceWeek={product.price_week}
+        priceMonth={product.price_month}
+        isAvailable={isAvailable}
+        slug={productSlug}
+        locationSlug={locationSlug}
+        categorySlug={categorySlug}
+      />
+      <BreadcrumbSchema items={[
+        { name: 'Hjem', url: 'https://www.tinyrent.no' },
+        { name: location.name, url: `https://www.tinyrent.no/${locationSlug}` },
+        { name: category.name, url: `https://www.tinyrent.no/${locationSlug}/${categorySlug}` },
+        { name: product.name },
+      ]} />
       <Header />
 
       <div className="max-w-[1200px] mx-auto px-6 py-10 pb-24">

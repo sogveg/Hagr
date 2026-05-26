@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CategoryCard } from '@/components/ui/category-card'
 import { ProductCard } from '@/components/ui/product-card'
+import { OrganizationSchema } from '@/components/seo/json-ld'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
@@ -28,6 +29,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
+      <OrganizationSchema />
       <Header />
 
       {/* Hero */}

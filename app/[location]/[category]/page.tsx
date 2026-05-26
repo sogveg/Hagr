@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { ProductCard } from '@/components/ui/product-card'
+import { BreadcrumbSchema } from '@/components/seo/json-ld'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string }> }
@@ -18,9 +19,23 @@ export async function generateMetadata(
   ])
   const locName = location?.name ?? locationSlug
   const catName = category?.name ?? categorySlug
+  const categoryImages: Record<string, string> = {
+    vogner: '/images/products/vogner.jpg',
+    soving: '/images/products/soving.jpg',
+    babyutstyr: '/images/products/babyutstyr.jpg',
+    leker: '/images/products/babyutstyr.jpg',
+  }
+  const ogImage = categoryImages[categorySlug] ?? '/images/hero.jpg'
+
   return {
-    title: `${catName} til leie i ${locName} | TinyRent`,
+    title: `${catName} til leie i ${locName}`,
     description: category?.description ?? `Lei ${catName.toLowerCase()} i ${locName}. Grundig vasket, hent selv eller få levert hjem.`,
+    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}/${categorySlug}` },
+    openGraph: {
+      title: `${catName} til leie i ${locName} | TinyRent`,
+      description: category?.description ?? `Lei ${catName.toLowerCase()} i ${locName}.`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${catName} — TinyRent ${locName}` }],
+    },
   }
 }
 
@@ -60,6 +75,11 @@ export default async function CategoryPage({
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
+      <BreadcrumbSchema items={[
+        { name: 'Hjem', url: 'https://www.tinyrent.no' },
+        { name: location.name, url: `https://www.tinyrent.no/${locationSlug}` },
+        { name: category.name },
+      ]} />
       <Header />
 
       <section className="bg-[var(--color-foreground)] px-6 py-16">

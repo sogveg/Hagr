@@ -15,8 +15,14 @@ export async function generateMetadata(
   const { data: location } = await supabase.from('locations').select('name').eq('slug', locationSlug).single()
   const name = location?.name ?? locationSlug
   return {
-    title: `Babyutstyr til leie i ${name} | TinyRent`,
+    title: `Babyutstyr til leie i ${name}`,
     description: `Lei premium babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
+    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}` },
+    openGraph: {
+      title: `Babyutstyr til leie i ${name} | TinyRent`,
+      description: `Lei premium babyutstyr i ${name}. Grundig vasket, hent selv eller få levert.`,
+      images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: `TinyRent ${name}` }],
+    },
   }
 }
 

@@ -2,8 +2,9 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 export const metadata = {
-  title: 'Leievilkår | TinyRent',
-  description: 'Leievilkår for TinyRent — les betingelsene for leie av babyutstyr.',
+  title: 'Leievilkår',
+  description: 'Leievilkår for TinyRent — les betingelsene for leie av babyutstyr i Bergen.',
+  robots: { index: true, follow: true },
 }
 
 const sections = [
