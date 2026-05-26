@@ -33,21 +33,37 @@ export default async function HomePage() {
       <Header />
 
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ backgroundColor: '#18160F', minHeight: '560px' }}>
-        <div className="absolute inset-0" style={{ backgroundImage: 'url(/images/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
-        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(24,22,15,0.72)' }} />
+      <section style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#18160F', minHeight: '580px' }}>
+        {/* Background image */}
+        <img
+          src="/images/hero.jpg"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            zIndex: 0,
+          }}
+        />
+        {/* Dark overlay */}
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(24,22,15,0.70)', zIndex: 1 }} />
 
-        <div className="relative z-10 px-6 py-24 md:py-36 max-w-[1200px] mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white/70 text-xs font-semibold px-3 py-1.5 rounded-[var(--radius-full)] mb-8 uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary-light)] shrink-0" />
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 2 }} className="px-6 py-24 md:py-36 max-w-[1200px] mx-auto">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.70)', fontSize: '11px', fontWeight: 700, padding: '6px 12px', borderRadius: '999px', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#EBF0E7', flexShrink: 0 }} />
             Bergen, Norge
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance">
+          <h1 className="text-5xl md:text-7xl font-bold leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance" style={{ color: '#fff' }}>
             Mer tid med babyen. Mindre styr.
           </h1>
 
-          <p className="text-lg text-white/60 mb-10 max-w-md leading-relaxed">
+          <p className="text-lg mb-10 max-w-md leading-relaxed" style={{ color: 'rgba(255,255,255,0.60)' }}>
             Grundig vasket babyutstyr fra merker du kjenner — hent selv eller få det levert hjem til deg i Bergen.
           </p>
 
