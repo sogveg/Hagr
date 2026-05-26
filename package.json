@@ -28,5 +28,8 @@
     "stripe": "^22.1.1",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2"
   }
 }
