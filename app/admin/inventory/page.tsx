@@ -55,7 +55,7 @@ export default async function AdminInventory() {
 
       <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
         {!items?.length ? (
-          <div className="px-6 py-16 text-center text-gray-400 text-sm">Ingen lagereenheter</div>
+          <div className="px-6 py-16 text-center text-gray-400 text-sm">Ingen lagerenheter registrert</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
