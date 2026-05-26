@@ -78,12 +78,12 @@ export default async function AccountPage() {
 
           {activeBookings.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[var(--color-border)] px-6 py-12 text-center">
-              <p className="text-[var(--color-muted)] text-sm mb-4">Du har ingen aktive leieforhold.</p>
+              <p className="text-[var(--color-muted)] text-sm mb-4">Du har ingen aktive leieforhold ennå.</p>
               <Link
                 href="/bergen"
-                className="text-sm font-semibold text-[var(--color-primary)] hover:underline"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary-dark)] hover:underline"
               >
-                Se tilgjengelig utstyr &rarr;
+                Se tilgjengelig utstyr <span>&rarr;</span>
               </Link>
             </div>
           ) : (

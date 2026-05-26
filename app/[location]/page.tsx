@@ -1,9 +1,24 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { TrustBadges } from '@/components/ui/trust-badges'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { CategoryCard } from '@/components/ui/category-card'
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ location: string }> }
+): Promise<Metadata> {
+  const { location: locationSlug } = await params
+  const supabase = createServiceClient()
+  const { data: location } = await supabase.from('locations').select('name').eq('slug', locationSlug).single()
+  const name = location?.name ?? locationSlug
+  return {
+    title: `Babyutstyr til leie i ${name} | TinyRent`,
+    description: `Lei premium babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
+  }
+}
 
 export default async function LocationPage({ params }: { params: Promise<{ location: string }> }) {
   const { location: locationSlug } = await params
@@ -42,13 +57,15 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-            Hva leter du etter?
+            Hva trenger du?
           </h1>
           <p className="text-white/40 mt-3 text-base">
-            Velg kategori for a se tilgjengelig utstyr
+            Velg kategori for å se tilgjengelig utstyr i {location.name}
           </p>
         </div>
       </section>
+
+      <TrustBadges />
 
       {/* Categories */}
       <section className="px-6 py-16">

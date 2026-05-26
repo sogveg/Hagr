@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
 
       {sent ? (
         <p className="text-[15px] text-[var(--color-muted)] leading-relaxed">
-          Vi har sendt en e-post til <strong className="text-[var(--color-foreground)]">{email}</strong> med en lenke for a nullstille passordet ditt.
+          Vi har sendt en e-post til <strong className="text-[var(--color-foreground)]">{email}</strong> med en lenke for å nullstille passordet ditt.
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">

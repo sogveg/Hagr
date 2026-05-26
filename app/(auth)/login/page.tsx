@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     const supabase = createClient()
     if (!supabase) {
-      setError('Kunne ikke koble til. Prov igjen.')
+      setError('Kunne ikke koble til. Prøv igjen.')
       setLoading(false)
       return
     }
@@ -75,7 +75,7 @@ export default function LoginPage() {
       </form>
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
-        Ikke kunde enna?{' '}
+        Ikke kunde ennå?{' '}
         <Link href="/register" className="text-[var(--color-primary-dark)] font-medium hover:underline">
           Opprett konto
         </Link>

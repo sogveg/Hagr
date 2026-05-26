@@ -2,19 +2,31 @@ import Link from 'next/link'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] p-6">
-      <div className="w-full max-w-[420px]">
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: 'var(--color-background)' }}>
+      {/* Subtle decorative circle */}
+      <div
+        className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-20 pointer-events-none"
+        style={{ background: 'radial-gradient(circle, var(--color-sand) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}
+      />
+
+      <div className="w-full max-w-[420px] relative">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <h1 className="text-[28px] font-bold text-[var(--color-foreground)]">
+          <Link href="/" className="inline-block group">
+            <h1 className="text-[28px] font-bold text-[var(--color-foreground)] tracking-tight">
               TinyRent
             </h1>
-            <p className="text-sm text-[var(--color-primary-dark)] mt-1">
-              Lei premium babyutstyr i Bergen
+            <p className="text-sm text-[var(--color-primary-dark)] mt-0.5 font-medium">
+              Premium babyutstyr — Bergen
             </p>
           </Link>
         </div>
+
         {children}
+
+        <p className="text-center text-xs text-[var(--color-muted-foreground)] mt-8">
+          &copy; {new Date().getFullYear()} TinyRent · Bergen, Norge
+        </p>
       </div>
     </div>
   )

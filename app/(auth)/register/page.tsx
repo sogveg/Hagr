@@ -24,7 +24,7 @@ export default function RegisterPage() {
 
     const supabase = createClient()
     if (!supabase) {
-      setError('Kunne ikke koble til. Prov igjen.')
+      setError('Kunne ikke koble til. Prøv igjen.')
       setLoading(false)
       return
     }
@@ -111,7 +111,7 @@ export default function RegisterPage() {
       </form>
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
-        Har du konto fra for?{' '}
+        Har du konto fra før?{' '}
         <Link href="/login" className="text-[var(--color-primary-dark)] font-medium hover:underline">
           Logg inn
         </Link>

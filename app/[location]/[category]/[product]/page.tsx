@@ -1,10 +1,28 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ location: string; category: string; product: string }> }
+): Promise<Metadata> {
+  const { location: locationSlug, product: productSlug } = await params
+  const supabase = createServiceClient()
+  const [{ data: location }, { data: product }] = await Promise.all([
+    supabase.from('locations').select('name').eq('slug', locationSlug).single(),
+    supabase.from('products').select('name, short_description').eq('slug', productSlug).single(),
+  ])
+  const locName = location?.name ?? locationSlug
+  const prodName = product?.name ?? productSlug
+  return {
+    title: `Lei ${prodName} i ${locName} | TinyRent`,
+    description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket og desinfisert. Hent selv eller få levert hjem.`,
+  }
+}
 
 export default async function ProductPage({
   params,
@@ -50,24 +68,24 @@ export default async function ProductPage({
         {/* Product layout */}
         <div className="grid lg:grid-cols-[1fr_440px] gap-12 items-start">
           {/* Left — image */}
-          <div className="bg-[var(--color-sand)] rounded-[var(--radius-xl)] aspect-square flex items-center justify-center">
-            {product.image_url ? (
-              <img 
-                src={product.image_url} 
-                alt={product.name}
-                className="w-full h-full object-cover rounded-[var(--radius-xl)]"
-              />
-            ) : (
-              <div className="text-[var(--color-muted)] opacity-40">
-                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m7.5 4.27 9 5.15"/>
-                  <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-                  <path d="m3.3 7 8.7 5 8.7-5"/>
-                  <path d="M12 22V12"/>
-                </svg>
+          {(() => {
+            const categoryImages: Record<string, string> = {
+              vogner:     '/images/products/vogner.jpg',
+              soving:     '/images/products/soving.jpg',
+              babyutstyr: '/images/products/babyutstyr.jpg',
+              leker:      '/images/products/babyutstyr.jpg',
+            }
+            const imageSrc = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
+            return (
+              <div className="rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)]">
+                <img
+                  src={imageSrc}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            )}
-          </div>
+            )
+          })()}
 
           {/* Right — info */}
           <div className="lg:sticky lg:top-24">
@@ -90,7 +108,7 @@ export default async function ProductPage({
             {/* Availability */}
             <div className="mb-6">
               <Badge variant={isAvailable ? 'available' : 'cancelled'}>
-                {isAvailable ? `Tilgjengelig i ${location.name}` : 'Ikke tilgjengelig na'}
+                {isAvailable ? `Tilgjengelig i ${location.name}` : 'Ikke tilgjengelig nå'}
               </Badge>
             </div>
 
@@ -110,7 +128,7 @@ export default async function ProductPage({
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-[var(--color-muted)]">Per uke</span>
                     <span className="text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-wide bg-[var(--color-primary-light)] px-2 py-0.5 rounded-[var(--radius-full)]">
-                      Mest populaer
+                      Mest populær
                     </span>
                   </div>
                   <span className="text-lg font-bold text-[var(--color-foreground)]">
@@ -121,7 +139,7 @@ export default async function ProductPage({
               
               {product.price_month && (
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
-                  <span className="text-sm text-[var(--color-muted)]">Per maned</span>
+                  <span className="text-sm text-[var(--color-muted)]">Per måned</span>
                   <span className="text-base font-semibold text-[var(--color-foreground)]">
                     {product.price_month} kr
                   </span>
@@ -143,17 +161,33 @@ export default async function ProductPage({
             {/* CTA */}
             {isAvailable ? (
               <Button href="/register" fullWidth size="lg" className="rounded-[var(--radius-lg)] mb-3">
-                Lei na
+                Lei nå
               </Button>
             ) : (
               <div className="flex items-center justify-center w-full bg-gray-100 text-[var(--color-muted)] rounded-[var(--radius-lg)] py-4 text-base font-semibold mb-3">
-                Ikke tilgjengelig
+                Ikke tilgjengelig nå
               </div>
             )}
 
-            <p className="text-center text-xs text-[var(--color-muted-foreground)]">
-              Minimum {product.minimum_rental_days} dagers leie
-            </p>
+            {product.minimum_rental_days > 0 && (
+              <p className="text-center text-xs text-[var(--color-muted-foreground)]">
+                Minimum {product.minimum_rental_days} dagers leie
+              </p>
+            )}
+
+            {/* Trust micro-copy */}
+            <div className="mt-5 pt-5 border-t border-[var(--color-border)] flex flex-col gap-2">
+              {[
+                'Grundig vasket og desinfisert',
+                'Hent selv eller få det levert',
+                'Depositum refunderes ved retur',
+              ].map(t => (
+                <p key={t} className="text-xs text-[var(--color-muted)] flex items-center gap-2">
+                  <span className="text-[var(--color-primary)] font-bold text-sm">✓</span>
+                  {t}
+                </p>
+              ))}
+            </div>
           </div>
         </div>
 
