@@ -11,7 +11,7 @@ const badges = [
 
 export function TrustBadges({ className = '' }: TrustBadgesProps) {
   return (
-    <section className={`bg-[var(--color-sand)] border-b border-[var(--color-border)] px-6 py-4 ${className}`}>
+    <section className={`border-b border-[var(--color-border)] px-6 py-4 ${className}`} style={{ backgroundColor: 'var(--color-sand)' }}>
       <div className="max-w-[1200px] mx-auto flex flex-wrap gap-x-6 gap-y-2 justify-center md:justify-start">
         {badges.map(({ icon, label }) => (
           <span

@@ -1,6 +1,5 @@
 export const dynamic = 'force-dynamic'
 
-import Image from 'next/image'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -32,20 +31,11 @@ export default async function HomePage() {
       <Header />
 
       {/* Hero */}
-      <section className="relative bg-[var(--color-foreground)] px-6 py-24 md:py-36 overflow-hidden">
-        {/* Bakgrunnsbilde — legg hero.jpg i /public/images/ */}
-        <div className="absolute inset-0">
-          <Image
-            src="/images/hero.jpg"
-            alt="Moonboon hengekøye"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-[#18160F]/65" />
-        </div>
+      <section className="relative overflow-hidden" style={{ backgroundColor: '#18160F', minHeight: '560px' }}>
+        <div className="absolute inset-0" style={{ backgroundImage: 'url(/images/hero.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        <div className="absolute inset-0" style={{ backgroundColor: 'rgba(24,22,15,0.72)' }} />
 
-        <div className="relative max-w-[1200px] mx-auto">
+        <div className="relative z-10 px-6 py-24 md:py-36 max-w-[1200px] mx-auto">
           <div className="inline-flex items-center gap-2 bg-white/10 text-white/70 text-xs font-semibold px-3 py-1.5 rounded-[var(--radius-full)] mb-8 uppercase tracking-widest">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary-light)] shrink-0" />
             Bergen, Norge

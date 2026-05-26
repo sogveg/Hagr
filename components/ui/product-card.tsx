@@ -16,10 +16,18 @@ interface ProductCardProps {
   categorySlug: string
 }
 
+const categoryImages: Record<string, string> = {
+  vogner:     '/images/products/vogner.jpg',
+  soving:     '/images/products/soving.jpg',
+  babyutstyr: '/images/products/babyutstyr.jpg',
+  leker:      '/images/products/babyutstyr.jpg',
+}
+
 export function ProductCard({ product, locationSlug, categorySlug }: ProductCardProps) {
   const price = product.price_week ?? product.price_day
   const priceLabel = product.price_week ? '/ uke' : '/ dag'
-  
+  const imageSrc = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
+
   return (
     <Link
       href={`/${locationSlug}/${categorySlug}/${product.slug}`}
@@ -27,23 +35,12 @@ export function ProductCard({ product, locationSlug, categorySlug }: ProductCard
     >
       <Card hover padding="sm" className="overflow-hidden p-0">
         {/* Image */}
-        <div className="h-52 bg-[var(--color-sand)] flex items-center justify-center">
-          {product.image_url ? (
-            <img 
-              src={product.image_url} 
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="text-6xl opacity-40">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m7.5 4.27 9 5.15"/>
-                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-                <path d="m3.3 7 8.7 5 8.7-5"/>
-                <path d="M12 22V12"/>
-              </svg>
-            </div>
-          )}
+        <div className="h-56 overflow-hidden">
+          <img
+            src={imageSrc}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         </div>
 
         <div className="p-6">
