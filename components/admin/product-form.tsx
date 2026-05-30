@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductInput } from '@/app/actions/admin'
+import { createClient } from '@/lib/supabase-browser'
 
 interface Category { id: string; name: string }
 interface Location { id: string; name: string }
@@ -61,10 +62,38 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
   const [deposit,    setDeposit]    = useState(product?.deposit_amount?.toString()      ?? '500')
   const [minDays,    setMinDays]    = useState(product?.minimum_rental_days?.toString() ?? '1')
   const [published,  setPublished]  = useState(product?.published ?? false)
-  const [imageUrl,   setImageUrl]   = useState(product?.image_url ?? '')
+  const [imageUrl,     setImageUrl]     = useState(product?.image_url ?? '')
+  const [uploading,    setUploading]    = useState(false)
+  const [uploadError,  setUploadError]  = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [categoryId, setCategoryId] = useState(categories[0]?.id ?? '')
   const [locationId, setLocationId] = useState(locations[0]?.id  ?? '')
   const [unitCount,  setUnitCount]  = useState('1')
+
+  async function handleImageUpload(file: File) {
+    setUploading(true)
+    setUploadError(null)
+    try {
+      const supabase = createClient()
+      if (!supabase) throw new Error('Supabase ikke tilgjengelig')
+
+      const ext  = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+      const { error: uploadErr } = await supabase.storage
+        .from('product-images')
+        .upload(path, file, { upsert: false, contentType: file.type })
+
+      if (uploadErr) throw uploadErr
+
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+      setImageUrl(data.publicUrl)
+    } catch (err: any) {
+      setUploadError(err?.message ?? 'Opplasting feilet')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   function handleNameChange(value: string) {
     setName(value)
@@ -191,17 +220,58 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
       <section className="bg-white rounded-2xl border border-black/[0.06] p-6">
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">Bilde</h2>
 
-        <label className={labelCls}>Bilde-URL eller sti</label>
-        <input className={inputCls} value={imageUrl}
-          onChange={e => setImageUrl(e.target.value)}
-          placeholder="/images/products/produktnavn.jpg" />
-
-        {imageUrl && (
-          <div className="mt-3 w-28 h-28 rounded-xl overflow-hidden bg-gray-100 border border-black/[0.06]">
-            <img src={imageUrl} alt="" className="w-full h-full object-cover"
-              onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+        <div className="flex gap-4 items-start">
+          {/* Forhåndsvisning */}
+          <div
+            className="w-28 h-28 rounded-xl overflow-hidden bg-[#F8F7F4] border-2 border-dashed border-black/10 flex items-center justify-center shrink-0 cursor-pointer hover:border-[#8FA68B] transition-colors"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {imageUrl ? (
+              <img src={imageUrl} alt="" className="w-full h-full object-cover"
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+            ) : (
+              <span className="text-2xl text-gray-300">{uploading ? '⏳' : '📷'}</span>
+            )}
           </div>
-        )}
+
+          {/* Upload + URL */}
+          <div className="flex-1 space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0]
+                if (file) handleImageUpload(file)
+              }}
+            />
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+              className="text-sm font-semibold px-4 py-2 rounded-xl border border-black/10 hover:bg-[#F8F7F4] transition-colors disabled:opacity-50"
+            >
+              {uploading ? 'Laster opp…' : 'Last opp bilde'}
+            </button>
+
+            <p className="text-xs text-gray-400">eller lim inn URL under</p>
+
+            <input
+              className={inputCls}
+              value={imageUrl}
+              onChange={e => setImageUrl(e.target.value)}
+              placeholder="https://… eller /images/products/…"
+            />
+
+            {uploadError && (
+              <p className="text-xs text-red-500">{uploadError}</p>
+            )}
+            {imageUrl && !uploading && (
+              <p className="text-xs text-green-600">✓ Bilde satt</p>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── Lokasjon & lager — bare ved nytt produkt ─────── */}
