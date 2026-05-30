@@ -104,7 +104,7 @@ export default async function AdminRengjoring() {
               <option value="">Velg enhet…</option>
               {(items ?? []).map(item => (
                 <option key={item.id} value={item.id}>
-                  {item.internal_name ?? productMap.get(item.product_id) ?? 'Ukjent'}
+                  {item.internal_name ?? (item.product_id ? productMap.get(item.product_id) : null) ?? 'Ukjent'}
                   {item.location_id ? ` (${locationMap.get(item.location_id) ?? ''})` : ''}
                 </option>
               ))}
