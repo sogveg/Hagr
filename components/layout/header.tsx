@@ -13,15 +13,16 @@ export function Header({ variant = 'default' }: HeaderProps) {
       className={`sticky top-0 z-50 ${
         isTransparent
           ? 'bg-transparent'
-          : 'bg-white border-b border-[var(--color-border)]'
+          : 'bg-[var(--color-background)] border-b border-[var(--color-border)]'
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-        <Link
-          href="/"
-          className="text-xl font-bold tracking-tight text-[var(--color-foreground)]"
-        >
-          TinyRent
+        <Link href="/" className="flex items-center shrink-0">
+          <img
+            src="/images/logo.png"
+            alt="TinyRent — Lei babyutstyr enkelt"
+            style={{ height: '42px', width: 'auto' }}
+          />
         </Link>
 
         <nav className="flex items-center">
