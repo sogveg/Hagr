@@ -9,6 +9,7 @@ const navItems = [
   { href: '/admin/products',   label: 'Produkter', icon: '📦' },
   { href: '/admin/inventory',  label: 'Lager',     icon: '🗃️' },
   { href: '/admin/customers',  label: 'Kunder',    icon: '👤' },
+  { href: '/admin/okonomi',    label: 'Økonomi',   icon: '💰' },
 ]
 
 export function AdminNav() {
