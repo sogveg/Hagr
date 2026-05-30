@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase-server'
 import { updateBookingStatus } from '@/app/actions/admin'
+import { DamageReportForm } from '@/components/ui/damage-report-form'
 import Link from 'next/link'
 
 const STATUS_FLOW: Record<string, { label: string; next: string | null; color: string }> = {
@@ -46,6 +47,7 @@ export default async function BookingDetailPage({
     { data: customer },
     { data: bookingItems },
     { data: location },
+    damageReports,
   ] = await Promise.all([
     booking.customer_id
       ? supabase.from('customers').select('*').eq('id', booking.customer_id).single()
@@ -57,6 +59,11 @@ export default async function BookingDetailPage({
     booking.location_id
       ? supabase.from('locations').select('name').eq('id', booking.location_id).single()
       : Promise.resolve({ data: null }),
+    (supabase.from as any)('damage_reports')
+      .select('*')
+      .eq('booking_id', id)
+      .order('created_at', { ascending: false })
+      .then((r: any) => r.data ?? []),
   ])
 
   const statusInfo = STATUS_FLOW[booking.status] ?? { label: booking.status, next: null, color: 'bg-gray-100 text-gray-500' }
@@ -264,6 +271,84 @@ export default async function BookingDetailPage({
           </div>
         )}
       </div>
+
+      {/* Skader */}
+      <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
+        <div className="px-5 pt-5 pb-4 border-b border-black/[0.04] flex items-center justify-between">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+            Skaderapporter
+          </p>
+          {(damageReports as any[]).length > 0 && (
+            <span className="text-xs font-semibold bg-red-50 text-red-600 px-2 py-0.5 rounded-full">
+              {(damageReports as any[]).length} registrert
+            </span>
+          )}
+        </div>
+
+        {/* Eksisterende rapporter */}
+        {(damageReports as any[]).length > 0 ? (
+          <div className="divide-y divide-black/[0.04]">
+            {(damageReports as any[]).map((report: any) => (
+              <DamageReportRow key={report.id} report={report} />
+            ))}
+          </div>
+        ) : (
+          <p className="px-5 py-4 text-sm text-gray-400">Ingen skader registrert</p>
+        )}
+
+        {/* Legg til ny rapport */}
+        <div className="px-5 py-5 border-t border-black/[0.04] bg-[#F8F7F4]">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
+            Registrer skade
+          </p>
+          <DamageReportForm bookingId={id} isAdmin={true} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DamageReportRow({ report }: { report: any }) {
+  const severityMap: Record<string, { label: string; className: string }> = {
+    minor:    { label: 'Liten skade',    className: 'bg-yellow-50 text-yellow-700' },
+    moderate: { label: 'Moderat skade',  className: 'bg-orange-50 text-orange-600' },
+    severe:   { label: 'Alvorlig skade', className: 'bg-red-50 text-red-600' },
+  }
+  const s = severityMap[report.severity] ?? { label: report.severity, className: 'bg-gray-100 text-gray-500' }
+
+  return (
+    <div className="px-5 py-4">
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.className}`}>
+            {s.label}
+          </span>
+          <span className="text-xs text-gray-400">
+            {report.reported_by === 'admin' ? '🔧 TinyRent' : '👤 Leietaker'}
+          </span>
+        </div>
+        <span className="text-xs text-gray-400 whitespace-nowrap">
+          {new Date(report.created_at).toLocaleDateString('nb-NO', {
+            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          })}
+        </span>
+      </div>
+      <p className="text-sm text-[#2B2B2B]">{report.description}</p>
+      {report.amount_charged != null && report.amount_charged > 0 && (
+        <p className="text-xs font-semibold text-red-600 mt-1">
+          Gebyr: {report.amount_charged} kr
+        </p>
+      )}
+      {report.photo_url && (
+        <a
+          href={report.photo_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[#8FA68B] hover:underline mt-1 inline-block"
+        >
+          📷 Se bilde →
+        </a>
+      )}
     </div>
   )
 }

@@ -112,6 +112,12 @@ export default async function AccountPage() {
                       <span className="font-bold text-[var(--color-foreground)] text-sm whitespace-nowrap">
                         {booking.total_amount} kr
                       </span>
+                      <Link
+                        href={`/account/bookings/${booking.id}`}
+                        className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
+                      >
+                        Detaljer →
+                      </Link>
                     </div>
                   </div>
                 )
@@ -151,6 +157,12 @@ export default async function AccountPage() {
                       <span className="text-sm font-semibold text-[var(--color-muted)] whitespace-nowrap">
                         {booking.total_amount} kr
                       </span>
+                      <Link
+                        href={`/account/bookings/${booking.id}`}
+                        className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
+                      >
+                        Detaljer →
+                      </Link>
                     </div>
                   </div>
                 )
