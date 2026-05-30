@@ -1,19 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 
-export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
+function LoginForm() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo   = searchParams.get('redirect') ?? '/account'
+
+  const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [error,    setError]    = useState<string | null>(null)
+  const [loading,  setLoading]  = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -35,7 +38,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/account')
+    router.push(redirectTo)
     router.refresh()
   }
 
@@ -76,16 +79,27 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
         Ikke kunde ennå?{' '}
-        <Link href="/register" className="text-[var(--color-primary-dark)] font-medium hover:underline">
+        <Link
+          href={`/register${redirectTo !== '/account' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
+          className="text-[var(--color-primary-dark)] font-medium hover:underline"
+        >
           Opprett konto
         </Link>
       </p>
-      
+
       <p className="text-center text-sm mt-1">
         <Link href="/forgot-password" className="text-[var(--color-primary-dark)] font-medium hover:underline">
           Glemt passord?
         </Link>
       </p>
     </Card>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

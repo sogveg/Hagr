@@ -1,21 +1,24 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 
-export default function RegisterPage() {
-  const router = useRouter()
+function RegisterForm() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo   = searchParams.get('redirect') ?? '/account'
+
   const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [lastName,  setLastName]  = useState('')
+  const [email,     setEmail]     = useState('')
+  const [password,  setPassword]  = useState('')
+  const [error,     setError]     = useState<string | null>(null)
+  const [loading,   setLoading]   = useState(false)
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
@@ -43,14 +46,14 @@ export default function RegisterPage() {
 
     if (data.user) {
       await supabase.from('customers').insert({
-        user_id: data.user.id,
+        user_id:    data.user.id,
         first_name: firstName,
-        last_name: lastName,
+        last_name:  lastName,
         email,
       })
     }
 
-    router.push('/account')
+    router.push(redirectTo)
     router.refresh()
   }
 
@@ -112,10 +115,21 @@ export default function RegisterPage() {
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
         Har du konto fra før?{' '}
-        <Link href="/login" className="text-[var(--color-primary-dark)] font-medium hover:underline">
+        <Link
+          href={`/login${redirectTo !== '/account' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
+          className="text-[var(--color-primary-dark)] font-medium hover:underline"
+        >
           Logg inn
         </Link>
       </p>
     </Card>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   )
 }
