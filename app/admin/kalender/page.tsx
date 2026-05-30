@@ -38,7 +38,7 @@ export default async function AdminKalender() {
   const { data: bookings } = await supabase
     .from('bookings')
     .select('id, start_date, end_date, status, customer_id, location_id')
-    .in('status', Object.keys(STATUS_COLOR))
+    .in('status', Object.keys(STATUS_COLOR) as any)
     .or(`start_date.gte.${ymd(today)},end_date.gte.${ymd(today)}`)
     .lte('start_date', ymd(windowEnd))
     .order('start_date')
