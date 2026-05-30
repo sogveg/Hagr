@@ -7,6 +7,7 @@ import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { DamageReportForm } from '@/components/ui/damage-report-form'
+import { ContactForm } from '@/components/ui/contact-form'
 
 const statusMap: Record<string, { label: string; className: string }> = {
   draft:           { label: 'Utkast',          className: 'bg-gray-100 text-gray-500' },
@@ -270,6 +271,20 @@ export default async function CustomerBookingPage({
               )}
             </div>
           )}
+        </div>
+      </div>
+
+        {/* Ta kontakt om denne bookingen */}
+        <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 mt-4">
+          <h2 className="text-sm font-bold text-[var(--color-foreground)] mb-1">Spørsmål om bookingen?</h2>
+          <p className="text-xs text-[var(--color-muted)] mb-5">
+            Ta kontakt med oss — vi svarer innen en arbeidsdag.
+          </p>
+          <ContactForm
+            bookingId={id}
+            bookingRef={`#${booking.id.slice(0, 8).toUpperCase()}`}
+            prefillSubject="Spørsmål om en booking"
+          />
         </div>
       </div>
 

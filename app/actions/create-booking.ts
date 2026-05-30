@@ -1,6 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createServiceClient } from '@/lib/supabase-server'
+import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
+import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
+import React from 'react'
 
 export type CreateBookingInput = {
   productId: string
@@ -26,7 +29,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   // Finn kundeprofil
   const { data: customer } = await supabase
     .from('customers')
-    .select('id')
+    .select('id, first_name, last_name, email, phone')
     .eq('user_id', user.id)
     .single()
 
@@ -40,9 +43,9 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   if (days <= 0) return { success: false, error: 'Sluttdato må være etter startdato' }
 
   // Velg billigste prismodell
-  const dayTotal   = input.priceDay   != null ? input.priceDay   * days                      : Infinity
-  const weekTotal  = input.priceWeek  != null ? input.priceWeek  * Math.ceil(days / 7)       : Infinity
-  const monthTotal = input.priceMonth != null ? input.priceMonth * Math.ceil(days / 30)      : Infinity
+  const dayTotal   = input.priceDay   != null ? input.priceDay   * days                 : Infinity
+  const weekTotal  = input.priceWeek  != null ? input.priceWeek  * Math.ceil(days / 7)  : Infinity
+  const monthTotal = input.priceMonth != null ? input.priceMonth * Math.ceil(days / 30) : Infinity
   const minTotal   = Math.min(dayTotal, weekTotal, monthTotal)
 
   if (!isFinite(minTotal)) return { success: false, error: 'Ingen pris er satt for dette produktet' }
@@ -91,6 +94,38 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     unit_price:  unitPrice,
     price_type:  priceType,
   })
+
+  // Hent produktnavn for e-post
+  const serviceClient = createServiceClient()
+  const { data: product } = await serviceClient
+    .from('products')
+    .select('name')
+    .eq('id', input.productId)
+    .single()
+
+  // Send e-postvarsling til admin (brannmur: feil her stopper ikke bookingen)
+  try {
+    const adminEmail = ADMIN_EMAIL()
+    const fmt = (d: string) => new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+    await sendEmail({
+      to:      adminEmail,
+      subject: `Ny booking fra ${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim(),
+      react:   React.createElement(AdminNewBookingEmail, {
+        bookingId:     booking.id,
+        customerName:  `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email,
+        customerEmail: customer.email,
+        customerPhone: customer.phone,
+        productNames:  product ? [product.name] : ['Ukjent produkt'],
+        startDate:     fmt(input.startDate),
+        endDate:       fmt(input.endDate),
+        totalAmount,
+        depositAmount: input.depositAmount,
+        adminUrl:      `https://www.tinyrent.no/admin/bookings/${booking.id}`,
+      }),
+    })
+  } catch (emailErr) {
+    console.error('[createBooking] Admin email failed:', emailErr)
+  }
 
   return { success: true, bookingId: booking.id }
 }

@@ -9,6 +9,7 @@ import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { Badge } from '@/components/ui/badge'
 import { BookingPanel } from '@/components/ui/booking-panel'
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
+import { WaitlistForm } from '@/components/ui/waitlist-form'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
@@ -220,8 +221,15 @@ export default async function ProductPage({
                 isLoggedIn={!!user}
               />
             ) : (
-              <div className="flex items-center justify-center w-full bg-gray-100 text-[var(--color-muted)] rounded-[var(--radius-lg)] py-4 text-base font-semibold">
-                Ikke tilgjengelig nå
+              <div className="space-y-3">
+                <div className="flex items-center justify-center w-full bg-gray-100 text-[var(--color-muted)] rounded-[var(--radius-lg)] py-4 text-base font-semibold">
+                  Ikke tilgjengelig nå
+                </div>
+                <WaitlistForm
+                  productId={product.id}
+                  locationId={location.id}
+                  productName={product.name}
+                />
               </div>
             )}
 

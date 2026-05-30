@@ -47,6 +47,15 @@ export default async function AccountPage() {
     ['completed', 'returned', 'cancelled'].includes(b.status)
   )
 
+  // Banner: klar til henting ELLER henting innen 24 timer
+  const todayStr    = new Date().toISOString().slice(0, 10)
+  const tomorrowStr = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
+
+  const nextPickup = activeBookings.find(b =>
+    b.status === 'prepared' ||
+    (b.start_date <= tomorrowStr && ['confirmed', 'prepared'].includes(b.status))
+  )
+
   const displayName = customer?.first_name
     ? `${customer.first_name}${customer.last_name ? ' ' + customer.last_name : ''}`
     : user.email
@@ -69,6 +78,35 @@ export default async function AccountPage() {
           </div>
           <LogoutButton />
         </div>
+
+        {/* Henting-banner */}
+        {nextPickup && (() => {
+          const isPrepared = nextPickup.status === 'prepared'
+          const isToday    = nextPickup.start_date === todayStr
+          const isTomorrow = nextPickup.start_date === tomorrowStr
+          const bannerLabel = isPrepared
+            ? 'Klar til henting! 🎉'
+            : isToday
+            ? 'Henting i dag!'
+            : 'Henting i morgen'
+          const bannerMsg = isPrepared
+            ? `Din booking er pakket og klar — hentes ${new Date(nextPickup.start_date).toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' })}`
+            : `Husk at din leieperiode starter ${new Date(nextPickup.start_date).toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' })}`
+          return (
+            <div className="bg-[#EEF4EC] border border-[#8FA68B]/30 rounded-2xl px-6 py-4 mb-6 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold text-[#5A7A55] uppercase tracking-wide mb-0.5">{bannerLabel}</p>
+                <p className="text-sm font-semibold text-[#2B2B2B]">{bannerMsg}</p>
+              </div>
+              <Link
+                href={`/account/bookings/${nextPickup.id}`}
+                className="shrink-0 text-xs font-bold text-[#5A7A55] hover:underline"
+              >
+                Se detaljer →
+              </Link>
+            </div>
+          )
+        })()}
 
         {/* Aktive bookinger */}
         <section className="mb-10">
@@ -173,9 +211,17 @@ export default async function AccountPage() {
 
         {/* Kontoinformasjon */}
         <section>
-          <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
-            Kontoinformasjon
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[var(--color-foreground)]">
+              Kontoinformasjon
+            </h2>
+            <Link
+              href="/account/profil"
+              className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline"
+            >
+              Rediger profil →
+            </Link>
+          </div>
           <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
             {[
               { label: 'Navn', value: customer ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || '—' : '—' },

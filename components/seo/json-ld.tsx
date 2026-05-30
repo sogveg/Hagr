@@ -67,6 +67,48 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
   )
 }
 
+interface ArticleSchemaProps {
+  title:       string
+  excerpt?:    string | null
+  coverImage?: string | null
+  publishedAt?: string | null
+  updatedAt?:  string | null
+  author?:     string | null
+  slug:        string
+}
+
+/** Article schema for blog/article pages */
+export function ArticleSchema({ title, excerpt, coverImage, publishedAt, updatedAt, author, slug }: ArticleSchemaProps) {
+  return (
+    <JsonLd
+      data={{
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description: excerpt ?? undefined,
+        image: coverImage ? [coverImage] : [`${BASE}/images/hero.jpg`],
+        datePublished: publishedAt ?? undefined,
+        dateModified: updatedAt ?? publishedAt ?? undefined,
+        author: {
+          '@type': 'Organization',
+          name: author ?? 'TinyRent',
+          url: BASE,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'TinyRent',
+          url: BASE,
+          logo: { '@type': 'ImageObject', url: `${BASE}/images/logo.png` },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${BASE}/artikler/${slug}`,
+        },
+      }}
+    />
+  )
+}
+
 interface ProductSchemaProps {
   name: string
   description?: string | null

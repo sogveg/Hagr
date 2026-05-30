@@ -34,7 +34,13 @@ export function HeaderAuthNav() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        <Link href="/artikler" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
+          Artikler
+        </Link>
+        <Link href="/kontakt" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
+          Kontakt
+        </Link>
         <Link
           href="/account"
           className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"
@@ -52,7 +58,13 @@ export function HeaderAuthNav() {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4">
+      <Link href="/artikler" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
+        Artikler
+      </Link>
+      <Link href="/kontakt" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
+        Kontakt
+      </Link>
       <Link
         href="/login"
         className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors"

@@ -4,12 +4,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const navItems = [
-  { href: '/admin',            label: 'Oversikt',  icon: '◼' },
-  { href: '/admin/bookings',   label: 'Bookinger', icon: '📋' },
-  { href: '/admin/products',   label: 'Produkter', icon: '📦' },
-  { href: '/admin/inventory',  label: 'Lager',     icon: '🗃️' },
-  { href: '/admin/customers',  label: 'Kunder',    icon: '👤' },
-  { href: '/admin/okonomi',    label: 'Økonomi',   icon: '💰' },
+  { href: '/admin',              label: 'Oversikt',    icon: '◼' },
+  { href: '/admin/bookings',     label: 'Bookinger',   icon: '📋' },
+  { href: '/admin/kalender',     label: 'Kalender',    icon: '📅' },
+  { href: '/admin/products',     label: 'Produkter',   icon: '📦' },
+  { href: '/admin/inventory',    label: 'Lager',       icon: '🗃️' },
+  { href: '/admin/customers',    label: 'Kunder',      icon: '👤' },
+  { href: '/admin/okonomi',      label: 'Økonomi',     icon: '💰' },
+  { href: '/admin/artikler',     label: 'Artikler',    icon: '✏️' },
+  { href: '/admin/abonnenter',   label: 'Abonnenter',  icon: '📨' },
+  { href: '/admin/venteliste',   label: 'Venteliste',  icon: '⏳' },
+  { href: '/admin/rabatter',     label: 'Rabatter',    icon: '🏷️' },
+  { href: '/admin/rengjoring',   label: 'Rengjøring',  icon: '🧹' },
+  { href: '/admin/sesonger',     label: 'Sesonger',    icon: '🌤️' },
 ]
 
 export function AdminNav() {

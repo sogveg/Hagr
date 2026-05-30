@@ -33,9 +33,17 @@ export default async function AdminBookings() {
 
   return (
     <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#2B2B2B] tracking-tight">Bookinger</h1>
-        <p className="text-sm text-gray-500 mt-1">{bookings?.length ?? 0} totalt</p>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-[#2B2B2B] tracking-tight">Bookinger</h1>
+          <p className="text-sm text-gray-500 mt-1">{bookings?.length ?? 0} totalt</p>
+        </div>
+        <a
+          href="/api/admin/export?type=bookings"
+          className="text-xs font-bold text-[#8FA68B] hover:underline border border-[#8FA68B]/30 rounded-xl px-4 py-2"
+        >
+          Eksporter CSV
+        </a>
       </div>
 
       <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">

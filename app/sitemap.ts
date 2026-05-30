@@ -7,10 +7,12 @@ export const dynamic = 'force-dynamic'
 const BASE = 'https://www.tinyrent.no'
 
 const staticPages: MetadataRoute.Sitemap = [
-  { url: BASE,                   lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
-  { url: `${BASE}/om-oss`,      lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${BASE}/vilkar`,      lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-  { url: `${BASE}/personvern`,  lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+  { url: BASE,                    lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
+  { url: `${BASE}/artikler`,      lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
+  { url: `${BASE}/kontakt`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+  { url: `${BASE}/om-oss`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+  { url: `${BASE}/vilkar`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+  { url: `${BASE}/personvern`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -27,11 +29,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { data: locations },
       { data: categories },
       { data: products },
+      articlesResult,
     ] = await Promise.all([
       supabase.from('locations').select('slug').eq('active', true),
       supabase.from('categories').select('id, slug').eq('active', true),
       supabase.from('products').select('slug, category_id').eq('published', true),
+      (supabase.from as any)('articles')
+        .select('slug, published_at, updated_at')
+        .eq('published', true),
     ])
+    const articles = articlesResult.data ?? []
 
     const categorySlugMap = new Map((categories ?? []).map(c => [c.id, c.slug]))
     const now = new Date()
@@ -65,7 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     )
 
-    return [...staticPages, ...locationPages, ...categoryPages, ...productPages]
+    const articlePages: MetadataRoute.Sitemap = articles.map((a: any) => ({
+      url: `${BASE}/artikler/${a.slug}`,
+      lastModified: a.updated_at ?? a.published_at ?? now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }))
+
+    return [...staticPages, ...locationPages, ...categoryPages, ...productPages, ...articlePages]
   } catch {
     // Fall back to static pages if Supabase is unreachable
     return staticPages

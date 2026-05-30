@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase-server'
 import { updateBookingStatus } from '@/app/actions/admin'
 import { DamageReportForm } from '@/components/ui/damage-report-form'
+import { SendMessageForm } from '@/components/admin/send-message-form'
 import Link from 'next/link'
 
 const STATUS_FLOW: Record<string, { label: string; next: string | null; color: string }> = {
@@ -271,6 +272,17 @@ export default async function BookingDetailPage({
           </div>
         )}
       </div>
+
+      {/* Send melding */}
+      {customer?.email && (
+        <div className="bg-white rounded-2xl border border-black/[0.06] p-5 mb-5 mt-5">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Kommunikasjon</p>
+          <SendMessageForm
+            bookingId={id}
+            customerName={`${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email}
+          />
+        </div>
+      )}
 
       {/* Skader */}
       <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
