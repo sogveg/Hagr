@@ -170,10 +170,10 @@ export default async function AdminRengjoring() {
                 {/* Enhet */}
                 <div>
                   <p className="text-sm font-semibold text-[#2B2B2B]">
-                    {item.internal_name ?? productMap.get(item.product_id) ?? 'Ukjent'}
+                    {item.internal_name ?? (item.product_id ? productMap.get(item.product_id) : null) ?? 'Ukjent'}
                   </p>
                   {item.location_id && (
-                    <p className="text-xs text-gray-400">{locationMap.get(item.location_id)}</p>
+                    <p className="text-xs text-gray-400">{locationMap.get(item.location_id!)}</p>
                   )}
                 </div>
 
