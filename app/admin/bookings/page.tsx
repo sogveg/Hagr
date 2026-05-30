@@ -1,18 +1,19 @@
 export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase-server'
+import Link from 'next/link'
 
 const statusMap: Record<string, { label: string; className: string }> = {
-  draft: { label: 'Utkast', className: 'bg-gray-100 text-gray-500' },
-  pending_payment: { label: 'Venter betaling', className: 'bg-yellow-50 text-yellow-700' },
-  payment_failed: { label: 'Betaling feilet', className: 'bg-red-50 text-red-600' },
-  confirmed: { label: 'Bekreftet', className: 'bg-blue-50 text-blue-700' },
-  prepared: { label: 'Klar', className: 'bg-purple-50 text-purple-700' },
-  delivered: { label: 'Levert', className: 'bg-indigo-50 text-indigo-700' },
-  active_rental: { label: 'Aktiv leie', className: 'bg-green-50 text-green-700' },
-  returned: { label: 'Returnert', className: 'bg-gray-50 text-gray-600' },
-  completed: { label: 'Fullført', className: 'bg-gray-50 text-gray-500' },
-  cancelled: { label: 'Kansellert', className: 'bg-red-50 text-red-500' },
+  draft:           { label: 'Utkast',          className: 'bg-gray-100 text-gray-500' },
+  pending_payment: { label: 'Venter betaling',  className: 'bg-yellow-50 text-yellow-700' },
+  payment_failed:  { label: 'Betaling feilet',  className: 'bg-red-50 text-red-600' },
+  confirmed:       { label: 'Bekreftet',         className: 'bg-blue-50 text-blue-700' },
+  prepared:        { label: 'Klar',              className: 'bg-purple-50 text-purple-700' },
+  delivered:       { label: 'Levert',            className: 'bg-indigo-50 text-indigo-700' },
+  active_rental:   { label: 'Aktiv leie',        className: 'bg-green-50 text-green-700' },
+  returned:        { label: 'Returnert',          className: 'bg-gray-50 text-gray-600' },
+  completed:       { label: 'Fullført',           className: 'bg-gray-50 text-gray-500' },
+  cancelled:       { label: 'Kansellert',         className: 'bg-red-50 text-red-500' },
 }
 
 export default async function AdminBookings() {
@@ -23,7 +24,6 @@ export default async function AdminBookings() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  // Hent kundene separat
   const customerIds = [...new Set((bookings ?? []).map(b => b.customer_id).filter(Boolean))]
   const { data: customers } = customerIds.length
     ? await supabase.from('customers').select('id, first_name, last_name, email').in('id', customerIds as string[])
@@ -61,10 +61,14 @@ export default async function AdminBookings() {
                 return (
                   <tr key={booking.id} className="hover:bg-[#F8F7F4] transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-mono text-xs text-gray-400">#{booking.id.slice(0, 8)}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {new Date(booking.created_at).toLocaleDateString('nb-NO')}
-                      </p>
+                      <Link href={`/admin/bookings/${booking.id}`} className="block">
+                        <p className="font-mono text-xs text-[#8FA68B] font-semibold hover:underline">
+                          #{booking.id.slice(0, 8).toUpperCase()}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {new Date(booking.created_at).toLocaleDateString('nb-NO')}
+                        </p>
+                      </Link>
                     </td>
                     <td className="px-4 py-4">
                       {customer ? (
@@ -78,7 +82,7 @@ export default async function AdminBookings() {
                         <span className="text-gray-400">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-gray-600">
+                    <td className="px-4 py-4 text-gray-600 text-xs">
                       {booking.start_date} → {booking.end_date}
                     </td>
                     <td className="px-4 py-4">
@@ -86,8 +90,18 @@ export default async function AdminBookings() {
                         {s.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right font-semibold text-[#2B2B2B]">
-                      {booking.total_amount} kr
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <span className="font-semibold text-[#2B2B2B]">
+                          {booking.total_amount} kr
+                        </span>
+                        <Link
+                          href={`/admin/bookings/${booking.id}`}
+                          className="text-xs text-[#8FA68B] font-semibold hover:underline"
+                        >
+                          Åpne →
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 )

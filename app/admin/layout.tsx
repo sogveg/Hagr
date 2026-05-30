@@ -1,19 +1,17 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
+import { AdminNav } from '@/components/admin/admin-nav'
 import Link from 'next/link'
-
-const navItems = [
-  { href: '/admin', label: 'Oversikt', icon: '◼' },
-  { href: '/admin/bookings', label: 'Bookinger', icon: '📋' },
-  { href: '/admin/products', label: 'Produkter', icon: '📦' },
-  { href: '/admin/inventory', label: 'Lager', icon: '🗃️' },
-  { href: '/admin/customers', label: 'Kunder', icon: '👤' },
-]
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
+  if (adminEmails.length > 0 && !adminEmails.includes((user.email ?? '').toLowerCase())) {
+    redirect('/')
+  }
 
   return (
     <div className="min-h-screen flex bg-[#0F172A]">
@@ -27,18 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <span className="ml-2 text-[10px] font-bold text-white/30 uppercase tracking-widest">Admin</span>
         </div>
 
-        <nav className="flex-1 py-4 px-3">
-          {navItems.map(item => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white hover:bg-white/[0.06] transition-colors mb-0.5"
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminNav />
 
         <div className="p-4 border-t border-white/[0.06]">
           <p className="text-xs text-white/25 truncate">{user.email}</p>
