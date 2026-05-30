@@ -272,7 +272,6 @@ export default async function CustomerBookingPage({
             </div>
           )}
         </div>
-      </div>
 
         {/* Ta kontakt om denne bookingen */}
         <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 mt-4">
