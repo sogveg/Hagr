@@ -73,8 +73,9 @@ export default async function HomePage() {
                 <Button
                   key={loc.id}
                   href={`/${loc.slug}`}
+                  variant="white"
                   size="lg"
-                  className="bg-white hover:bg-[var(--color-sand)] text-[var(--color-foreground)] gap-2"
+                  className="gap-2"
                 >
                   Se utstyr i {loc.name} <span>&rarr;</span>
                 </Button>
@@ -82,8 +83,9 @@ export default async function HomePage() {
             ) : (
               <Button
                 href="/bergen"
+                variant="white"
                 size="lg"
-                className="bg-white hover:bg-[var(--color-sand)] text-[var(--color-foreground)] gap-2"
+                className="gap-2"
               >
                 Se utstyr i Bergen <span>&rarr;</span>
               </Button>
