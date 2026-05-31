@@ -45,22 +45,39 @@ export async function updateProfile(
     const { data: { user } } = await authClient.auth.getUser()
     if (!user) return { success: false, error: 'Ikke innlogget' }
 
-    // Use service client to bypass RLS — upsert creates the row if it doesn't exist yet
     const supabase = createServiceClient()
-    const { error } = await supabase
-      .from('customers')
-      .upsert({
-        user_id:       user.id,
-        email:         user.email!,
-        first_name:    input.first_name    || null,
-        last_name:     input.last_name     || null,
-        phone:         input.phone         || null,
-        address_line1: input.address_line1 || null,
-        postal_code:   input.postal_code   || null,
-        city:          input.city          || null,
-      }, { onConflict: 'user_id' })
 
-    if (error) return { success: false, error: error.message }
+    const profileData = {
+      first_name:    input.first_name    || null,
+      last_name:     input.last_name     || null,
+      phone:         input.phone         || null,
+      address_line1: input.address_line1 || null,
+      postal_code:   input.postal_code   || null,
+      city:          input.city          || null,
+    }
+
+    // Check if customer row exists (service client bypasses RLS)
+    const { data: existing } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    let dbError
+    if (existing) {
+      const res = await supabase
+        .from('customers')
+        .update(profileData)
+        .eq('user_id', user.id)
+      dbError = res.error
+    } else {
+      const res = await supabase
+        .from('customers')
+        .insert({ user_id: user.id, email: user.email!, ...profileData })
+      dbError = res.error
+    }
+
+    if (dbError) return { success: false, error: dbError.message }
     revalidatePath('/account')
     revalidatePath('/account/profil')
     return { success: true }

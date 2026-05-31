@@ -1,23 +1,31 @@
 export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase-server'
+import { createClient, createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { updateProfile } from '@/app/actions/customer'
 import Link from 'next/link'
 
-export default async function ProfilPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default async function ProfilPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>
+}) {
+  const { error: errorMsg } = await searchParams
 
+  // Auth: use user client
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
   if (!user) redirect('/login')
 
+  // Fetch customer: use service client to bypass RLS (row may not exist yet)
+  const supabase = createServiceClient()
   const { data: customer } = await supabase
     .from('customers')
     .select('*')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   async function handleUpdate(formData: FormData) {
     'use server'
@@ -29,7 +37,11 @@ export default async function ProfilPage() {
       postal_code:   formData.get('postal_code') as string,
       city:          formData.get('city')        as string,
     })
-    if (result.success) redirect('/account')
+    if (result.success) {
+      redirect('/account')
+    } else {
+      redirect(`/account/profil?error=${encodeURIComponent(result.error ?? 'Noe gikk galt')}`)
+    }
   }
 
   return (
@@ -45,6 +57,11 @@ export default async function ProfilPage() {
         </div>
 
         <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8">
+          {errorMsg && (
+            <div className="mb-5 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <p className="text-sm text-red-600">{errorMsg}</p>
+            </div>
+          )}
           <form action={handleUpdate} className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
               <div>
