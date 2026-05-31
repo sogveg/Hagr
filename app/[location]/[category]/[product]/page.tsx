@@ -70,6 +70,7 @@ export default async function ProductPage({
 
   const [
     { count: availableCount },
+    { count: inventoryCount },
     { data: { user } },
   ] = await Promise.all([
     supabase
@@ -78,10 +79,16 @@ export default async function ProductPage({
       .eq('product_id', product.id)
       .eq('location_id', location.id)
       .eq('status', 'available'),
+    supabase
+      .from('inventory_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('product_id', product.id)
+      .eq('location_id', location.id),
     authClient.auth.getUser(),
   ])
 
   const isAvailable = (availableCount ?? 0) > 0
+  const totalUnits  = inventoryCount ?? 1
 
   // Hent bookinger for denne produkten de neste 6 månedene
   const sixMonthsOut = new Date()
@@ -93,7 +100,7 @@ export default async function ProductPage({
     .from('booking_items')
     .select('booking_id, bookings!inner(start_date, end_date, status)')
     .eq('product_id', product.id)
-    .in('bookings.status' as any, ['confirmed', 'prepared', 'delivered', 'active_rental'])
+    .in('bookings.status' as any, ['pending_payment', 'confirmed', 'prepared', 'delivered', 'active_rental'])
     .gte('bookings.end_date' as any, todayStr)
     .lte('bookings.start_date' as any, endStr)
 
@@ -292,7 +299,7 @@ export default async function ProductPage({
             Ledige datoer
           </h2>
           <div className="max-w-2xl">
-            <AvailabilityCalendar bookedRanges={bookedRanges} />
+            <AvailabilityCalendar bookedRanges={bookedRanges} inventoryCount={totalUnits} />
           </div>
         </div>
       </div>

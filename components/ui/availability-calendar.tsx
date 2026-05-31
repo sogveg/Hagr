@@ -8,7 +8,8 @@ interface BookedRange {
 }
 
 interface AvailabilityCalendarProps {
-  bookedRanges: BookedRange[]
+  bookedRanges:   BookedRange[]
+  inventoryCount: number   // total units of this product at this location
 }
 
 function addMonths(date: Date, n: number) {
@@ -38,18 +39,20 @@ const MONTHS_NO = [
   'Juli', 'August', 'September', 'Oktober', 'November', 'Desember',
 ]
 
-export function AvailabilityCalendar({ bookedRanges }: AvailabilityCalendarProps) {
+export function AvailabilityCalendar({ bookedRanges, inventoryCount }: AvailabilityCalendarProps) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const [offset, setOffset] = useState(0) // 0 = this month, 1 = next month
 
-  // Build a Set of all booked dates for fast lookup
-  const bookedSet = new Set<string>()
+  // Count overlapping bookings per date — a date is "opptatt" only when
+  // the count reaches inventoryCount (all units taken)
+  const bookingCountMap = new Map<string, number>()
   for (const range of bookedRanges) {
     const cur = new Date(range.start)
     const end = new Date(range.end)
     while (cur <= end) {
-      bookedSet.add(ymd(cur))
+      const d = ymd(cur)
+      bookingCountMap.set(d, (bookingCountMap.get(d) ?? 0) + 1)
       cur.setDate(cur.getDate() + 1)
     }
   }
@@ -107,7 +110,7 @@ export function AvailabilityCalendar({ bookedRanges }: AvailabilityCalendarProps
                   const dateStr = `${year}-${String(mon + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
                   const isPast   = dateStr < ymd(today)
                   const isToday  = dateStr === ymd(today)
-                  const isBooked = bookedSet.has(dateStr)
+                  const isBooked = (bookingCountMap.get(dateStr) ?? 0) >= inventoryCount
 
                   let cellCls = 'w-full aspect-square flex items-center justify-center rounded-lg text-xs font-medium '
 
