@@ -60,6 +60,9 @@ export default async function AccountPage() {
     ? `${customer.first_name}${customer.last_name ? ' ' + customer.last_name : ''}`
     : user.email
 
+  const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
+  const isAdmin = adminEmails.length > 0 && adminEmails.includes((user.email ?? '').toLowerCase())
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
@@ -78,6 +81,23 @@ export default async function AccountPage() {
           </div>
           <LogoutButton />
         </div>
+
+        {/* Admin-snarvei */}
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="flex items-center justify-between bg-[#0F172A] text-white rounded-2xl px-6 py-4 mb-6 hover:bg-[#1E293B] transition-colors group"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">⚙️</span>
+              <div>
+                <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-0.5">Administrator</p>
+                <p className="text-sm font-semibold">Gå til adminpanelet</p>
+              </div>
+            </div>
+            <span className="text-white/40 group-hover:text-white transition-colors text-lg">→</span>
+          </Link>
+        )}
 
         {/* Henting-banner */}
         {nextPickup && (() => {
