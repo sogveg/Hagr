@@ -18,10 +18,16 @@ export default async function HomePage() {
     { data: locations },
     { data: categories },
     { data: products },
+    { data: articles },
   ] = await Promise.all([
     supabase.from('locations').select('*').eq('active', true),
     supabase.from('categories').select('*').eq('active', true).order('sort_order'),
     supabase.from('products').select('*').eq('published', true).limit(6),
+    (supabase.from as any)('articles')
+      .select('id, title, slug, excerpt, cover_image, published_at, created_at')
+      .eq('published', true)
+      .order('published_at', { ascending: false })
+      .limit(3),
   ])
 
   const categorySlugMap = new Map((categories ?? []).map(c => [c.id, c.slug]))
@@ -222,6 +228,82 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Artikler */}
+      {articles && articles.length > 0 && (
+        <section className="bg-[var(--color-background)] px-6 py-24">
+          <div className="max-w-[1200px] mx-auto">
+            <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
+              Fra bloggen
+            </p>
+            <div className="flex items-end justify-between mb-12">
+              <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight">
+                Tips og råd til småbarnsforeldre
+              </h2>
+              <a
+                href="/artikler"
+                className="text-sm font-semibold text-[var(--color-primary)] hover:underline shrink-0 ml-8 hidden md:block"
+              >
+                Se alle artikler →
+              </a>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(articles as any[]).map((article) => {
+                const date = new Date(article.published_at ?? article.created_at)
+                  .toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+                return (
+                  <a
+                    key={article.id}
+                    href={`/artikler/${article.slug}`}
+                    className="group bg-white rounded-2xl border border-black/[0.06] overflow-hidden hover:border-black/10 hover:shadow-md transition-all"
+                  >
+                    {/* Cover image */}
+                    <div className="aspect-[16/9] bg-[#F0EAE0] overflow-hidden">
+                      {article.cover_image ? (
+                        <img
+                          src={article.cover_image}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl text-gray-200">
+                          ✏️
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Text */}
+                    <div className="p-6">
+                      <p className="text-xs text-[var(--color-muted)] mb-3">{date}</p>
+                      <h3 className="text-base font-bold text-[var(--color-foreground)] leading-snug mb-2 group-hover:text-[var(--color-primary)] transition-colors">
+                        {article.title}
+                      </h3>
+                      {article.excerpt && (
+                        <p className="text-sm text-[var(--color-muted)] line-clamp-2 leading-relaxed">
+                          {article.excerpt}
+                        </p>
+                      )}
+                      <p className="text-xs font-semibold text-[var(--color-primary)] mt-4">
+                        Les mer →
+                      </p>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
+
+            <div className="text-center mt-10 md:hidden">
+              <a
+                href="/artikler"
+                className="text-sm font-semibold text-[var(--color-primary)] hover:underline"
+              >
+                Se alle artikler →
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA-banner */}
       <section className="bg-[var(--color-foreground)] px-6 py-20">
