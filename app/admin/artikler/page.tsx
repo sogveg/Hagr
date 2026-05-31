@@ -78,7 +78,6 @@ export default async function AdminArtikler() {
                       src={article.cover_image}
                       alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={() => {}}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl text-gray-200">
