@@ -31,10 +31,11 @@ export default async function EditProductPage({
   const { id } = await params
   const supabase = createServiceClient()
 
-  const [{ data: product }, { data: categories }, { data: locations }] = await Promise.all([
+  const [{ data: product }, { data: categories }, { data: locations }, { data: productLocation }] = await Promise.all([
     supabase.from('products').select('*').eq('id', id).single(),
     supabase.from('categories').select('id, name').order('name'),
     supabase.from('locations').select('id, name').order('name'),
+    supabase.from('product_locations').select('category_id, location_id').eq('product_id', id).single(),
   ])
 
   if (!product) notFound()
@@ -81,6 +82,7 @@ export default async function EditProductPage({
         categories={categories ?? []}
         locations={locations ?? []}
         product={product}
+        currentCategoryId={productLocation?.category_id ?? undefined}
         onSave={handleSave}
       />
 

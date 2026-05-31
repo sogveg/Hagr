@@ -140,7 +140,7 @@ export async function createProduct(
 
 export async function updateProduct(
   id: string,
-  input: ProductInput          // category_id / location_id / inventory_count are accepted but ignored
+  input: ProductInput          // location_id / inventory_count are accepted but ignored on update
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAdmin()
@@ -167,6 +167,14 @@ export async function updateProduct(
       .eq('id', id)
 
     if (error) return { success: false, error: error.message }
+
+    // Update category if provided
+    if (input.category_id) {
+      await supabase
+        .from('product_locations')
+        .update({ category_id: input.category_id })
+        .eq('product_id', id)
+    }
 
     revalidatePath('/admin/products')
     revalidatePath(`/admin/products/${id}/edit`)

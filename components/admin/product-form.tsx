@@ -9,8 +9,9 @@ interface Category { id: string; name: string }
 interface Location { id: string; name: string }
 
 interface ProductFormProps {
-  categories: Category[]
-  locations:  Location[]
+  categories:        Category[]
+  locations:         Location[]
+  currentCategoryId?: string
   product?: {
     id:                  string
     name:                string
@@ -43,7 +44,7 @@ const inputCls =
   'focus:outline-none focus:ring-2 focus:ring-[#8FA68B] focus:border-transparent transition-all'
 const labelCls = 'block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5'
 
-export function ProductForm({ categories, locations, product, onSave }: ProductFormProps) {
+export function ProductForm({ categories, locations, currentCategoryId, product, onSave }: ProductFormProps) {
   const router       = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +74,7 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
   const [uploading,    setUploading]    = useState(false)
   const [uploadError,  setUploadError]  = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [categoryId, setCategoryId] = useState(categories[0]?.id ?? '')
+  const [categoryId, setCategoryId] = useState(currentCategoryId ?? categories[0]?.id ?? '')
   const [locationId, setLocationId] = useState(locations[0]?.id  ?? '')
   const [unitCount,  setUnitCount]  = useState('1')
 
@@ -341,35 +342,36 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
         )}
       </section>
 
-      {/* ── Lokasjon & lager — bare ved nytt produkt ─────── */}
-      {!isEdit && (
-        <section className="bg-white rounded-2xl border border-black/[0.06] p-6">
-          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">Lokasjon & Lager</h2>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className={labelCls}>Kategori *</label>
-              <select className={inputCls} value={categoryId}
-                onChange={e => setCategoryId(e.target.value)} required>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Lokasjon *</label>
-              <select className={inputCls} value={locationId}
-                onChange={e => setLocationId(e.target.value)} required>
-                {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>Antall enheter</label>
-              <input className={inputCls} type="number" min="0" max="20" step="1"
-                value={unitCount} onChange={e => setUnitCount(e.target.value)} />
-              <p className="text-xs text-gray-400 mt-1">Legges direkte til lager</p>
-            </div>
+      {/* ── Kategori — alltid synlig ──────────────────────── */}
+      <section className="bg-white rounded-2xl border border-black/[0.06] p-6">
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">Kategori</h2>
+        <div className={isEdit ? 'max-w-xs' : 'grid grid-cols-3 gap-4'}>
+          <div>
+            <label className={labelCls}>Kategori *</label>
+            <select className={inputCls} value={categoryId}
+              onChange={e => setCategoryId(e.target.value)} required>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
           </div>
-        </section>
-      )}
+          {!isEdit && (
+            <>
+              <div>
+                <label className={labelCls}>Lokasjon *</label>
+                <select className={inputCls} value={locationId}
+                  onChange={e => setLocationId(e.target.value)} required>
+                  {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Antall enheter</label>
+                <input className={inputCls} type="number" min="0" max="20" step="1"
+                  value={unitCount} onChange={e => setUnitCount(e.target.value)} />
+                <p className="text-xs text-gray-400 mt-1">Legges direkte til lager</p>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
 
       {/* ── Publisert ─────────────────────────────────────── */}
       <section className="bg-white rounded-2xl border border-black/[0.06] px-6 py-4 flex items-center justify-between">
