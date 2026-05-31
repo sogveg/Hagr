@@ -6,9 +6,16 @@ import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
 import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
 
+export type DeliveryOption = {
+  type:         'pickup' | 'home' | 'airport' | 'train'
+  address?:     string
+  flightNumber?: string
+}
+
 export type CheckoutInput = {
   rentals:     CartRental[]
   accessories: CartAccessory[]
+  delivery:    DeliveryOption
 }
 
 export type CheckoutResult =
@@ -66,6 +73,22 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     customer = created
   }
 
+  // ── Levering som notat ─────────────────────────────────────────────────
+  const deliveryLabels: Record<string, string> = {
+    pickup:  'Hent selv',
+    home:    'Hjemlevering',
+    airport: 'Levering flyplass',
+    train:   'Levering togstasjon',
+  }
+  const deliveryNote = (() => {
+    const base = deliveryLabels[input.delivery.type] ?? input.delivery.type
+    if (input.delivery.type === 'home' && input.delivery.address)
+      return `${base}: ${input.delivery.address}`
+    if (input.delivery.type === 'airport' && input.delivery.flightNumber)
+      return `${base}, flight: ${input.delivery.flightNumber}`
+    return base
+  })()
+
   // ── Tilbehør som notat ─────────────────────────────────────────────────
   const accessoryNote = input.accessories.length > 0
     ? 'Ønsket tilbehør: ' + input.accessories.map(a => `${a.name} ×${a.quantity}`).join(', ')
@@ -105,7 +128,9 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
         deposit_amount: rental.depositAmount,
         total_amount:   totalAmount,
         currency:       'NOK',
-        ...(isFirst && accessoryNote ? { notes: accessoryNote } : {}),
+        ...(isFirst ? {
+          notes: [deliveryNote, accessoryNote].filter(Boolean).join(' | ') || null,
+        } : {}),
       })
       .select('id')
       .single()

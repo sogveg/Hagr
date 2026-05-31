@@ -3,18 +3,32 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCart, calcRentalPrice, type CartAccessory } from '@/context/cart-context'
-import { checkoutCart } from '@/app/actions/checkout'
+import { useCart, calcRentalPrice } from '@/context/cart-context'
+import { checkoutCart, type DeliveryOption } from '@/app/actions/checkout'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
 
 const ACCESSORIES = [
-  { id: 'soap',     name: 'Sitronsåpe',    description: 'Naturlig rengjøring av babyutstyr',    price: 79  },
-  { id: 'sheet',    name: 'Laken',         description: 'Rent laken til barneseng eller vogn',  price: 99  },
-  { id: 'bedding',  name: 'Sengetøy-sett', description: 'Dyne + pute tilpasset barneseng',      price: 199 },
-  { id: 'liner',    name: 'Vogninnlegg',   description: 'Mykt, vaskbart innlegg til vogn',      price: 149 },
+  { id: 'soap',    name: 'Sitronsåpe',    description: 'Naturlig rengjøring av babyutstyr',   price: 79  },
+  { id: 'sheet',   name: 'Laken',         description: 'Rent laken til barneseng eller vogn', price: 99  },
+  { id: 'bedding', name: 'Sengetøy-sett', description: 'Dyne + pute tilpasset barneseng',     price: 199 },
+  { id: 'liner',   name: 'Vogninnlegg',   description: 'Mykt, vaskbart innlegg til vogn',     price: 149 },
+]
+
+// ─── Delivery options ─────────────────────────────────────────────────────────
+
+const DELIVERY_OPTIONS: {
+  id:          DeliveryOption['type']
+  name:        string
+  description: string
+  extra:       'address' | 'flight' | null
+}[] = [
+  { id: 'pickup',  name: 'Hent selv',            description: 'Du henter og leverer utstyret hos oss',    extra: null     },
+  { id: 'home',    name: 'Levert på døren',       description: 'Vi bringer utstyret til din adresse',      extra: 'address' },
+  { id: 'airport', name: 'Levert på flyplassen',  description: 'Levering til Bergen lufthavn Flesland',    extra: 'flight' },
+  { id: 'train',   name: 'Levert på togstasjonen',description: 'Levering til Bergen stasjon',              extra: null     },
 ]
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -33,10 +47,15 @@ export default function CartPage() {
   const router = useRouter()
   const { rentals, accessories, removeRental, updateDates, setAccessoryQty, clearCart } = useCart()
 
-  const [loading,  setLoading]  = useState(false)
-  const [error,    setError]    = useState<string | null>(null)
-  const [success,  setSuccess]  = useState(false)
-  const [bookingIds, setBookingIds] = useState<string[]>([])
+  const [loading,      setLoading]      = useState(false)
+  const [error,        setError]        = useState<string | null>(null)
+  const [success,      setSuccess]      = useState(false)
+  const [bookingIds,   setBookingIds]   = useState<string[]>([])
+
+  // Delivery state
+  const [deliveryType,    setDeliveryType]    = useState<DeliveryOption['type']>('pickup')
+  const [deliveryAddress, setDeliveryAddress] = useState('')
+  const [flightNumber,    setFlightNumber]    = useState('')
 
   const today = toStr(new Date())
 
@@ -46,20 +65,38 @@ export default function CartPage() {
     return sum + (p?.total ?? 0)
   }, 0), [rentals])
 
-  const depositTotal    = useMemo(() => rentals.reduce((s, r) => s + r.depositAmount, 0), [rentals])
-  const accessoryTotal  = useMemo(() => accessories.reduce((s, a) => s + a.price * a.quantity, 0), [accessories])
-  const grandTotal      = rentalTotal + depositTotal + accessoryTotal
+  const depositTotal   = useMemo(() => rentals.reduce((s, r) => s + r.depositAmount, 0), [rentals])
+  const accessoryTotal = useMemo(() => accessories.reduce((s, a) => s + a.price * a.quantity, 0), [accessories])
+  const grandTotal     = rentalTotal + depositTotal + accessoryTotal
 
   // ── Checkout ─────────────────────────────────────────────────────────────────
   async function handleCheckout() {
     setError(null)
+
+    // Validate delivery fields
+    if (deliveryType === 'home' && !deliveryAddress.trim()) {
+      setError('Fyll inn leveringsadresse.')
+      return
+    }
+    if (deliveryType === 'airport' && !flightNumber.trim()) {
+      setError('Fyll inn flightnummer.')
+      return
+    }
+
     setLoading(true)
-    const result = await checkoutCart({ rentals, accessories })
+    const result = await checkoutCart({
+      rentals,
+      accessories,
+      delivery: {
+        type:         deliveryType,
+        address:      deliveryAddress.trim() || undefined,
+        flightNumber: flightNumber.trim()    || undefined,
+      },
+    })
     setLoading(false)
 
     if (!result.success) {
       if (result.error.includes('logge inn')) {
-        // Redirect to login with cart redirect
         router.push('/login?redirect=/cart')
         return
       }
@@ -85,7 +122,7 @@ export default function CartPage() {
           </div>
           <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">Bestilling mottatt!</h1>
           <p className="text-[var(--color-muted)] mb-8 leading-relaxed">
-            Vi har mottatt din forespørsel og kontakter deg innen 24 timer for å bekrefte og avklare detaljer.
+            Vi har mottatt bestillingen din og kontakter deg innen 24 timer for å bekrefte og avklare detaljer.
           </p>
           <div className="flex flex-col gap-3">
             <Link href="/account" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[var(--radius-full)] bg-[#4A6741] text-white font-semibold hover:opacity-90 transition-opacity">
@@ -147,7 +184,7 @@ export default function CartPage() {
 
               <div className="divide-y divide-black/[0.04]">
                 {rentals.map(rental => {
-                  const price = calcRentalPrice(rental.startDate, rental.endDate, rental.priceDay, rental.priceWeek, rental.priceMonth)
+                  const price  = calcRentalPrice(rental.startDate, rental.endDate, rental.priceDay, rental.priceWeek, rental.priceMonth)
                   const minEnd = toStr(addDays(new Date(rental.startDate), Math.max(rental.minimumRentalDays, 1)))
 
                   return (
@@ -235,7 +272,7 @@ export default function CartPage() {
               <div className="divide-y divide-black/[0.04]">
                 {ACCESSORIES.map(acc => {
                   const inCart = accessories.find(a => a.id === acc.id)
-                  const qty = inCart?.quantity ?? 0
+                  const qty    = inCart?.quantity ?? 0
 
                   return (
                     <div key={acc.id} className="px-6 py-4 flex items-center justify-between gap-4">
@@ -271,6 +308,67 @@ export default function CartPage() {
                         )}
                       </div>
                     </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Delivery options */}
+            <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
+              <div className="px-6 py-4 border-b border-black/[0.04]">
+                <h2 className="text-sm font-bold text-[var(--color-foreground)]">Levering</h2>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">Velg hvordan du ønsker å motta utstyret</p>
+              </div>
+              <div className="divide-y divide-black/[0.04]">
+                {DELIVERY_OPTIONS.map(opt => {
+                  const isSelected = deliveryType === opt.id
+                  return (
+                    <label
+                      key={opt.id}
+                      className={`flex items-start gap-3 px-6 py-4 cursor-pointer transition-colors ${isSelected ? 'bg-[#F5F8F4]' : 'hover:bg-gray-50'}`}
+                    >
+                      <div className="mt-0.5 shrink-0">
+                        <div
+                          onClick={() => setDeliveryType(opt.id)}
+                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            isSelected ? 'border-[#4A6741]' : 'border-gray-300'
+                          }`}
+                        >
+                          {isSelected && <div className="w-2 h-2 rounded-full bg-[#4A6741]" />}
+                        </div>
+                      </div>
+                      <div className="flex-1" onClick={() => setDeliveryType(opt.id)}>
+                        <p className="text-sm font-semibold text-[var(--color-foreground)]">{opt.name}</p>
+                        <p className="text-xs text-[var(--color-muted)] mt-0.5">{opt.description}</p>
+
+                        {/* Address field for home delivery */}
+                        {isSelected && opt.extra === 'address' && (
+                          <input
+                            type="text"
+                            placeholder="Gateadresse, postnummer og by"
+                            value={deliveryAddress}
+                            onChange={e => setDeliveryAddress(e.target.value)}
+                            onClick={e => e.stopPropagation()}
+                            className="mt-2 w-full text-sm border border-black/10 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741]"
+                          />
+                        )}
+
+                        {/* Flight number for airport delivery */}
+                        {isSelected && opt.extra === 'flight' && (
+                          <input
+                            type="text"
+                            placeholder="Flightnummer (f.eks. SK4107)"
+                            value={flightNumber}
+                            onChange={e => setFlightNumber(e.target.value)}
+                            onClick={e => e.stopPropagation()}
+                            className="mt-2 w-full text-sm border border-black/10 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741]"
+                          />
+                        )}
+                      </div>
+                      <span className="text-xs text-[var(--color-muted)] shrink-0 mt-0.5">
+                        {opt.id === 'pickup' ? 'Gratis' : 'Pris avtales'}
+                      </span>
+                    </label>
                   )
                 })}
               </div>
@@ -314,6 +412,16 @@ export default function CartPage() {
                     <span className="font-semibold">{depositTotal} kr</span>
                   </div>
                 )}
+
+                {/* Delivery row */}
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-[var(--color-muted)]">
+                    {DELIVERY_OPTIONS.find(o => o.id === deliveryType)?.name ?? 'Levering'}
+                  </span>
+                  <span className="font-semibold text-[#4A6741]">
+                    {deliveryType === 'pickup' ? 'Gratis' : 'Avtales'}
+                  </span>
+                </div>
               </div>
 
               <div className="border-t border-black/[0.06] pt-4 flex items-center justify-between mb-6">
@@ -338,7 +446,7 @@ export default function CartPage() {
                     Sender...
                   </span>
                 ) : (
-                  'Send leieforespørsel'
+                  'Bestill nå'
                 )}
               </button>
 
@@ -347,6 +455,7 @@ export default function CartPage() {
               </p>
             </div>
           </div>
+
         </div>
       </div>
 
