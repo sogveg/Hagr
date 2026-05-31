@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-browser'
+import { CartIcon } from './cart-icon'
 
 export function HeaderAuthNav() {
   const [user, setUser] = useState<{ email?: string | null } | null | undefined>(undefined)
@@ -34,7 +35,7 @@ export function HeaderAuthNav() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Link href="/artikler" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
           Artikler
         </Link>
@@ -47,6 +48,7 @@ export function HeaderAuthNav() {
         >
           Min konto
         </Link>
+        <CartIcon />
         <Link
           href="/bergen"
           className="text-sm font-semibold bg-[var(--color-foreground)] text-white px-4 py-2 rounded-[var(--radius-full)] hover:opacity-90 transition-opacity"
@@ -58,7 +60,7 @@ export function HeaderAuthNav() {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-3">
       <Link href="/artikler" className="text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors hidden md:block">
         Artikler
       </Link>
@@ -71,6 +73,7 @@ export function HeaderAuthNav() {
       >
         Logg inn
       </Link>
+      <CartIcon />
       <Link
         href="/register"
         className="text-sm font-semibold bg-[var(--color-foreground)] text-white px-4 py-2 rounded-[var(--radius-full)] hover:opacity-90 transition-opacity"

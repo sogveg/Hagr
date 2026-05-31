@@ -234,11 +234,13 @@ export default async function ProductPage({
             {isAvailable ? (
               <BookingPanel
                 productId={product.id}
+                productName={product.name}
+                productSlug={productSlug}
                 locationId={location.id}
                 locationName={location.name}
                 locationSlug={locationSlug}
                 categorySlug={categorySlug}
-                productSlug={productSlug}
+                imageUrl={carouselImages[0] ?? ''}
                 priceDay={product.price_day}
                 priceWeek={product.price_week}
                 priceMonth={product.price_month}

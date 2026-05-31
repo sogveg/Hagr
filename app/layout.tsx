@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { CartProvider } from '@/context/cart-context'
 import './globals.css'
 
 const inter = Inter({ 
@@ -62,7 +63,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="no" className="bg-background">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${inter.className} antialiased`}>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   )
 }

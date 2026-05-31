@@ -2,15 +2,17 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { createBooking } from '@/app/actions/create-booking'
+import { useCart, calcRentalPrice } from '@/context/cart-context'
 
 interface BookingPanelProps {
   productId:          string
+  productName:        string
+  productSlug:        string
   locationId:         string
   locationName:       string
   locationSlug:       string
   categorySlug:       string
-  productSlug:        string
+  imageUrl:           string
   priceDay:           number | null
   priceWeek:          number | null
   priceMonth:         number | null
@@ -22,155 +24,62 @@ interface BookingPanelProps {
 function formatDate(d: Date): string {
   return d.toISOString().split('T')[0]
 }
-
 function addDays(d: Date, n: number): Date {
   const r = new Date(d)
   r.setDate(r.getDate() + n)
   return r
 }
 
-function calcPrice(days: number, priceDay: number | null, priceWeek: number | null, priceMonth: number | null) {
-  if (days <= 0) return null
-
-  const opts: { total: number; label: string; unit: string }[] = []
-
-  if (priceDay   != null) opts.push({ total: priceDay   * days,                    label: `${days} dag${days !== 1 ? 'er' : ''}`,  unit: `${priceDay} kr/dag` })
-  if (priceWeek  != null) opts.push({ total: priceWeek  * Math.ceil(days / 7),     label: `${Math.ceil(days / 7)} uke${Math.ceil(days / 7) !== 1 ? 'r' : ''}`,   unit: `${priceWeek} kr/uke` })
-  if (priceMonth != null) opts.push({ total: priceMonth * Math.ceil(days / 30),    label: `${Math.ceil(days / 30)} mnd`,             unit: `${priceMonth} kr/mnd` })
-
-  if (!opts.length) return null
-
-  return opts.reduce((best, curr) => curr.total < best.total ? curr : best)
-}
-
 export function BookingPanel({
-  productId,
-  locationId,
-  locationName,
-  locationSlug,
-  categorySlug,
-  productSlug,
-  priceDay,
-  priceWeek,
-  priceMonth,
-  depositAmount,
-  minimumRentalDays,
-  isLoggedIn,
+  productId, productName, productSlug,
+  locationId, locationName, locationSlug, categorySlug, imageUrl,
+  priceDay, priceWeek, priceMonth,
+  depositAmount, minimumRentalDays,
 }: BookingPanelProps) {
-  const today     = formatDate(new Date())
-  const minEnd    = formatDate(addDays(new Date(), Math.max(minimumRentalDays, 1)))
+  const { addRental } = useCart()
+
+  const today  = formatDate(new Date())
+  const minEnd = formatDate(addDays(new Date(), Math.max(minimumRentalDays, 1)))
+
   const [start,   setStart]   = useState(today)
   const [end,     setEnd]     = useState(minEnd)
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [bookingId, setBookingId] = useState<string | null>(null)
+  const [added,   setAdded]   = useState(false)
+  const [alrInCart, setAlrInCart] = useState(false)
 
   const days = useMemo(() => {
     if (!start || !end) return 0
     return Math.ceil((new Date(end).getTime() - new Date(start).getTime()) / 86_400_000)
   }, [start, end])
 
-  const priceCalc = useMemo(() => calcPrice(days, priceDay, priceWeek, priceMonth), [days, priceDay, priceWeek, priceMonth])
-  const total     = priceCalc ? priceCalc.total + depositAmount : null
+  const priceCalc = useMemo(
+    () => calcRentalPrice(start, end, priceDay, priceWeek, priceMonth),
+    [start, end, priceDay, priceWeek, priceMonth]
+  )
+  const total = priceCalc ? priceCalc.total + depositAmount : null
 
-  const loginHref    = `/login?redirect=/${locationSlug}/${categorySlug}/${productSlug}`
-  const registerHref = `/register?redirect=/${locationSlug}/${categorySlug}/${productSlug}`
-
-  async function handleSubmit(e: React.FormEvent) {
+  function handleAddToCart(e: React.FormEvent) {
     e.preventDefault()
     if (!priceCalc || days <= 0) return
-    setError(null)
-    setLoading(true)
 
-    const result = await createBooking({
-      productId,
-      locationId,
-      startDate:     start,
-      endDate:       end,
-      priceDay,
-      priceWeek,
-      priceMonth,
-      depositAmount,
+    const wasAdded = addRental({
+      productId, productName, productSlug,
+      locationId, locationName, locationSlug, categorySlug, imageUrl,
+      startDate: start, endDate: end,
+      priceDay, priceWeek, priceMonth,
+      depositAmount, minimumRentalDays,
     })
 
-    setLoading(false)
-
-    if (result.success) {
-      setBookingId(result.bookingId)
-      setSuccess(true)
+    if (wasAdded) {
+      setAdded(true)
+      setTimeout(() => setAdded(false), 3000)
     } else {
-      setError(result.error)
+      setAlrInCart(true)
+      setTimeout(() => setAlrInCart(false), 3000)
     }
   }
 
-  /* ── Success state ── */
-  if (success) {
-    return (
-      <div className="bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)] overflow-hidden">
-        <div className="px-5 py-8 text-center">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ backgroundColor: '#EBF0E7' }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4A6741" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/>
-            </svg>
-          </div>
-          <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-2">
-            Forespørsel sendt!
-          </h3>
-          <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-            Vi har mottatt forespørselen din for {locationName} og kontakter deg innen 24 timer.
-          </p>
-          {bookingId && (
-            <p className="text-xs text-[var(--color-muted-foreground)] font-mono mb-5">
-              #{bookingId.slice(0, 8)}
-            </p>
-          )}
-          <Link
-            href="/account"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary-dark)] hover:underline"
-          >
-            Se mine bookinger &rarr;
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
-  /* ── Not logged in ── */
-  if (!isLoggedIn) {
-    return (
-      <div className="bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)] overflow-hidden">
-        <div className="px-5 py-6">
-          <p className="text-sm font-semibold text-[var(--color-foreground)] mb-1">Lei dette produktet</p>
-          <p className="text-sm text-[var(--color-muted)] mb-5">
-            Logg inn eller opprett konto for å sende en leieforespørsel.
-          </p>
-          <div className="flex flex-col gap-2">
-            <Link
-              href={loginHref}
-              className="flex items-center justify-center w-full py-3 px-4 rounded-[var(--radius-lg)] text-sm font-semibold text-white transition-opacity hover:opacity-90"
-              style={{ backgroundColor: '#4A6741' }}
-            >
-              Logg inn
-            </Link>
-            <Link
-              href={registerHref}
-              className="flex items-center justify-center w-full py-3 px-4 rounded-[var(--radius-lg)] border border-[var(--color-border)] text-sm font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-background)] transition-colors"
-            >
-              Opprett konto
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  /* ── Booking form ── */
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleAddToCart}>
       <div className="bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)] overflow-hidden mb-3">
         {/* Date pickers */}
         <div className="grid grid-cols-2 divide-x divide-[var(--color-border)]">
@@ -207,60 +116,83 @@ export function BookingPanel({
         </div>
 
         {/* Price breakdown */}
-        {priceCalc && days > 0 && (
-          <>
-            <div className="border-t border-[var(--color-border)]">
-              <div className="flex items-center justify-between px-5 py-3">
-                <span className="text-sm text-[var(--color-muted)]">
-                  {priceCalc.label} × {priceCalc.unit}
-                </span>
-                <span className="text-sm font-semibold text-[var(--color-foreground)]">
-                  {priceCalc.total} kr
-                </span>
-              </div>
-
-              {depositAmount > 0 && (
-                <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--color-border)]">
-                  <span className="text-sm text-[var(--color-muted)]">
-                    Depositum (refunderes)
-                  </span>
-                  <span className="text-sm font-medium text-[var(--color-muted-foreground)]">
-                    {depositAmount} kr
-                  </span>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between px-5 py-4 bg-[var(--color-background)] border-t border-[var(--color-border)]">
-                <span className="text-sm font-bold text-[var(--color-foreground)]">Totalt</span>
-                <span className="text-lg font-bold text-[var(--color-foreground)]">{total} kr</span>
-              </div>
+        {priceCalc && days > 0 ? (
+          <div className="border-t border-[var(--color-border)]">
+            <div className="flex items-center justify-between px-5 py-3">
+              <span className="text-sm text-[var(--color-muted)]">{priceCalc.label}</span>
+              <span className="text-sm font-semibold text-[var(--color-foreground)]">{priceCalc.total} kr</span>
             </div>
-          </>
-        )}
-
-        {(!priceCalc || days <= 0) && (
+            {depositAmount > 0 && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--color-border)]">
+                <span className="text-sm text-[var(--color-muted)]">Depositum (refunderes)</span>
+                <span className="text-sm font-medium text-[var(--color-muted-foreground)]">{depositAmount} kr</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between px-5 py-4 bg-[var(--color-background)] border-t border-[var(--color-border)]">
+              <span className="text-sm font-bold text-[var(--color-foreground)]">Totalt</span>
+              <span className="text-lg font-bold text-[var(--color-foreground)]">{total} kr</span>
+            </div>
+          </div>
+        ) : (
           <div className="border-t border-[var(--color-border)] px-5 py-4 text-sm text-[var(--color-muted)]">
             Velg datoer for å se pris
           </div>
         )}
       </div>
 
-      {error && (
-        <p className="text-sm text-[var(--color-damaged)] mb-3">{error}</p>
-      )}
-
+      {/* Add to cart button */}
       <button
         type="submit"
-        disabled={loading || !priceCalc || days <= 0}
-        className="w-full py-4 rounded-[var(--radius-lg)] text-base font-semibold text-white transition-opacity disabled:opacity-50"
-        style={{ backgroundColor: '#4A6741' }}
+        disabled={!priceCalc || days <= 0}
+        className={`w-full py-4 rounded-[var(--radius-lg)] text-base font-semibold text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${
+          added ? 'bg-[#4A6741]' : 'bg-[var(--color-foreground)] hover:opacity-90'
+        }`}
+        style={added ? {} : { backgroundColor: '#2B2B2B' }}
       >
-        {loading ? 'Sender...' : 'Send leieforespørsel'}
+        {added ? (
+          <>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+            </svg>
+            Lagt i handlevognen!
+          </>
+        ) : alrInCart ? (
+          'Allerede i handlevognen'
+        ) : (
+          <>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Legg i handlevogn
+          </>
+        )}
       </button>
 
-      <p className="text-center text-xs text-[var(--color-muted-foreground)] mt-2">
-        Vi kontakter deg innen 24 timer
-      </p>
+      {added && (
+        <div className="mt-3 flex gap-2">
+          <Link
+            href="/cart"
+            className="flex-1 py-3 text-center text-sm font-semibold rounded-[var(--radius-lg)] bg-[#4A6741] text-white hover:opacity-90 transition-opacity"
+          >
+            Gå til kassen →
+          </Link>
+          <button
+            type="button"
+            onClick={() => setAdded(false)}
+            className="px-4 py-3 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] font-medium transition-colors"
+          >
+            Fortsett å handle
+          </button>
+        </div>
+      )}
+
+      {!added && !alrInCart && (
+        <p className="text-center text-xs text-[var(--color-muted-foreground)] mt-2">
+          Ingen betaling nå — bekreft og betal i kassen
+        </p>
+      )}
     </form>
   )
 }
