@@ -19,21 +19,24 @@ export async function updateProfile(
   input: ProfileInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const authClient = await createClient()
+    const { data: { user } } = await authClient.auth.getUser()
     if (!user) return { success: false, error: 'Ikke innlogget' }
 
+    // Use service client to bypass RLS — upsert creates the row if it doesn't exist yet
+    const supabase = createServiceClient()
     const { error } = await supabase
       .from('customers')
-      .update({
+      .upsert({
+        user_id:       user.id,
+        email:         user.email ?? null,
         first_name:    input.first_name    || null,
         last_name:     input.last_name     || null,
         phone:         input.phone         || null,
         address_line1: input.address_line1 || null,
         postal_code:   input.postal_code   || null,
         city:          input.city          || null,
-      })
-      .eq('user_id', user.id)
+      }, { onConflict: 'user_id' })
 
     if (error) return { success: false, error: error.message }
     revalidatePath('/account')
