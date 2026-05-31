@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { BookingPanel } from '@/components/ui/booking-panel'
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
 import { WaitlistForm } from '@/components/ui/waitlist-form'
+import { AvailabilityCalendar } from '@/components/ui/availability-calendar'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
@@ -80,6 +81,25 @@ export default async function ProductPage({
   ])
 
   const isAvailable = (availableCount ?? 0) > 0
+
+  // Hent bookinger for denne produkten de neste 6 månedene
+  const sixMonthsOut = new Date()
+  sixMonthsOut.setMonth(sixMonthsOut.getMonth() + 6)
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const endStr   = sixMonthsOut.toISOString().slice(0, 10)
+
+  const { data: bookingItems } = await supabase
+    .from('booking_items')
+    .select('booking_id, bookings!inner(start_date, end_date, status)')
+    .eq('product_id', product.id)
+    .in('bookings.status' as any, ['confirmed', 'prepared', 'delivered', 'active_rental'])
+    .gte('bookings.end_date' as any, todayStr)
+    .lte('bookings.start_date' as any, endStr)
+
+  const bookedRanges = (bookingItems ?? []).map((item: any) => ({
+    start: item.bookings.start_date as string,
+    end:   item.bookings.end_date   as string,
+  }))
 
   const categoryImages: Record<string, string> = {
     vogner:     '/images/products/vogner.jpg',
@@ -266,6 +286,16 @@ export default async function ProductPage({
             </p>
           </div>
         )}
+
+        {/* Tilgjengelighetskalender */}
+        <div className="mt-16 pt-16 border-t border-[var(--color-border)]">
+          <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-6">
+            Ledige datoer
+          </h2>
+          <div className="max-w-2xl">
+            <AvailabilityCalendar bookedRanges={bookedRanges} />
+          </div>
+        </div>
       </div>
 
       <Footer />
