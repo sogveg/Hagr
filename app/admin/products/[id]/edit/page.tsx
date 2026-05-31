@@ -35,7 +35,8 @@ export default async function EditProductPage({
     supabase.from('products').select('*').eq('id', id).single(),
     supabase.from('categories').select('id, name').order('name'),
     supabase.from('locations').select('id, name').order('name'),
-    supabase.from('product_locations').select('category_id, location_id').eq('product_id', id).single(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase.from as any)('product_locations').select('category_id, location_id').eq('product_id', id).single(),
   ])
 
   if (!product) notFound()
