@@ -11,6 +11,7 @@ import { BookingPanel } from '@/components/ui/booking-panel'
 import { ProductSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
 import { WaitlistForm } from '@/components/ui/waitlist-form'
 import { AvailabilityCalendar } from '@/components/ui/availability-calendar'
+import { ImageCarousel } from '@/components/ui/image-carousel'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
@@ -107,7 +108,11 @@ export default async function ProductPage({
     babyutstyr: '/images/products/babyutstyr.jpg',
     leker:      '/images/products/babyutstyr.jpg',
   }
-  const imageSrc = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
+  const fallbackImage = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
+  // Use the images array if available, otherwise fall back to single image_url
+  const carouselImages: string[] = (product.images && product.images.length > 0)
+    ? product.images
+    : (fallbackImage ? [fallbackImage] : [])
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
@@ -146,14 +151,8 @@ export default async function ProductPage({
 
         {/* Product layout */}
         <div className="grid lg:grid-cols-[1fr_440px] gap-12 items-start">
-          {/* Left — bilde */}
-          <div className="rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)]">
-            <img
-              src={imageSrc}
-              alt={product.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Left — bilde(r) */}
+          <ImageCarousel images={carouselImages} alt={product.name} />
 
           {/* Right — info + booking */}
           <div className="lg:sticky lg:top-24 flex flex-col gap-0">

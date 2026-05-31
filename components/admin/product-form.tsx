@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductInput } from '@/app/actions/admin'
-import { createClient } from '@/lib/supabase-browser'
+import { uploadProductImage } from '@/app/actions/admin'
 
 interface Category { id: string; name: string }
 interface Location { id: string; name: string }
@@ -25,6 +25,7 @@ interface ProductFormProps {
     minimum_rental_days: number
     published:           boolean
     image_url:           string | null
+    images?:             string[] | null
   }
   onSave: (data: ProductInput) => Promise<{ success: boolean; error?: string }>
 }
@@ -62,7 +63,13 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
   const [deposit,    setDeposit]    = useState(product?.deposit_amount?.toString()      ?? '500')
   const [minDays,    setMinDays]    = useState(product?.minimum_rental_days?.toString() ?? '1')
   const [published,  setPublished]  = useState(product?.published ?? false)
-  const [imageUrl,     setImageUrl]     = useState(product?.image_url ?? '')
+  // Multi-image state: start from images[] array, fall back to image_url
+  const initialImages = (product?.images && product.images.length > 0)
+    ? product.images
+    : product?.image_url
+    ? [product.image_url]
+    : []
+  const [images,       setImages]       = useState<string[]>(initialImages)
   const [uploading,    setUploading]    = useState(false)
   const [uploadError,  setUploadError]  = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -70,29 +77,39 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
   const [locationId, setLocationId] = useState(locations[0]?.id  ?? '')
   const [unitCount,  setUnitCount]  = useState('1')
 
-  async function handleImageUpload(file: File) {
+  async function handleImageUpload(files: FileList) {
     setUploading(true)
     setUploadError(null)
     try {
-      const supabase = createClient()
-      if (!supabase) throw new Error('Supabase ikke tilgjengelig')
-
-      const ext  = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-
-      const { error: uploadErr } = await supabase.storage
-        .from('product-images')
-        .upload(path, file, { upsert: false, contentType: file.type })
-
-      if (uploadErr) throw uploadErr
-
-      const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-      setImageUrl(data.publicUrl)
+      const newUrls: string[] = []
+      for (const file of Array.from(files)) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const result = await uploadProductImage(formData)
+        if (!result.success || !result.url) throw new Error(result.error ?? 'Opplasting feilet')
+        newUrls.push(result.url)
+      }
+      setImages(prev => [...prev, ...newUrls])
     } catch (err: any) {
       setUploadError(err?.message ?? 'Opplasting feilet')
     } finally {
       setUploading(false)
+      // Reset file input so the same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  function removeImage(index: number) {
+    setImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function moveImage(from: number, to: number) {
+    setImages(prev => {
+      const next = [...prev]
+      const [item] = next.splice(from, 1)
+      next.splice(to, 0, item)
+      return next
+    })
   }
 
   function handleNameChange(value: string) {
@@ -116,7 +133,8 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
       deposit_amount:      parseFloat(deposit)  || 0,
       minimum_rental_days: parseInt(minDays)    || 1,
       published,
-      image_url:     imageUrl,
+      image_url:     images[0] ?? '',
+      images,
       category_id:   categoryId,
       location_id:   locationId,
       inventory_count: parseInt(unitCount) || 0,
@@ -216,62 +234,111 @@ export function ProductForm({ categories, locations, product, onSave }: ProductF
         </div>
       </section>
 
-      {/* ── Bilde ─────────────────────────────────────────── */}
+      {/* ── Bilder ────────────────────────────────────────── */}
       <section className="bg-white rounded-2xl border border-black/[0.06] p-6">
-        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5">Bilde</h2>
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Bilder</h2>
+        <p className="text-xs text-gray-400 mb-5">
+          Første bilde er hovedbildet. Dra for å omorganisere (kommer snart). Opptil 8 bilder.
+        </p>
 
-        <div className="flex gap-4 items-start">
-          {/* Forhåndsvisning */}
-          <div
-            className="w-28 h-28 rounded-xl overflow-hidden bg-[#F8F7F4] border-2 border-dashed border-black/10 flex items-center justify-center shrink-0 cursor-pointer hover:border-[#8FA68B] transition-colors"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {imageUrl ? (
-              <img src={imageUrl} alt="" className="w-full h-full object-cover"
-                onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-            ) : (
-              <span className="text-2xl text-gray-300">{uploading ? '⏳' : '📷'}</span>
-            )}
-          </div>
+        {/* Image grid */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          {images.map((url, i) => (
+            <div key={url + i} className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F8F7F4] group border border-black/[0.06]">
+              <img src={url} alt={`Bilde ${i + 1}`} className="w-full h-full object-cover"
+                onError={e => { (e.target as HTMLImageElement).src = '' }} />
 
-          {/* Upload + URL */}
-          <div className="flex-1 space-y-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={e => {
-                const file = e.target.files?.[0]
-                if (file) handleImageUpload(file)
-              }}
-            />
-            <button
-              type="button"
-              disabled={uploading}
+              {/* Primary badge */}
+              {i === 0 && (
+                <span className="absolute top-1 left-1 text-[9px] font-bold bg-[#8FA68B] text-white rounded px-1 py-0.5 leading-none">
+                  HOVED
+                </span>
+              )}
+
+              {/* Delete button */}
+              <button
+                type="button"
+                onClick={() => removeImage(i)}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                aria-label="Fjern bilde"
+              >
+                ×
+              </button>
+
+              {/* Move left / right */}
+              {images.length > 1 && (
+                <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {i > 0 && (
+                    <button type="button" onClick={() => moveImage(i, i - 1)}
+                      className="w-5 h-5 rounded bg-black/60 text-white text-xs flex items-center justify-center hover:bg-black">
+                      ‹
+                    </button>
+                  )}
+                  {i < images.length - 1 && (
+                    <button type="button" onClick={() => moveImage(i, i + 1)}
+                      className="w-5 h-5 rounded bg-black/60 text-white text-xs flex items-center justify-center hover:bg-black">
+                      ›
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Add image button */}
+          {images.length < 8 && (
+            <div
+              className="w-24 h-24 rounded-xl border-2 border-dashed border-black/10 flex flex-col items-center justify-center cursor-pointer hover:border-[#8FA68B] hover:bg-[#F8F7F4] transition-colors"
               onClick={() => fileInputRef.current?.click()}
-              className="text-sm font-semibold px-4 py-2 rounded-xl border border-black/10 hover:bg-[#F8F7F4] transition-colors disabled:opacity-50"
             >
-              {uploading ? 'Laster opp…' : 'Last opp bilde'}
-            </button>
-
-            <p className="text-xs text-gray-400">eller lim inn URL under</p>
-
-            <input
-              className={inputCls}
-              value={imageUrl}
-              onChange={e => setImageUrl(e.target.value)}
-              placeholder="https://… eller /images/products/…"
-            />
-
-            {uploadError && (
-              <p className="text-xs text-red-500">{uploadError}</p>
-            )}
-            {imageUrl && !uploading && (
-              <p className="text-xs text-green-600">✓ Bilde satt</p>
-            )}
-          </div>
+              <span className="text-2xl text-gray-300 leading-none">{uploading ? '⏳' : '+'}</span>
+              <span className="text-[10px] text-gray-400 mt-1">Legg til</span>
+            </div>
+          )}
         </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={e => { if (e.target.files?.length) handleImageUpload(e.target.files) }}
+        />
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            disabled={uploading || images.length >= 8}
+            onClick={() => fileInputRef.current?.click()}
+            className="text-sm font-semibold px-4 py-2 rounded-xl border border-black/10 hover:bg-[#F8F7F4] transition-colors disabled:opacity-50"
+          >
+            {uploading ? 'Laster opp…' : 'Last opp bilder'}
+          </button>
+
+          {/* URL paste fallback */}
+          <input
+            className="flex-1 h-9 px-3 text-sm border border-black/[0.12] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#8FA68B] focus:border-transparent"
+            placeholder="Eller lim inn bilde-URL her og trykk Enter"
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                const val = (e.target as HTMLInputElement).value.trim()
+                if (val && images.length < 8) {
+                  setImages(prev => [...prev, val]);
+                  (e.target as HTMLInputElement).value = ''
+                }
+              }
+            }}
+          />
+        </div>
+
+        {uploadError && (
+          <p className="text-xs text-red-500 mt-2">{uploadError}</p>
+        )}
+        {images.length > 0 && !uploading && (
+          <p className="text-xs text-green-600 mt-2">✓ {images.length} bilde{images.length !== 1 ? 'r' : ''} lagt til</p>
+        )}
       </section>
 
       {/* ── Lokasjon & lager — bare ved nytt produkt ─────── */}

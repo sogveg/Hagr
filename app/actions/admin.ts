@@ -46,10 +46,39 @@ export type ProductInput = {
   minimum_rental_days: number
   published: boolean
   image_url: string
+  images: string[]       // All images; image_url is kept as first for backward compat
   // Only used on create:
   category_id: string
   location_id: string
   inventory_count: number
+}
+
+// ─── Image upload (server-side, bypasses storage RLS) ────────────────────────
+
+export async function uploadProductImage(
+  formData: FormData
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  try {
+    await requireAdmin()
+    const file = formData.get('file') as File | null
+    if (!file || file.size === 0) return { success: false, error: 'Ingen fil valgt' }
+
+    const supabase = createServiceClient()
+    const ext  = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+    const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+    const arrayBuffer = await file.arrayBuffer()
+    const { error: uploadErr } = await supabase.storage
+      .from('product-images')
+      .upload(path, Buffer.from(arrayBuffer), { contentType: file.type, upsert: false })
+
+    if (uploadErr) return { success: false, error: uploadErr.message }
+
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+    return { success: true, url: data.publicUrl }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
 }
 
 export async function createProduct(
@@ -59,6 +88,7 @@ export async function createProduct(
     await requireAdmin()
     const supabase = createServiceClient()
 
+    const images = input.images.length > 0 ? input.images : (input.image_url ? [input.image_url] : [])
     const { data: product, error } = await supabase
       .from('products')
       .insert({
@@ -73,7 +103,8 @@ export async function createProduct(
         deposit_amount:      input.deposit_amount,
         minimum_rental_days: input.minimum_rental_days,
         published:           input.published,
-        image_url:           input.image_url || null,
+        image_url:           images[0] || null,
+        images,
       })
       .select('id')
       .single()
@@ -115,6 +146,7 @@ export async function updateProduct(
     await requireAdmin()
     const supabase = createServiceClient()
 
+    const images = input.images.length > 0 ? input.images : (input.image_url ? [input.image_url] : [])
     const { error } = await supabase
       .from('products')
       .update({
@@ -129,7 +161,8 @@ export async function updateProduct(
         deposit_amount:      input.deposit_amount,
         minimum_rental_days: input.minimum_rental_days,
         published:           input.published,
-        image_url:           input.image_url || null,
+        image_url:           images[0] || null,
+        images,
       })
       .eq('id', id)
 

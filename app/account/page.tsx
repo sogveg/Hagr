@@ -43,6 +43,9 @@ export default async function AccountPage() {
   const activeBookings = (bookings ?? []).filter(b =>
     ['confirmed', 'prepared', 'delivered', 'active_rental'].includes(b.status)
   )
+  const pendingBookings = (bookings ?? []).filter(b =>
+    ['draft', 'pending_payment', 'payment_failed'].includes(b.status)
+  )
   const pastBookings = (bookings ?? []).filter(b =>
     ['completed', 'returned', 'cancelled'].includes(b.status)
   )
@@ -128,6 +131,51 @@ export default async function AccountPage() {
           )
         })()}
 
+        {/* Ventende bestillinger */}
+        {pendingBookings.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
+              Ventende bestillinger
+            </h2>
+            <div className="space-y-3">
+              {pendingBookings.map(booking => {
+                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
+                return (
+                  <div
+                    key={booking.id}
+                    className="bg-white rounded-2xl border border-[var(--color-border)] px-6 py-5 flex items-center justify-between gap-4"
+                  >
+                    <div>
+                      <p className="font-mono text-xs text-[var(--color-muted-foreground)] mb-1">
+                        #{booking.id.slice(0, 8)}
+                      </p>
+                      <p className="font-semibold text-[var(--color-foreground)] text-sm">
+                        {new Date(booking.start_date).toLocaleDateString('nb-NO')}
+                        {' — '}
+                        {new Date(booking.end_date).toLocaleDateString('nb-NO')}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.className}`}>
+                        {s.label}
+                      </span>
+                      <span className="font-bold text-[var(--color-foreground)] text-sm whitespace-nowrap">
+                        {booking.total_amount} kr
+                      </span>
+                      <Link
+                        href={`/account/bookings/${booking.id}`}
+                        className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
+                      >
+                        Detaljer →
+                      </Link>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Aktive bookinger */}
         <section className="mb-10">
           <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
@@ -184,11 +232,11 @@ export default async function AccountPage() {
           )}
         </section>
 
-        {/* Tidligere bookinger */}
+        {/* Ordrehistorik */}
         {pastBookings.length > 0 && (
           <section className="mb-10">
             <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
-              Tidligere leier
+              Ordrehistorik
             </h2>
             <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
               {pastBookings.map((booking, i) => {
