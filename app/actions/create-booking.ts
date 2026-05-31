@@ -21,19 +21,38 @@ export type CreateBookingResult =
   | { success: false; error: string }
 
 export async function createBooking(input: CreateBookingInput): Promise<CreateBookingResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
+  // Auth check with user client
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
   if (!user) return { success: false, error: 'Ikke innlogget' }
 
-  // Finn kundeprofil
-  const { data: customer } = await supabase
+  // All DB operations use service client to bypass RLS
+  const supabase = createServiceClient()
+
+  // Finn kundeprofil — opprett hvis mangler (første booking etter sosial innlogging e.l.)
+  let { data: customer } = await supabase
     .from('customers')
     .select('id, first_name, last_name, email, phone')
     .eq('user_id', user.id)
     .single()
 
-  if (!customer) return { success: false, error: 'Kundeprofil ikke funnet. Prøv å logg inn på nytt.' }
+  if (!customer) {
+    // Auto-opprett kundeprofil fra auth-data
+    const { data: newCustomer, error: createErr } = await supabase
+      .from('customers')
+      .upsert({
+        user_id:    user.id,
+        email:      user.email!,
+        first_name: user.user_metadata?.first_name ?? null,
+        last_name:  user.user_metadata?.last_name  ?? null,
+      }, { onConflict: 'user_id' })
+      .select('id, first_name, last_name, email, phone')
+      .single()
+    if (createErr || !newCustomer) {
+      return { success: false, error: 'Kunne ikke opprette kundeprofil. Prøv å gå til «Min side» og lagre profilen din.' }
+    }
+    customer = newCustomer
+  }
 
   // Beregn antall dager
   const start = new Date(input.startDate)
@@ -87,7 +106,7 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
   }
 
   // Opprett booking-linje
-  await supabase.from('booking_items').insert({
+  const { error: itemError } = await supabase.from('booking_items').insert({
     booking_id:  booking.id,
     product_id:  input.productId,
     quantity:    1,
@@ -95,9 +114,15 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     price_type:  priceType,
   })
 
+  if (itemError) {
+    console.error('booking_items error:', itemError)
+    // Slett bookingen slik at det ikke blir en zombie-rad
+    await supabase.from('bookings').delete().eq('id', booking.id)
+    return { success: false, error: 'Kunne ikke registrere produktet på bookingen. Prøv igjen.' }
+  }
+
   // Hent produktnavn for e-post
-  const serviceClient = createServiceClient()
-  const { data: product } = await serviceClient
+  const { data: product } = await supabase
     .from('products')
     .select('name')
     .eq('id', input.productId)

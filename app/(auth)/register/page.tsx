@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-browser'
+import { createCustomerProfile } from '@/app/actions/customer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -45,11 +46,12 @@ function RegisterForm() {
     }
 
     if (data.user) {
-      await supabase.from('customers').insert({
-        user_id:    data.user.id,
-        first_name: firstName,
-        last_name:  lastName,
+      // Use server action with service client — bypasses RLS reliably
+      await createCustomerProfile({
+        userId:    data.user.id,
         email,
+        firstName,
+        lastName,
       })
     }
 

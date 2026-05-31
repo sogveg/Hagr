@@ -6,6 +6,28 @@ import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
 import { CustomerMessageEmail } from '@/lib/emails/customer-message'
 import React from 'react'
 
+// Called right after signUp — uses service client to bypass RLS
+export async function createCustomerProfile(input: {
+  userId:    string
+  email:     string
+  firstName: string
+  lastName:  string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = createServiceClient()
+    const { error } = await supabase.from('customers').upsert({
+      user_id:    input.userId,
+      email:      input.email,
+      first_name: input.firstName || null,
+      last_name:  input.lastName  || null,
+    }, { onConflict: 'user_id' })
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
+}
+
 export type ProfileInput = {
   first_name:    string
   last_name:     string
