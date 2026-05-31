@@ -29,7 +29,7 @@ export async function updateProfile(
       .from('customers')
       .upsert({
         user_id:       user.id,
-        email:         user.email ?? null,
+        email:         user.email!,
         first_name:    input.first_name    || null,
         last_name:     input.last_name     || null,
         phone:         input.phone         || null,
