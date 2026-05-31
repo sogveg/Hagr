@@ -14,8 +14,8 @@ interface AvailabilityCalendarProps {
 
 function addMonths(date: Date, n: number) {
   const d = new Date(date)
+  d.setDate(1) // Must set day=1 FIRST — otherwise May 31 + 1 month = June 31 → overflows to July
   d.setMonth(d.getMonth() + n)
-  d.setDate(1)
   return d
 }
 
