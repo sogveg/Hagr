@@ -170,9 +170,10 @@ export async function updateProduct(
 
     // Update category if provided
     if (input.category_id) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await supabase
         .from('product_locations')
-        .update({ category_id: input.category_id })
+        .update({ category_id: input.category_id } as any)
         .eq('product_id', id)
     }
 
