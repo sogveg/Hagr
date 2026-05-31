@@ -8,6 +8,7 @@ const navItems = [
   { href: '/admin/bookings',     label: 'Bookinger',   icon: '📋' },
   { href: '/admin/kalender',     label: 'Kalender',    icon: '📅' },
   { href: '/admin/products',     label: 'Produkter',   icon: '📦' },
+  { href: '/admin/categories',   label: 'Kategorier',  icon: '🏷️' },
   { href: '/admin/inventory',    label: 'Lager',       icon: '🗃️' },
   { href: '/admin/customers',    label: 'Kunder',      icon: '👤' },
   { href: '/admin/okonomi',      label: 'Økonomi',     icon: '💰' },

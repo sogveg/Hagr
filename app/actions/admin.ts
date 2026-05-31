@@ -176,6 +176,71 @@ export async function updateProduct(
   }
 }
 
+// ─── Category actions ─────────────────────────────────────────────────────────
+
+function toSlug(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/å/g, 'a')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+}
+
+export async function createCategory(
+  input: { name: string; slug?: string; description?: string }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin()
+    const supabase = createServiceClient()
+    const slug = input.slug?.trim() || toSlug(input.name)
+    const { error } = await supabase.from('categories').insert({
+      name:        input.name.trim(),
+      slug,
+      description: input.description?.trim() || null,
+      active:      true,
+    })
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/categories')
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
+}
+
+export async function updateCategory(
+  id: string,
+  input: { name: string; slug: string; description?: string; active: boolean }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin()
+    const supabase = createServiceClient()
+    const { error } = await supabase.from('categories').update({
+      name:        input.name.trim(),
+      slug:        input.slug.trim(),
+      description: input.description?.trim() || null,
+      active:      input.active,
+    }).eq('id', id)
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/categories')
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
+}
+
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin()
+    const supabase = createServiceClient()
+    const { error } = await supabase.from('categories').delete().eq('id', id)
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/categories')
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
+}
+
 export async function toggleProductPublished(id: string, published: boolean) {
   await requireAdmin()
   const supabase = createServiceClient()
