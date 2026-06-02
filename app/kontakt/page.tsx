@@ -1,6 +1,7 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ContactForm } from '@/components/ui/contact-form'
+import { getServerT } from '@/lib/get-locale'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -9,33 +10,37 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.tinyrent.no/kontakt' },
   openGraph: {
     title: 'Kontakt oss | TinyRent',
-    description: 'Ta kontakt — vi svarer innen en arbeidsdag.',
+    description: 'Ta kontakt. Vi svarer innen en arbeidsdag.',
   },
 }
 
-export default function KontaktPage() {
+export default async function KontaktPage() {
+  const { t, locale } = await getServerT()
+
+  const contactItems = [
+    { icon: '📧', label: t.contact.email,    value: 'hei@tinyrent.no',                       href: 'mailto:hei@tinyrent.no' },
+    { icon: '📦', label: t.contact.bookings, value: locale === 'en' ? 'See products' : 'Se produkter',  href: '/bergen' },
+    { icon: '📋', label: t.contact.myAccount,value: locale === 'en' ? 'See bookings' : 'Se bookinger', href: '/account' },
+  ]
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
 
       <div className="max-w-[640px] mx-auto px-6 py-16">
         <div className="mb-10 text-center">
-          <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-3">Kontakt oss</p>
+          <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-3">{t.contact.label}</p>
           <h1 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-3">
-            Har du spørsmål?
+            {t.contact.title}
           </h1>
           <p className="text-[var(--color-muted)]">
-            Vi hjelper deg gjerne. Fyll ut skjemaet, så svarer vi på e-post innen en arbeidsdag.
+            {t.contact.subtitle}
           </p>
         </div>
 
         {/* Quick contact options */}
         <div className="grid sm:grid-cols-3 gap-3 mb-10">
-          {[
-            { icon: '📧', label: 'E-post', value: 'hei@tinyrent.no', href: 'mailto:hei@tinyrent.no' },
-            { icon: '📦', label: 'Bestilling', value: 'Se produkter', href: '/bergen' },
-            { icon: '📋', label: 'Min konto', value: 'Se bookinger', href: '/account' },
-          ].map(item => (
+          {contactItems.map(item => (
             <a
               key={item.label}
               href={item.href}
@@ -49,7 +54,7 @@ export default function KontaktPage() {
         </div>
 
         <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8">
-          <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-6">Send oss en melding</h2>
+          <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-6">{t.contact.sendTitle}</h2>
           <ContactForm />
         </div>
       </div>

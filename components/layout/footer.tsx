@@ -1,17 +1,30 @@
 import Link from 'next/link'
 import { NewsletterForm } from '@/components/ui/newsletter-form'
+import { getServerT } from '@/lib/get-locale'
 
-export function Footer() {
+export async function Footer() {
+  const { t } = await getServerT()
+
+  const links = [
+    { href: '/artikler',   label: t.footer.articles },
+    { href: '/kontakt',    label: t.footer.contact  },
+    { href: '/om-oss',     label: t.footer.aboutUs  },
+    { href: '/vilkar',     label: t.footer.terms    },
+    { href: '/personvern', label: t.footer.privacy  },
+  ]
+
   return (
     <footer className="bg-[var(--color-foreground)] px-6 py-16">
       <div className="max-w-[1200px] mx-auto">
 
         {/* Newsletter section */}
         <div className="text-center mb-16">
-          <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">Nyhetsbrev</p>
-          <h3 className="text-2xl font-bold text-white mb-2">Få tips og tilbud på e-post</h3>
+          <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">
+            {t.footer.newsletterLabel}
+          </p>
+          <h3 className="text-2xl font-bold text-white mb-2">{t.footer.newsletterTitle}</h3>
           <p className="text-sm text-white/60 mb-8 max-w-sm mx-auto leading-relaxed">
-            Vi sender kun nyttig innhold — ingen spam. Meld deg av når som helst.
+            {t.footer.newsletterSubtitle}
           </p>
           <div className="max-w-sm mx-auto">
             <NewsletterForm />
@@ -27,19 +40,13 @@ export function Footer() {
               TinyRent
             </Link>
             <p className="text-sm text-white/60 mt-1">
-              Lei premium babyutstyr i Bergen
+              {t.footer.tagline}
             </p>
           </div>
 
           {/* Links */}
           <nav className="flex flex-wrap gap-6">
-            {[
-              { href: '/artikler',   label: 'Artikler' },
-              { href: '/kontakt',    label: 'Kontakt' },
-              { href: '/om-oss',     label: 'Om oss' },
-              { href: '/vilkar',     label: 'Vilkår' },
-              { href: '/personvern', label: 'Personvern' },
-            ].map(({ href, label }) => (
+            {links.map(({ href, label }) => (
               <Link key={href} href={href} className="text-sm text-white/60 hover:text-white transition-colors">
                 {label}
               </Link>
@@ -52,7 +59,7 @@ export function Footer() {
 
         <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-xs text-white/40">
-            © {new Date().getFullYear()} TinyRent. Alle rettigheter reservert.
+            © {new Date().getFullYear()} TinyRent. {t.footer.rights}
           </p>
           <p className="text-xs text-white/40">
             Bergen, Norge

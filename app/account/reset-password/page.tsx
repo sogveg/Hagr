@@ -66,7 +66,7 @@ function ResetPasswordForm() {
         <div className="text-center mb-8">
           <a href="/" className="inline-block">
             <h1 className="text-[28px] font-bold text-[var(--color-foreground)] tracking-tight">TinyRent</h1>
-            <p className="text-sm text-[var(--color-primary-dark)] mt-0.5 font-medium">Premium babyutstyr — Bergen</p>
+            <p className="text-sm text-[var(--color-primary-dark)] mt-0.5 font-medium">Babyutstyr til leie i Bergen</p>
           </a>
         </div>
 

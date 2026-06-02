@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { Card } from './card'
+import { getServerT } from '@/lib/get-locale'
+import { CATEGORY_NAMES } from '@/lib/i18n'
 
 interface CategoryCardProps {
   category: {
@@ -48,7 +50,8 @@ const categoryIcons: Record<string, React.ReactNode> = {
   ),
 }
 
-export function CategoryCard({ category, locationSlug }: CategoryCardProps) {
+export async function CategoryCard({ category, locationSlug }: CategoryCardProps) {
+  const { locale } = await getServerT()
   const icon = categoryIcons[category.slug] ?? (
     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="m7.5 4.27 9 5.15"/>
@@ -57,26 +60,29 @@ export function CategoryCard({ category, locationSlug }: CategoryCardProps) {
       <path d="M12 22V12"/>
     </svg>
   )
-  
+
+  const displayName = CATEGORY_NAMES[category.slug]?.[locale] ?? category.name
+  const seeProductsLabel = locale === 'en' ? 'See products' : 'Se produkter'
+
   return (
     <Link href={`/${locationSlug}/${category.slug}`} className="group block">
       <Card hover>
         <div className="text-[var(--color-primary-dark)] mb-6">
           {icon}
         </div>
-        
+
         <h2 className="text-xl font-bold text-[var(--color-foreground)] mb-2">
-          {category.name}
+          {displayName}
         </h2>
-        
+
         {category.description && (
           <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-5">
             {category.description}
           </p>
         )}
-        
+
         <span className="inline-flex items-center gap-1.5 text-sm text-[var(--color-primary-dark)] font-semibold group-hover:gap-2.5 transition-all">
-          Se produkter <span>&rarr;</span>
+          {seeProductsLabel} <span>&rarr;</span>
         </span>
       </Card>
     </Link>

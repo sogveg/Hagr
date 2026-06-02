@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useCart, calcRentalPrice } from '@/context/cart-context'
+import { useLocale } from '@/context/locale-context'
 
 interface BookingPanelProps {
   productId:          string
@@ -37,6 +38,7 @@ export function BookingPanel({
   depositAmount, minimumRentalDays,
 }: BookingPanelProps) {
   const { addRental } = useCart()
+  const { t } = useLocale()
 
   const today  = formatDate(new Date())
   const minEnd = formatDate(addDays(new Date(), Math.max(minimumRentalDays, 1)))
@@ -85,7 +87,7 @@ export function BookingPanel({
         <div className="grid grid-cols-2 divide-x divide-[var(--color-border)]">
           <div className="px-4 py-3">
             <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-muted)] mb-1">
-              Fra
+              {t.bookingPanel.from}
             </label>
             <input
               type="date"
@@ -102,7 +104,7 @@ export function BookingPanel({
           </div>
           <div className="px-4 py-3">
             <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-muted)] mb-1">
-              Til
+              {t.bookingPanel.to}
             </label>
             <input
               type="date"
@@ -124,18 +126,18 @@ export function BookingPanel({
             </div>
             {depositAmount > 0 && (
               <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--color-border)]">
-                <span className="text-sm text-[var(--color-muted)]">Depositum (refunderes)</span>
+                <span className="text-sm text-[var(--color-muted)]">{t.bookingPanel.deposit}</span>
                 <span className="text-sm font-medium text-[var(--color-muted-foreground)]">{depositAmount} kr</span>
               </div>
             )}
             <div className="flex items-center justify-between px-5 py-4 bg-[var(--color-background)] border-t border-[var(--color-border)]">
-              <span className="text-sm font-bold text-[var(--color-foreground)]">Totalt</span>
+              <span className="text-sm font-bold text-[var(--color-foreground)]">{t.bookingPanel.total}</span>
               <span className="text-lg font-bold text-[var(--color-foreground)]">{total} kr</span>
             </div>
           </div>
         ) : (
           <div className="border-t border-[var(--color-border)] px-5 py-4 text-sm text-[var(--color-muted)]">
-            Velg datoer for å se pris
+            {t.bookingPanel.selectDates}
           </div>
         )}
       </div>
@@ -154,10 +156,10 @@ export function BookingPanel({
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/>
             </svg>
-            Lagt i handlevognen!
+            {t.bookingPanel.addedToCart}
           </>
         ) : alrInCart ? (
-          'Allerede i handlevognen'
+          t.bookingPanel.alreadyInCart
         ) : (
           <>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -165,7 +167,7 @@ export function BookingPanel({
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
-            Legg i handlevogn
+            {t.bookingPanel.addToCart}
           </>
         )}
       </button>
@@ -176,21 +178,21 @@ export function BookingPanel({
             href="/cart"
             className="flex-1 py-3 text-center text-sm font-semibold rounded-[var(--radius-lg)] bg-[#4A6741] text-white hover:opacity-90 transition-opacity"
           >
-            Gå til kassen →
+            {t.bookingPanel.goToCart}
           </Link>
           <button
             type="button"
             onClick={() => setAdded(false)}
             className="px-4 py-3 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] font-medium transition-colors"
           >
-            Fortsett å handle
+            {t.bookingPanel.continueShopping}
           </button>
         </div>
       )}
 
       {!added && !alrInCart && (
         <p className="text-center text-xs text-[var(--color-muted-foreground)] mt-2">
-          Ingen betaling nå — bekreft og betal i kassen
+          {t.bookingPanel.note}
         </p>
       )}
     </form>

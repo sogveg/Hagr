@@ -1,18 +1,21 @@
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
+import { getServerT } from '@/lib/get-locale'
 
 export const metadata = {
   title: 'Om oss',
-  description: 'Lær mer om TinyRent — vi gjør livet med baby litt enklere med premium babyutstyr til leie i Bergen.',
+  description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr. Vi laget løsningen vi ønsket fantes.',
   openGraph: {
     title: 'Om oss | TinyRent',
-    description: 'Lær mer om TinyRent — premium babyutstyr til leie i Bergen.',
-    images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent — Om oss' }],
+    description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr.',
+    images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent om oss' }],
   },
 }
 
-export default function OmOssPage() {
+export default async function OmOssPage() {
+  const { t } = await getServerT()
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
@@ -21,14 +24,13 @@ export default function OmOssPage() {
       <section className="bg-[var(--color-foreground)] px-6 py-20">
         <div className="max-w-[800px] mx-auto">
           <p className="text-xs font-bold text-[var(--color-primary-light)] uppercase tracking-widest mb-4">
-            Hvem er vi?
+            {t.about.badge}
           </p>
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight mb-5">
-            Vi gjør livet med baby litt enklere
+            {t.about.title}
           </h1>
           <p className="text-white/50 text-lg leading-relaxed max-w-xl">
-            TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr —
-            dyrt å kjøpe, vanskelig å lagre, og fort utdatert. Vi laget løsningen vi ønsket fantes.
+            {t.about.subtitle}
           </p>
         </div>
       </section>
@@ -39,23 +41,18 @@ export default function OmOssPage() {
           <div className="grid md:grid-cols-2 gap-12 mb-16">
             <div>
               <h2 className="text-xl font-bold text-[var(--color-foreground)] mb-3">
-                Idéen bak TinyRent
+                {t.about.ideaTitle}
               </h2>
               <p className="text-[var(--color-muted)] leading-relaxed text-[15px]">
-                Babyutstyr av god kvalitet er dyrt å kjøpe — og barn vokser fort ut av det.
-                Vi tror det er smartere å leie: du får premium utstyr fra merker som Moonboon,
-                Babyzen og Stokke, betaler kun for den perioden du trenger det, og slipper
-                å tenke på lagring eller videresalg.
+                {t.about.ideaText}
               </p>
             </div>
             <div>
               <h2 className="text-xl font-bold text-[var(--color-foreground)] mb-3">
-                Trygghet i fokus
+                {t.about.safetyTitle}
               </h2>
               <p className="text-[var(--color-muted)] leading-relaxed text-[15px]">
-                Alt utstyr vaskes og desinfiseres grundig mellom hver leie etter faste rutiner.
-                Vi kontrollerer sikkerhet og stand på hvert produkt. Du skal aldri lure på om
-                det er trygt — det er det alltid.
+                {t.about.safetyText}
               </p>
             </div>
           </div>
@@ -63,13 +60,13 @@ export default function OmOssPage() {
           {/* Values */}
           <div className="border-t border-[var(--color-border)] pt-12">
             <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-8">
-              Verdiene våre
+              {t.about.valuesTitle}
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { title: 'Bærekraft', text: 'Færre produkter produsert, mer brukt av flere. Det er godt for planeten — og lommeboken.' },
-                { title: 'Enkelthet', text: 'Vi tar oss av alt det praktiske. Du konsentrerer deg om det som virkelig teller.' },
-                { title: 'Tillit', text: 'Vi velger bare utstyr vi ville brukt selv. Og vi holder det i topp stand.' },
+                { title: t.about.v1Title, text: t.about.v1Text },
+                { title: t.about.v2Title, text: t.about.v2Text },
+                { title: t.about.v3Title, text: t.about.v3Text },
               ].map(v => (
                 <div key={v.title}>
                   <h3 className="font-bold text-[var(--color-foreground)] mb-2">{v.title}</h3>
@@ -82,13 +79,13 @@ export default function OmOssPage() {
           {/* Contact CTA */}
           <div className="mt-16 pt-12 border-t border-[var(--color-border)]">
             <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">
-              Ta kontakt
+              {t.about.contactTitle}
             </h2>
             <p className="text-[var(--color-muted)] mb-6">
-              Har du spørsmål? Vi svarer raskt på e-post.
+              {t.about.contactText}
             </p>
             <Button href="mailto:hei@tinyrent.no" variant="outline">
-              hei@tinyrent.no
+              {t.about.contactCta}
             </Button>
           </div>
         </div>

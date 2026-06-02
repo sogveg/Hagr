@@ -8,8 +8,10 @@ import { createCustomerProfile } from '@/app/actions/customer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { useLocale } from '@/context/locale-context'
 
 function RegisterForm() {
+  const { t } = useLocale()
   const router       = useRouter()
   const searchParams = useSearchParams()
   const redirectTo   = searchParams.get('redirect') ?? '/account'
@@ -28,7 +30,7 @@ function RegisterForm() {
 
     const supabase = createClient()
     if (!supabase) {
-      setError('Kunne ikke koble til. Prøv igjen.')
+      setError(t.auth.connectError)
       setLoading(false)
       return
     }
@@ -46,7 +48,6 @@ function RegisterForm() {
     }
 
     if (data.user) {
-      // Use server action with service client — bypasses RLS reliably
       await createCustomerProfile({
         userId:    data.user.id,
         email,
@@ -62,48 +63,48 @@ function RegisterForm() {
   return (
     <Card>
       <h2 className="text-[22px] font-bold text-[var(--color-foreground)] mb-6">
-        Opprett konto
+        {t.auth.registerTitle}
       </h2>
 
       <form onSubmit={handleRegister} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-3">
           <Input
             type="text"
-            label="Fornavn"
+            label={t.auth.firstNameLabel}
             value={firstName}
             onChange={e => setFirstName(e.target.value)}
             required
-            placeholder="Ola"
+            placeholder={t.auth.firstNamePlaceholder}
           />
           <Input
             type="text"
-            label="Etternavn"
+            label={t.auth.lastNameLabel}
             value={lastName}
             onChange={e => setLastName(e.target.value)}
             required
-            placeholder="Nordmann"
+            placeholder={t.auth.lastNamePlaceholder}
           />
         </div>
 
         <Input
           type="email"
-          label="E-post"
+          label={t.auth.emailLabel}
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
           autoComplete="email"
-          placeholder="din@epost.no"
+          placeholder={t.auth.emailPlaceholder}
         />
 
         <Input
           type="password"
-          label="Passord"
+          label={t.auth.passwordLabel}
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
           minLength={8}
           autoComplete="new-password"
-          placeholder="Minst 8 tegn"
+          placeholder={t.auth.passwordPlaceholder}
         />
 
         {error && (
@@ -111,17 +112,17 @@ function RegisterForm() {
         )}
 
         <Button type="submit" disabled={loading} fullWidth className="mt-2">
-          {loading ? 'Oppretter konto...' : 'Opprett konto'}
+          {loading ? t.auth.registering : t.auth.registerBtn}
         </Button>
       </form>
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
-        Har du konto fra før?{' '}
+        {t.auth.hasAccount}{' '}
         <Link
           href={`/login${redirectTo !== '/account' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
           className="text-[var(--color-primary-dark)] font-medium hover:underline"
         >
-          Logg inn
+          {t.auth.logIn}
         </Link>
       </p>
     </Card>

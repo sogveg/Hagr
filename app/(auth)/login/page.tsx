@@ -7,8 +7,10 @@ import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { useLocale } from '@/context/locale-context'
 
 function LoginForm() {
+  const { t } = useLocale()
   const router       = useRouter()
   const searchParams = useSearchParams()
   const redirectTo   = searchParams.get('redirect') ?? '/account'
@@ -25,7 +27,7 @@ function LoginForm() {
 
     const supabase = createClient()
     if (!supabase) {
-      setError('Kunne ikke koble til. Prøv igjen.')
+      setError(t.auth.connectError)
       setLoading(false)
       return
     }
@@ -33,7 +35,7 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError('Feil e-post eller passord')
+      setError(t.auth.loginError)
       setLoading(false)
       return
     }
@@ -45,27 +47,28 @@ function LoginForm() {
   return (
     <Card>
       <h2 className="text-[22px] font-bold text-[var(--color-foreground)] mb-6">
-        Logg inn
+        {t.auth.loginTitle}
       </h2>
 
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
         <Input
           type="email"
-          label="E-post"
+          label={t.auth.emailLabel}
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
           autoComplete="email"
-          placeholder="din@epost.no"
+          placeholder={t.auth.emailPlaceholder}
         />
 
         <Input
           type="password"
-          label="Passord"
+          label={t.auth.passwordLabel}
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
           autoComplete="current-password"
+          placeholder={t.auth.passwordPlaceholder}
         />
 
         {error && (
@@ -73,23 +76,23 @@ function LoginForm() {
         )}
 
         <Button type="submit" disabled={loading} fullWidth className="mt-2">
-          {loading ? 'Logger inn...' : 'Logg inn'}
+          {loading ? t.auth.loggingIn : t.auth.loginBtn}
         </Button>
       </form>
 
       <p className="text-center text-sm text-[var(--color-muted)] mt-5">
-        Ikke kunde ennå?{' '}
+        {t.auth.noAccount}{' '}
         <Link
           href={`/register${redirectTo !== '/account' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
           className="text-[var(--color-primary-dark)] font-medium hover:underline"
         >
-          Opprett konto
+          {t.auth.createAccount}
         </Link>
       </p>
 
       <p className="text-center text-sm mt-1">
         <Link href="/forgot-password" className="text-[var(--color-primary-dark)] font-medium hover:underline">
-          Glemt passord?
+          {t.auth.forgotPassword}
         </Link>
       </p>
     </Card>

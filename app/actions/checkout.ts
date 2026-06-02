@@ -7,9 +7,10 @@ import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
 
 export type DeliveryOption = {
-  type:         'pickup' | 'home' | 'airport' | 'train'
-  address?:     string
+  type:          'pickup' | 'home' | 'airport' | 'train' | 'hotel'
+  address?:      string
   flightNumber?: string
+  hotelName?:    string
 }
 
 export type CheckoutInput = {
@@ -55,21 +56,24 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     .from('customers')
     .select('id, first_name, last_name, email, phone')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   if (!customer) {
-    const { data: created } = await supabase
+    const { data: created, error: insertErr } = await supabase
       .from('customers')
-      .upsert({
+      .insert({
         user_id:    user.id,
         email:      user.email!,
         first_name: user.user_metadata?.first_name ?? null,
         last_name:  user.user_metadata?.last_name  ?? null,
-      }, { onConflict: 'user_id' })
+      })
       .select('id, first_name, last_name, email, phone')
-      .single()
+      .maybeSingle()
 
-    if (!created) return { success: false, error: 'Kunne ikke opprette kundeprofil. Gå til «Min side» og lagre profilen.' }
+    if (insertErr || !created) {
+      console.error('[checkoutCart] customer insert failed:', insertErr)
+      return { success: false, error: 'Kunne ikke opprette kundeprofil. Gå til «Min side» og lagre profilen.' }
+    }
     customer = created
   }
 
@@ -79,6 +83,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     home:    'Hjemlevering',
     airport: 'Levering flyplass',
     train:   'Levering togstasjon',
+    hotel:   'Levering hotell',
   }
   const deliveryNote = (() => {
     const base = deliveryLabels[input.delivery.type] ?? input.delivery.type
@@ -86,6 +91,10 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       return `${base}: ${input.delivery.address}`
     if (input.delivery.type === 'airport' && input.delivery.flightNumber)
       return `${base}, flight: ${input.delivery.flightNumber}`
+    if (input.delivery.type === 'hotel') {
+      const parts = [input.delivery.hotelName, input.delivery.address].filter(Boolean)
+      return parts.length ? `${base}: ${parts.join(', ')}` : base
+    }
     return base
   })()
 

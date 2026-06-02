@@ -83,7 +83,7 @@ export default async function EditProductPage({
         categories={categories ?? []}
         locations={locations ?? []}
         product={product}
-        currentCategoryId={productLocation?.category_id ?? undefined}
+        currentCategoryId={product.category_id ?? undefined}
         onSave={handleSave}
       />
 

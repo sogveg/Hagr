@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { getServerT } from '@/lib/get-locale'
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const { t } = await getServerT()
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Subtle decorative circle */}
@@ -17,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               TinyRent
             </h1>
             <p className="text-sm text-[var(--color-primary-dark)] mt-0.5 font-medium">
-              Premium babyutstyr — Bergen
+              {t.auth.tagline}
             </p>
           </Link>
         </div>

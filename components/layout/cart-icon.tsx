@@ -2,15 +2,21 @@
 
 import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
+import { useLocale } from '@/context/locale-context'
 
 export function CartIcon() {
   const { totalItems } = useCart()
+  const { locale } = useLocale()
+
+  const cartLabel = locale === 'en'
+    ? `Cart${totalItems > 0 ? ` (${totalItems} item${totalItems !== 1 ? 's' : ''})` : ''}`
+    : `Handlevogn${totalItems > 0 ? ` (${totalItems} varer)` : ''}`
 
   return (
     <Link
       href="/cart"
       className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/[0.05] transition-colors"
-      aria-label={`Handlevogn${totalItems > 0 ? ` (${totalItems} varer)` : ''}`}
+      aria-label={cartLabel}
     >
       {/* Shopping bag icon */}
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

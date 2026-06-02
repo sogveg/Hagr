@@ -2,8 +2,10 @@
 
 import { useState, useTransition } from 'react'
 import { subscribeNewsletter } from '@/app/actions/newsletter'
+import { useLocale } from '@/context/locale-context'
 
 export function NewsletterForm({ compact = false }: { compact?: boolean }) {
+  const { t } = useLocale()
   const [email, setEmail]     = useState('')
   const [name, setName]       = useState('')
   const [state, setState]     = useState<'idle' | 'success' | 'exists' | 'error'>('idle')
@@ -31,7 +33,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
     return (
       <div className="text-center py-2">
         <p className="text-sm font-semibold text-[var(--color-primary-dark)]">
-          Takk! Du er nå registrert på nyhetsbrevet 🎉
+          {t.newsletter.success}
         </p>
       </div>
     )
@@ -41,7 +43,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
     return (
       <div className="text-center py-2">
         <p className="text-sm text-[var(--color-muted)]">
-          Du er allerede registrert på nyhetsbrevet.
+          {t.newsletter.exists}
         </p>
       </div>
     )
@@ -52,7 +54,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <input
           type="text"
-          placeholder="Ditt navn (valgfritt)"
+          placeholder={t.newsletter.namePlaceholder}
           value={name}
           onChange={e => setName(e.target.value)}
           className="w-full bg-white/[0.08] border border-white/25 text-white placeholder-white/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/40"
@@ -61,7 +63,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
       <input
         type="email"
         required
-        placeholder="Din e-postadresse"
+        placeholder={t.newsletter.emailPlaceholder}
         value={email}
         onChange={e => setEmail(e.target.value)}
         className={
@@ -79,7 +81,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
             : 'w-full bg-white text-[var(--color-foreground)] text-sm font-bold rounded-xl px-5 py-3.5 hover:bg-white/90 transition-colors disabled:opacity-50'
         }
       >
-        {isPending ? 'Registrerer…' : 'Meld meg på'}
+        {isPending ? t.newsletter.subscribing : t.newsletter.subscribe}
       </button>
       {state === 'error' && (
         <p className="text-xs text-red-400 mt-1">{errorMsg}</p>

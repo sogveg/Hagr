@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
+import { CATEGORY_NAMES } from '@/lib/i18n'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
@@ -46,6 +48,7 @@ export default async function CategoryPage({
 }) {
   const { location: locationSlug, category: categorySlug } = await params
   const supabase = createServiceClient()
+  const { t, locale } = await getServerT()
 
   const [{ data: location }, { data: category }] = await Promise.all([
     supabase.from('locations').select('*').eq('slug', locationSlug).single(),
@@ -73,6 +76,20 @@ export default async function CategoryPage({
   const locationProductIds = new Set((productLocations ?? []).map(pl => pl.product_id))
   const products = (allProducts ?? []).filter(p => locationProductIds.has(p.id))
 
+  // Localised category name
+  const localCatName = CATEGORY_NAMES[categorySlug]?.[locale] ?? category.name
+
+  const homeLabel = locale === 'en' ? 'Home' : 'Hjem'
+
+  // Products available count
+  const productCount = locale === 'en'
+    ? `${products.length} product${products.length !== 1 ? 's' : ''} available in ${location.name}`
+    : `${products.length} produkt${products.length !== 1 ? 'er' : ''} tilgjengelig i ${location.name}`
+
+  const noProductsMsg = locale === 'en'
+    ? `No products available in ${location.name}.`
+    : `Ingen produkter tilgjengelig i ${location.name}.`
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <BreadcrumbSchema items={[
@@ -88,15 +105,15 @@ export default async function CategoryPage({
             <Breadcrumb
               variant="dark"
               items={[
-                { label: 'Hjem', href: '/' },
+                { label: homeLabel, href: '/' },
                 { label: location.name, href: `/${locationSlug}` },
-                { label: category.name },
+                { label: localCatName },
               ]}
             />
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-            {category.name}
+            {localCatName}
           </h1>
           {category.description && (
             <p className="text-white/40 mt-3 text-base max-w-lg">
@@ -105,7 +122,7 @@ export default async function CategoryPage({
           )}
           {products.length > 0 && (
             <p className="text-white/30 mt-2 text-sm">
-              {products.length} produkt{products.length !== 1 ? 'er' : ''} tilgjengelig i {location.name}
+              {productCount}
             </p>
           )}
         </div>
@@ -115,8 +132,18 @@ export default async function CategoryPage({
 
       <section className="px-6 py-16">
         <div className="max-w-[1200px] mx-auto">
+          {/* Section heading above the product grid */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[var(--color-foreground)] tracking-tight">
+              {localCatName}
+            </h2>
+            {products.length > 0 && (
+              <p className="text-sm text-[var(--color-muted)] mt-1">{productCount}</p>
+            )}
+          </div>
+
           {!products.length ? (
-            <p className="text-[var(--color-muted)]">Ingen produkter tilgjengelig i {location.name}.</p>
+            <p className="text-[var(--color-muted)]">{noProductsMsg}</p>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {products.map(product => (

@@ -7,6 +7,7 @@ import { useCart, calcRentalPrice } from '@/context/cart-context'
 import { checkoutCart, type DeliveryOption } from '@/app/actions/checkout'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { useLocale } from '@/context/locale-context'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
 
@@ -17,25 +18,8 @@ const ACCESSORIES = [
   { id: 'liner',   name: 'Vogninnlegg',   description: 'Mykt, vaskbart innlegg til vogn',     price: 149 },
 ]
 
-// ─── Delivery options ─────────────────────────────────────────────────────────
-
-const DELIVERY_OPTIONS: {
-  id:          DeliveryOption['type']
-  name:        string
-  description: string
-  extra:       'address' | 'flight' | null
-}[] = [
-  { id: 'pickup',  name: 'Hent selv',            description: 'Du henter og leverer utstyret hos oss',    extra: null     },
-  { id: 'home',    name: 'Levert på døren',       description: 'Vi bringer utstyret til din adresse',      extra: 'address' },
-  { id: 'airport', name: 'Levert på flyplassen',  description: 'Levering til Bergen lufthavn Flesland',    extra: 'flight' },
-  { id: 'train',   name: 'Levert på togstasjonen',description: 'Levering til Bergen stasjon',              extra: null     },
-]
-
 // ─── Date helpers ─────────────────────────────────────────────────────────────
 
-function fmt(d: string) {
-  return new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' })
-}
 function addDays(d: Date, n: number) {
   const r = new Date(d); r.setDate(r.getDate() + n); return r
 }
@@ -45,6 +29,7 @@ function toStr(d: Date) { return d.toISOString().split('T')[0] }
 
 export default function CartPage() {
   const router = useRouter()
+  const { t, locale } = useLocale()
   const { rentals, accessories, removeRental, updateDates, setAccessoryQty, clearCart } = useCart()
 
   const [loading,      setLoading]      = useState(false)
@@ -56,8 +41,28 @@ export default function CartPage() {
   const [deliveryType,    setDeliveryType]    = useState<DeliveryOption['type']>('pickup')
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [flightNumber,    setFlightNumber]    = useState('')
+  const [hotelName,       setHotelName]       = useState('')
 
   const today = toStr(new Date())
+  const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
+
+  function fmt(d: string) {
+    return new Date(d).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })
+  }
+
+  // Delivery options built from translations
+  const DELIVERY_OPTIONS: {
+    id:          DeliveryOption['type']
+    name:        string
+    description: string
+    extra:       'address' | 'flight' | 'hotel' | null
+  }[] = [
+    { id: 'pickup',  name: t.cart.delivery.pickup.name,   description: t.cart.delivery.pickup.desc,   extra: null      },
+    { id: 'home',    name: t.cart.delivery.home.name,     description: t.cart.delivery.home.desc,     extra: 'address' },
+    { id: 'hotel',   name: t.cart.delivery.hotel.name,    description: t.cart.delivery.hotel.desc,    extra: 'hotel'   },
+    { id: 'airport', name: t.cart.delivery.airport.name,  description: t.cart.delivery.airport.desc,  extra: 'flight'  },
+    { id: 'train',   name: t.cart.delivery.train.name,    description: t.cart.delivery.train.desc,    extra: null      },
+  ]
 
   // ── Totals ──────────────────────────────────────────────────────────────────
   const rentalTotal = useMemo(() => rentals.reduce((sum, r) => {
@@ -73,14 +78,17 @@ export default function CartPage() {
   async function handleCheckout() {
     setError(null)
 
-    // Validate delivery fields
     if (deliveryType === 'home' && !deliveryAddress.trim()) {
-      setError('Fyll inn leveringsadresse.')
-      return
+      setError(t.cart.errorAddress); return
     }
     if (deliveryType === 'airport' && !flightNumber.trim()) {
-      setError('Fyll inn flightnummer.')
-      return
+      setError(t.cart.errorFlight); return
+    }
+    if (deliveryType === 'hotel' && !hotelName.trim()) {
+      setError(t.cart.errorHotelName); return
+    }
+    if (deliveryType === 'hotel' && !deliveryAddress.trim()) {
+      setError(t.cart.errorHotelAddress); return
     }
 
     setLoading(true)
@@ -91,6 +99,7 @@ export default function CartPage() {
         type:         deliveryType,
         address:      deliveryAddress.trim() || undefined,
         flightNumber: flightNumber.trim()    || undefined,
+        hotelName:    hotelName.trim()       || undefined,
       },
     })
     setLoading(false)
@@ -120,16 +129,16 @@ export default function CartPage() {
               <path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/>
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">Bestilling mottatt!</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">{t.cart.successTitle}</h1>
           <p className="text-[var(--color-muted)] mb-8 leading-relaxed">
-            Vi har mottatt bestillingen din og kontakter deg innen 24 timer for å bekrefte og avklare detaljer.
+            {t.cart.successDesc}
           </p>
           <div className="flex flex-col gap-3">
             <Link href="/account" className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[var(--radius-full)] bg-[#4A6741] text-white font-semibold hover:opacity-90 transition-opacity">
-              Se mine bestillinger →
+              {t.cart.myBookings}
             </Link>
             <Link href="/bergen" className="text-sm text-[var(--color-muted)] hover:underline">
-              Fortsett å handle
+              {t.cart.keepShopping}
             </Link>
           </div>
         </div>
@@ -145,19 +154,22 @@ export default function CartPage() {
         <Header />
         <div className="max-w-xl mx-auto px-6 py-24 text-center">
           <div className="text-5xl mb-6">🛍️</div>
-          <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">Handlevognen er tom</h1>
-          <p className="text-[var(--color-muted)] mb-8">Legg til produkter for å komme i gang.</p>
+          <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-3">{t.cart.empty}</h1>
+          <p className="text-[var(--color-muted)] mb-8">{t.cart.emptyDesc}</p>
           <Link
             href="/bergen"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-[var(--radius-full)] bg-[var(--color-foreground)] text-white font-semibold hover:opacity-90 transition-opacity"
           >
-            Se utstyr i Bergen →
+            {t.cart.browseEquipment} →
           </Link>
         </div>
         <Footer />
       </main>
     )
   }
+
+  const freeLabel  = locale === 'en' ? 'Free'   : 'Gratis'
+  const agreeLabel = locale === 'en' ? 'Agreed' : 'Avtales'
 
   // ── Cart ────────────────────────────────────────────────────────────────────
   return (
@@ -166,7 +178,7 @@ export default function CartPage() {
 
       <div className="max-w-[1200px] mx-auto px-6 py-12">
         <h1 className="text-2xl font-bold text-[var(--color-foreground)] mb-8 tracking-tight">
-          Handlevogn
+          {t.cart.title}
         </h1>
 
         <div className="grid lg:grid-cols-[1fr_380px] gap-8 items-start">
@@ -178,7 +190,7 @@ export default function CartPage() {
             <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
               <div className="px-6 py-4 border-b border-black/[0.04]">
                 <h2 className="text-sm font-bold text-[var(--color-foreground)]">
-                  Leieprodukt{rentals.length !== 1 ? 'er' : ''} ({rentals.length})
+                  {t.cart.rentals(rentals.length)}
                 </h2>
               </div>
 
@@ -210,7 +222,7 @@ export default function CartPage() {
                           <button
                             onClick={() => removeRental(rental.cartId)}
                             className="text-xs text-gray-300 hover:text-red-400 transition-colors shrink-0 mt-0.5"
-                            aria-label="Fjern"
+                            aria-label="Remove"
                           >
                             ✕
                           </button>
@@ -219,7 +231,7 @@ export default function CartPage() {
                         {/* Date pickers inline */}
                         <div className="flex items-center gap-2 flex-wrap">
                           <div className="flex items-center gap-1.5 bg-[var(--color-background)] rounded-lg px-3 py-1.5">
-                            <span className="text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wide">Fra</span>
+                            <span className="text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wide">{t.cart.dateFrom}</span>
                             <input
                               type="date"
                               value={rental.startDate}
@@ -234,7 +246,7 @@ export default function CartPage() {
                           </div>
                           <span className="text-[var(--color-muted)] text-xs">→</span>
                           <div className="flex items-center gap-1.5 bg-[var(--color-background)] rounded-lg px-3 py-1.5">
-                            <span className="text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wide">Til</span>
+                            <span className="text-[10px] font-bold text-[var(--color-muted)] uppercase tracking-wide">{t.cart.dateTo}</span>
                             <input
                               type="date"
                               value={rental.endDate}
@@ -266,8 +278,8 @@ export default function CartPage() {
             {/* Accessories add-ons */}
             <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
               <div className="px-6 py-4 border-b border-black/[0.04]">
-                <h2 className="text-sm font-bold text-[var(--color-foreground)]">Legg til ekstra</h2>
-                <p className="text-xs text-[var(--color-muted)] mt-0.5">Praktisk tilbehør som gjør leien enda enklere</p>
+                <h2 className="text-sm font-bold text-[var(--color-foreground)]">{t.cart.extrasTitle}</h2>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">{t.cart.extrasSubtitle}</p>
               </div>
               <div className="divide-y divide-black/[0.04]">
                 {ACCESSORIES.map(acc => {
@@ -287,7 +299,7 @@ export default function CartPage() {
                             onClick={() => setAccessoryQty(acc.id, acc.name, acc.price, 1)}
                             className="text-xs font-semibold px-3 py-1.5 rounded-full border border-[#4A6741] text-[#4A6741] hover:bg-[#4A6741] hover:text-white transition-colors"
                           >
-                            + Legg til
+                            {t.cart.addItem}
                           </button>
                         ) : (
                           <div className="flex items-center gap-2">
@@ -316,8 +328,8 @@ export default function CartPage() {
             {/* Delivery options */}
             <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
               <div className="px-6 py-4 border-b border-black/[0.04]">
-                <h2 className="text-sm font-bold text-[var(--color-foreground)]">Levering</h2>
-                <p className="text-xs text-[var(--color-muted)] mt-0.5">Velg hvordan du ønsker å motta utstyret</p>
+                <h2 className="text-sm font-bold text-[var(--color-foreground)]">{t.cart.deliveryTitle}</h2>
+                <p className="text-xs text-[var(--color-muted)] mt-0.5">{t.cart.deliverySubtitle}</p>
               </div>
               <div className="divide-y divide-black/[0.04]">
                 {DELIVERY_OPTIONS.map(opt => {
@@ -345,7 +357,7 @@ export default function CartPage() {
                         {isSelected && opt.extra === 'address' && (
                           <input
                             type="text"
-                            placeholder="Gateadresse, postnummer og by"
+                            placeholder={t.cart.addressPlaceholder}
                             value={deliveryAddress}
                             onChange={e => setDeliveryAddress(e.target.value)}
                             onClick={e => e.stopPropagation()}
@@ -353,11 +365,31 @@ export default function CartPage() {
                           />
                         )}
 
+                        {/* Hotel name + address for hotel delivery */}
+                        {isSelected && opt.extra === 'hotel' && (
+                          <div className="mt-2 space-y-2" onClick={e => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              placeholder={t.cart.hotelNamePlaceholder}
+                              value={hotelName}
+                              onChange={e => setHotelName(e.target.value)}
+                              className="w-full text-sm border border-black/10 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741]"
+                            />
+                            <input
+                              type="text"
+                              placeholder={t.cart.hotelAddressPlaceholder}
+                              value={deliveryAddress}
+                              onChange={e => setDeliveryAddress(e.target.value)}
+                              className="w-full text-sm border border-black/10 rounded-lg px-3 py-2 bg-white outline-none focus:ring-2 focus:ring-[#4A6741]/20 focus:border-[#4A6741]"
+                            />
+                          </div>
+                        )}
+
                         {/* Flight number for airport delivery */}
                         {isSelected && opt.extra === 'flight' && (
                           <input
                             type="text"
-                            placeholder="Flightnummer (f.eks. SK4107)"
+                            placeholder={t.cart.flightPlaceholder}
                             value={flightNumber}
                             onChange={e => setFlightNumber(e.target.value)}
                             onClick={e => e.stopPropagation()}
@@ -366,7 +398,7 @@ export default function CartPage() {
                         )}
                       </div>
                       <span className="text-xs text-[var(--color-muted)] shrink-0 mt-0.5">
-                        {opt.id === 'pickup' ? 'Gratis' : 'Pris avtales'}
+                        {opt.id === 'pickup' ? freeLabel : agreeLabel}
                       </span>
                     </label>
                   )
@@ -376,14 +408,14 @@ export default function CartPage() {
 
             {/* Continue shopping */}
             <Link href="/bergen" className="inline-flex items-center gap-1.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
-              ← Fortsett å handle
+              {t.cart.continueShopping}
             </Link>
           </div>
 
           {/* ── RIGHT: Summary ────────────────────────────────────────────── */}
           <div className="sticky top-24">
             <div className="bg-white rounded-2xl border border-black/[0.06] p-6">
-              <h2 className="text-sm font-bold text-[var(--color-foreground)] mb-5">Oppsummering</h2>
+              <h2 className="text-sm font-bold text-[var(--color-foreground)] mb-5">{t.cart.summaryTitle}</h2>
 
               <div className="space-y-3 text-sm mb-5">
                 {rentals.map(r => {
@@ -408,7 +440,7 @@ export default function CartPage() {
 
                 {depositTotal > 0 && (
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[var(--color-muted)]">Depositum (refunderes)</span>
+                    <span className="text-[var(--color-muted)]">{t.cart.depositRow}</span>
                     <span className="font-semibold">{depositTotal} kr</span>
                   </div>
                 )}
@@ -416,16 +448,16 @@ export default function CartPage() {
                 {/* Delivery row */}
                 <div className="flex items-center justify-between gap-2 pt-1">
                   <span className="text-[var(--color-muted)]">
-                    {DELIVERY_OPTIONS.find(o => o.id === deliveryType)?.name ?? 'Levering'}
+                    {DELIVERY_OPTIONS.find(o => o.id === deliveryType)?.name ?? t.cart.deliveryTitle}
                   </span>
                   <span className="font-semibold text-[#4A6741]">
-                    {deliveryType === 'pickup' ? 'Gratis' : 'Avtales'}
+                    {deliveryType === 'pickup' ? freeLabel : agreeLabel}
                   </span>
                 </div>
               </div>
 
               <div className="border-t border-black/[0.06] pt-4 flex items-center justify-between mb-6">
-                <span className="font-bold text-[var(--color-foreground)]">Totalt</span>
+                <span className="font-bold text-[var(--color-foreground)]">{t.cart.total}</span>
                 <span className="text-xl font-bold text-[var(--color-foreground)]">{grandTotal} kr</span>
               </div>
 
@@ -443,15 +475,15 @@ export default function CartPage() {
                     <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
                     </svg>
-                    Sender...
+                    {t.cart.ordering}
                   </span>
                 ) : (
-                  'Bestill nå'
+                  t.cart.orderNow
                 )}
               </button>
 
               <p className="text-xs text-center text-[var(--color-muted-foreground)] mt-3">
-                Ingen betaling nå — vi kontakter deg innen 24 timer
+                {t.cart.note}
               </p>
             </div>
           </div>

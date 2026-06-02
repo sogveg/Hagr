@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
@@ -13,6 +14,7 @@ import { OrganizationSchema } from '@/components/seo/json-ld'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
+  const { t, locale } = await getServerT()
 
   const [
     { data: locations },
@@ -32,6 +34,8 @@ export default async function HomePage() {
 
   const categorySlugMap = new Map((categories ?? []).map(c => [c.id, c.slug]))
   const defaultLocation = locations?.[0]
+
+  const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
@@ -62,15 +66,15 @@ export default async function HomePage() {
         <div style={{ position: 'relative', zIndex: 2 }} className="px-6 py-24 md:py-36 max-w-[1200px] mx-auto">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.70)', fontSize: '11px', fontWeight: 700, padding: '6px 12px', borderRadius: '999px', marginBottom: '32px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#EBF0E7', flexShrink: 0 }} />
-            Bergen, Norge
+            {t.home.badge}
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold leading-none tracking-[-2.5px] mb-6 max-w-2xl text-balance" style={{ color: '#fff' }}>
-            Mer tid med babyen. Mindre styr.
+            {t.home.heroTitle}
           </h1>
 
           <p className="text-lg mb-10 max-w-md leading-relaxed" style={{ color: 'rgba(255,255,255,0.60)' }}>
-            Grundig vasket babyutstyr fra merker du kjenner — hent selv eller få det levert hjem til deg i Bergen.
+            {t.home.heroSubtitle}
           </p>
 
           <div className="flex flex-wrap gap-3">
@@ -83,7 +87,7 @@ export default async function HomePage() {
                   size="lg"
                   className="gap-2"
                 >
-                  Se utstyr i {loc.name} <span>&rarr;</span>
+                  {t.home.heroCta.replace('Bergen', loc.name)} <span>&rarr;</span>
                 </Button>
               ))
             ) : (
@@ -93,7 +97,7 @@ export default async function HomePage() {
                 size="lg"
                 className="gap-2"
               >
-                Se utstyr i Bergen <span>&rarr;</span>
+                {t.home.heroCta} <span>&rarr;</span>
               </Button>
             )}
           </div>
@@ -102,18 +106,18 @@ export default async function HomePage() {
 
       <TrustBadges />
 
-      {/* Kategorier */}
+      {/* Kategorier / Categories */}
       {categories && categories.length > 0 && (
         <section className="bg-[var(--color-background)] px-6 py-24">
           <div className="max-w-[1200px] mx-auto">
             <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
-              Hva trenger du?
+              {t.home.categoriesLabel}
             </p>
             <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-3">
-              Finn det du leter etter
+              {t.home.categoriesTitle}
             </h2>
             <p className="text-[var(--color-muted)] mb-12 max-w-md">
-              Alt fra vogner og bilstoler til leker og soveløsninger — vi har det meste.
+              {t.home.categoriesSubtitle}
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -129,18 +133,18 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* Populaere produkter */}
+      {/* Populaere produkter / Popular products */}
       {products && products.length > 0 && (
         <section className="bg-[var(--color-sand)] px-6 py-24">
           <div className="max-w-[1200px] mx-auto">
             <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
-              Populære valg
+              {t.home.popularLabel}
             </p>
             <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-3">
-              Favoritter blant bergensere
+              {t.home.popularTitle}
             </h2>
             <p className="text-[var(--color-muted)] mb-12 max-w-md">
-              Utstyr som fungerer — valgt fordi det er trygt, praktisk og enkelt å bruke.
+              {t.home.popularSubtitle}
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -161,7 +165,7 @@ export default async function HomePage() {
                   variant="outline"
                   size="lg"
                 >
-                  Se alt utstyr
+                  {t.home.seeAll}
                 </Button>
               </div>
             )}
@@ -171,17 +175,17 @@ export default async function HomePage() {
 
       <HowItWorks />
 
-      {/* Trygghet-seksjonen */}
+      {/* Trygghet-seksjonen / Safety section */}
       <section className="bg-[var(--color-sand)] px-6 py-24">
         <div className="max-w-[1200px] mx-auto">
           <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
-            Trygghet først
+            {t.home.safetyLabel}
           </p>
           <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-3">
-            Trygt for deg og babyen
+            {t.home.safetyTitle}
           </h2>
           <p className="text-[var(--color-muted)] mb-12 max-w-md">
-            Vi vet at du stiller høye krav når det gjelder babyen. Det gjør vi også.
+            {t.home.safetySubtitle}
           </p>
 
           <div className="grid md:grid-cols-3 gap-5">
@@ -193,8 +197,8 @@ export default async function HomePage() {
                     <path d="m9 12 2 2 4-4"/>
                   </svg>
                 ),
-                title: 'Grundig vasket og desinfisert',
-                text: 'Alt utstyr vaskes og kontrolleres grundig mellom hver leie. Du mottar alltid rent, trygt utstyr.'
+                title: t.home.safety1Title,
+                text:  t.home.safety1Text,
               },
               {
                 icon: (
@@ -203,8 +207,8 @@ export default async function HomePage() {
                     <polyline points="9 22 9 12 15 12 15 22"/>
                   </svg>
                 ),
-                title: 'Hent selv eller få det levert',
-                text: 'Du velger hva som passer best. Hent på avtalt sted, eller få utstyret kjørt hjem til deg — vi tilpasser oss.'
+                title: t.home.safety2Title,
+                text:  t.home.safety2Text,
               },
               {
                 icon: (
@@ -215,8 +219,8 @@ export default async function HomePage() {
                     <path d="M12 22V12"/>
                   </svg>
                 ),
-                title: 'Merker du kjenner og stoler på',
-                text: 'Moonboon, Babyzen, Snuz og flere — vi velger kun utstyr med dokumentert kvalitet og sikkerhet.'
+                title: t.home.safety3Title,
+                text:  t.home.safety3Text,
               },
             ].map(b => (
               <Card key={b.title}>
@@ -229,36 +233,35 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Artikler */}
+      {/* Artikler / Articles */}
       {articles && articles.length > 0 && (
         <section className="bg-[var(--color-background)] px-6 py-24">
           <div className="max-w-[1200px] mx-auto">
             <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4">
-              Fra bloggen
+              {t.home.blogLabel}
             </p>
             <div className="flex items-end justify-between mb-12">
               <h2 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight">
-                Tips og råd til småbarnsforeldre
+                {t.home.blogTitle}
               </h2>
               <a
                 href="/artikler"
                 className="text-sm font-semibold text-[var(--color-primary)] hover:underline shrink-0 ml-8 hidden md:block"
               >
-                Se alle artikler →
+                {t.home.seeAllArticles} →
               </a>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {(articles as any[]).map((article) => {
                 const date = new Date(article.published_at ?? article.created_at)
-                  .toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+                  .toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
                 return (
                   <a
                     key={article.id}
                     href={`/artikler/${article.slug}`}
                     className="group bg-white rounded-2xl border border-black/[0.06] overflow-hidden hover:border-black/10 hover:shadow-md transition-all"
                   >
-                    {/* Cover image */}
                     <div className="aspect-[16/9] bg-[#F0EAE0] overflow-hidden">
                       {article.cover_image ? (
                         <img
@@ -273,7 +276,6 @@ export default async function HomePage() {
                       )}
                     </div>
 
-                    {/* Text */}
                     <div className="p-6">
                       <p className="text-xs text-[var(--color-muted)] mb-3">{date}</p>
                       <h3 className="text-base font-bold text-[var(--color-foreground)] leading-snug mb-2 group-hover:text-[var(--color-primary)] transition-colors">
@@ -285,7 +287,7 @@ export default async function HomePage() {
                         </p>
                       )}
                       <p className="text-xs font-semibold text-[var(--color-primary)] mt-4">
-                        Les mer →
+                        {t.home.lesMore} →
                       </p>
                     </div>
                   </a>
@@ -298,7 +300,7 @@ export default async function HomePage() {
                 href="/artikler"
                 className="text-sm font-semibold text-[var(--color-primary)] hover:underline"
               >
-                Se alle artikler →
+                {t.home.seeAllArticles} →
               </a>
             </div>
           </div>
@@ -309,17 +311,17 @@ export default async function HomePage() {
       <section className="bg-[var(--color-foreground)] px-6 py-20">
         <div className="max-w-[1200px] mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 text-balance">
-            Klar til å forenkle hverdagen?
+            {t.home.ctaTitle}
           </h2>
           <p className="text-white/50 mb-10 text-lg max-w-md mx-auto">
-            Se hva vi har tilgjengelig i Bergen — og bestill direkte til døra di.
+            {t.home.ctaSubtitle}
           </p>
           <Button
             href={defaultLocation ? `/${defaultLocation.slug}` : '/bergen'}
             size="lg"
             className="bg-[var(--color-sand)] hover:bg-white text-[var(--color-foreground)] gap-2"
           >
-            Utforsk utstyr i Bergen <span>&rarr;</span>
+            {t.home.ctaCta} <span>&rarr;</span>
           </Button>
         </div>
       </section>

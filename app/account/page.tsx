@@ -3,28 +3,19 @@ export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
+import { STATUS_LABELS } from '@/lib/i18n'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import LogoutButton from './logout-button'
-
-const statusMap: Record<string, { label: string; className: string }> = {
-  draft:           { label: 'Utkast',          className: 'bg-gray-100 text-gray-500' },
-  pending_payment: { label: 'Venter betaling',  className: 'bg-yellow-50 text-yellow-700' },
-  payment_failed:  { label: 'Betaling feilet',  className: 'bg-red-50 text-red-600' },
-  confirmed:       { label: 'Bekreftet',         className: 'bg-blue-50 text-blue-700' },
-  prepared:        { label: 'Klar til henting',  className: 'bg-purple-50 text-purple-700' },
-  delivered:       { label: 'Levert',            className: 'bg-indigo-50 text-indigo-700' },
-  active_rental:   { label: 'Aktiv leie',        className: 'bg-green-50 text-green-700' },
-  returned:        { label: 'Returnert',          className: 'bg-gray-50 text-gray-600' },
-  completed:       { label: 'Fullført',           className: 'bg-gray-50 text-gray-500' },
-  cancelled:       { label: 'Kansellert',         className: 'bg-red-50 text-red-500' },
-}
 
 export default async function AccountPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
+
+  const { t, locale } = await getServerT()
 
   const { data: customer } = await supabase
     .from('customers')
@@ -50,7 +41,6 @@ export default async function AccountPage() {
     ['completed', 'returned', 'cancelled'].includes(b.status)
   )
 
-  // Banner: klar til henting ELLER henting innen 24 timer
   const todayStr    = new Date().toISOString().slice(0, 10)
   const tomorrowStr = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)
 
@@ -66,26 +56,51 @@ export default async function AccountPage() {
   const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
   const isAdmin = adminEmails.length > 0 && adminEmails.includes((user.email ?? '').toLowerCase())
 
+  const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
+
+  function getStatusLabel(status: string) {
+    return STATUS_LABELS[status]?.[locale] ?? { label: status, className: 'bg-gray-100 text-gray-500' }
+  }
+
+  // Account info labels
+  const nameLabel    = locale === 'en' ? 'Name'    : 'Navn'
+  const emailLabel   = locale === 'en' ? 'Email'   : 'E-post'
+  const phoneLabel   = locale === 'en' ? 'Phone'   : 'Telefon'
+  const addressLabel = locale === 'en' ? 'Address' : 'Adresse'
+  const cityLabel    = locale === 'en' ? 'City'    : 'By'
+  const accountInfoLabel = locale === 'en' ? 'Account information' : 'Kontoinformasjon'
+  const detailsLabel = locale === 'en' ? 'Details →' : 'Detaljer →'
+  const orderHistoryLabel = locale === 'en' ? 'Order history' : 'Ordrehistorik'
+  const activeRentalsLabel = locale === 'en' ? 'Active rentals' : 'Aktive leieforhold'
+  const noActiveLabel = locale === 'en'
+    ? 'You have no active rentals yet.'
+    : 'Du har ingen aktive leieforhold ennå.'
+  const browseLabel = locale === 'en' ? 'See available equipment' : 'Se tilgjengelig utstyr'
+  const greetingLabel = locale === 'en' ? 'Hi' : 'Hei'
+  const adminLabel = locale === 'en' ? 'Go to admin panel' : 'Gå til adminpanelet'
+  const pendingLabel = locale === 'en' ? 'Pending bookings' : 'Ventende bestillinger'
+  const seeDetailsLabel = locale === 'en' ? 'See details →' : 'Se detaljer →'
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
 
       <div className="max-w-[720px] mx-auto px-6 py-12">
-        {/* Topptekst */}
+        {/* Header */}
         <div className="flex items-start justify-between mb-10">
           <div>
             <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-2">
-              Min konto
+              {t.account.label}
             </p>
             <h1 className="text-3xl font-bold text-[var(--color-foreground)] tracking-tight">
-              Hei, {displayName?.split(' ')[0]} 👋
+              {greetingLabel}, {displayName?.split(' ')[0]} 👋
             </h1>
             <p className="text-[var(--color-muted)] mt-1 text-sm">{user.email}</p>
           </div>
           <LogoutButton />
         </div>
 
-        {/* Admin-snarvei */}
+        {/* Admin link */}
         {isAdmin && (
           <Link
             href="/admin"
@@ -95,26 +110,33 @@ export default async function AccountPage() {
               <span className="text-lg">⚙️</span>
               <div>
                 <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-0.5">Administrator</p>
-                <p className="text-sm font-semibold">Gå til adminpanelet</p>
+                <p className="text-sm font-semibold">{adminLabel}</p>
               </div>
             </div>
             <span className="text-white/40 group-hover:text-white transition-colors text-lg">→</span>
           </Link>
         )}
 
-        {/* Henting-banner */}
+        {/* Pickup banner */}
         {nextPickup && (() => {
           const isPrepared = nextPickup.status === 'prepared'
           const isToday    = nextPickup.start_date === todayStr
-          const isTomorrow = nextPickup.start_date === tomorrowStr
+          const startFmt   = new Date(nextPickup.start_date).toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'long' })
+
           const bannerLabel = isPrepared
-            ? 'Klar til henting! 🎉'
+            ? (locale === 'en' ? 'Ready for collection! 🎉' : 'Klar til henting! 🎉')
             : isToday
-            ? 'Henting i dag!'
-            : 'Henting i morgen'
+            ? (locale === 'en' ? 'Collection today!' : 'Henting i dag!')
+            : (locale === 'en' ? 'Collection tomorrow' : 'Henting i morgen')
+
           const bannerMsg = isPrepared
-            ? `Din booking er pakket og klar — hentes ${new Date(nextPickup.start_date).toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' })}`
-            : `Husk at din leieperiode starter ${new Date(nextPickup.start_date).toLocaleDateString('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' })}`
+            ? (locale === 'en'
+              ? `Your booking is packed and ready — collection on ${startFmt}`
+              : `Din booking er pakket og klar — hentes ${startFmt}`)
+            : (locale === 'en'
+              ? `Reminder: your rental period starts ${startFmt}`
+              : `Husk at din leieperiode starter ${startFmt}`)
+
           return (
             <div className="bg-[#EEF4EC] border border-[#8FA68B]/30 rounded-2xl px-6 py-4 mb-6 flex items-center justify-between gap-4">
               <div>
@@ -125,21 +147,21 @@ export default async function AccountPage() {
                 href={`/account/bookings/${nextPickup.id}`}
                 className="shrink-0 text-xs font-bold text-[#5A7A55] hover:underline"
               >
-                Se detaljer →
+                {seeDetailsLabel}
               </Link>
             </div>
           )
         })()}
 
-        {/* Ventende bestillinger */}
+        {/* Pending bookings */}
         {pendingBookings.length > 0 && (
           <section className="mb-10">
             <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
-              Ventende bestillinger
+              {pendingLabel}
             </h2>
             <div className="space-y-3">
               {pendingBookings.map(booking => {
-                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
+                const s = getStatusLabel(booking.status)
                 return (
                   <div
                     key={booking.id}
@@ -150,9 +172,9 @@ export default async function AccountPage() {
                         #{booking.id.slice(0, 8)}
                       </p>
                       <p className="font-semibold text-[var(--color-foreground)] text-sm">
-                        {new Date(booking.start_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.start_date).toLocaleDateString(dateLocale)}
                         {' — '}
-                        {new Date(booking.end_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -166,7 +188,7 @@ export default async function AccountPage() {
                         href={`/account/bookings/${booking.id}`}
                         className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
                       >
-                        Detaljer →
+                        {detailsLabel}
                       </Link>
                     </div>
                   </div>
@@ -176,26 +198,26 @@ export default async function AccountPage() {
           </section>
         )}
 
-        {/* Aktive bookinger */}
+        {/* Active rentals */}
         <section className="mb-10">
           <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
-            Aktive leieforhold
+            {activeRentalsLabel}
           </h2>
 
           {activeBookings.length === 0 ? (
             <div className="bg-white rounded-2xl border border-[var(--color-border)] px-6 py-12 text-center">
-              <p className="text-[var(--color-muted)] text-sm mb-4">Du har ingen aktive leieforhold ennå.</p>
+              <p className="text-[var(--color-muted)] text-sm mb-4">{noActiveLabel}</p>
               <Link
                 href="/bergen"
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary-dark)] hover:underline"
               >
-                Se tilgjengelig utstyr <span>&rarr;</span>
+                {browseLabel} <span>&rarr;</span>
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
               {activeBookings.map(booking => {
-                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
+                const s = getStatusLabel(booking.status)
                 return (
                   <div
                     key={booking.id}
@@ -206,9 +228,9 @@ export default async function AccountPage() {
                         #{booking.id.slice(0, 8)}
                       </p>
                       <p className="font-semibold text-[var(--color-foreground)] text-sm">
-                        {new Date(booking.start_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.start_date).toLocaleDateString(dateLocale)}
                         {' — '}
-                        {new Date(booking.end_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -222,7 +244,7 @@ export default async function AccountPage() {
                         href={`/account/bookings/${booking.id}`}
                         className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
                       >
-                        Detaljer →
+                        {detailsLabel}
                       </Link>
                     </div>
                   </div>
@@ -232,15 +254,15 @@ export default async function AccountPage() {
           )}
         </section>
 
-        {/* Ordrehistorik */}
+        {/* Order history */}
         {pastBookings.length > 0 && (
           <section className="mb-10">
             <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-4">
-              Ordrehistorik
+              {orderHistoryLabel}
             </h2>
             <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
               {pastBookings.map((booking, i) => {
-                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
+                const s = getStatusLabel(booking.status)
                 return (
                   <div
                     key={booking.id}
@@ -251,9 +273,9 @@ export default async function AccountPage() {
                         #{booking.id.slice(0, 8)}
                       </p>
                       <p className="text-sm text-[var(--color-muted)]">
-                        {new Date(booking.start_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.start_date).toLocaleDateString(dateLocale)}
                         {' — '}
-                        {new Date(booking.end_date).toLocaleDateString('nb-NO')}
+                        {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -267,7 +289,7 @@ export default async function AccountPage() {
                         href={`/account/bookings/${booking.id}`}
                         className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline whitespace-nowrap"
                       >
-                        Detaljer →
+                        {detailsLabel}
                       </Link>
                     </div>
                   </div>
@@ -277,26 +299,26 @@ export default async function AccountPage() {
           </section>
         )}
 
-        {/* Kontoinformasjon */}
+        {/* Account info */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-[var(--color-foreground)]">
-              Kontoinformasjon
+              {accountInfoLabel}
             </h2>
             <Link
               href="/account/profil"
               className="text-xs font-semibold text-[var(--color-primary-dark)] hover:underline"
             >
-              Rediger profil →
+              {t.account.editProfile} →
             </Link>
           </div>
           <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
             {[
-              { label: 'Navn', value: customer ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || '—' : '—' },
-              { label: 'E-post', value: user.email ?? '—' },
-              { label: 'Telefon', value: customer?.phone ?? '—' },
-              { label: 'Adresse', value: customer?.address_line1 ?? '—' },
-              { label: 'By', value: customer?.city ?? '—' },
+              { label: nameLabel,    value: customer ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || '—' : '—' },
+              { label: emailLabel,   value: user.email ?? '—' },
+              { label: phoneLabel,   value: customer?.phone ?? '—' },
+              { label: addressLabel, value: customer?.address_line1 ?? '—' },
+              { label: cityLabel,    value: customer?.city ?? '—' },
             ].map(({ label, value }, i) => (
               <div
                 key={label}

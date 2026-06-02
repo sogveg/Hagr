@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createServiceClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
@@ -16,11 +17,11 @@ export async function generateMetadata(
   const name = location?.name ?? locationSlug
   return {
     title: `Babyutstyr til leie i ${name}`,
-    description: `Lei premium babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
+    description: `Lei babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
     alternates: { canonical: `https://www.tinyrent.no/${locationSlug}` },
     openGraph: {
       title: `Babyutstyr til leie i ${name} | TinyRent`,
-      description: `Lei premium babyutstyr i ${name}. Grundig vasket, hent selv eller få levert.`,
+      description: `Lei babyutstyr i ${name}. Grundig vasket, hent selv eller få levert.`,
       images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: `TinyRent ${name}` }],
     },
   }
@@ -29,6 +30,7 @@ export async function generateMetadata(
 export default async function LocationPage({ params }: { params: Promise<{ location: string }> }) {
   const { location: locationSlug } = await params
   const supabase = createServiceClient()
+  const { t } = await getServerT()
 
   const { data: location } = await supabase
     .from('locations')
@@ -45,6 +47,8 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
     .eq('active', true)
     .order('sort_order')
 
+  const homeLabel = t.locale === 'en' ? 'Home' : 'Hjem'
+
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <Header />
@@ -53,20 +57,20 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
       <section className="bg-[var(--color-foreground)] px-6 py-16">
         <div className="max-w-[1200px] mx-auto">
           <div className="mb-5">
-            <Breadcrumb 
+            <Breadcrumb
               variant="dark"
               items={[
-                { label: 'Hjem', href: '/' },
+                { label: homeLabel, href: '/' },
                 { label: location.name },
-              ]} 
+              ]}
             />
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-            Hva trenger du?
+            {t.location.heading}
           </h1>
           <p className="text-white/40 mt-3 text-base">
-            Velg kategori for å se tilgjengelig utstyr i {location.name}
+            {t.location.subheading(location.name)}
           </p>
         </div>
       </section>
@@ -76,15 +80,21 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
       {/* Categories */}
       <section className="px-6 py-16">
         <div className="max-w-[1200px] mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[var(--color-foreground)] tracking-tight">
+              {t.location.categoriesHeading}
+            </h2>
+          </div>
+
           {!categories?.length ? (
-            <p className="text-[var(--color-muted)]">Ingen kategorier tilgjengelig.</p>
+            <p className="text-[var(--color-muted)]">{t.location.noCategories}</p>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {categories.map(cat => (
-                <CategoryCard 
-                  key={cat.id} 
-                  category={cat} 
-                  locationSlug={locationSlug} 
+                <CategoryCard
+                  key={cat.id}
+                  category={cat}
+                  locationSlug={locationSlug}
                 />
               ))}
             </div>

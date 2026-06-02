@@ -206,7 +206,7 @@ export default async function CustomerBookingPage({
                 Skaderapporter
               </p>
               <p className="text-xs text-[var(--color-muted)] mt-0.5">
-                Dokumenter skader du oppdager — beskytter deg mot uberettigede krav
+                Dokumenter skader du oppdager. Det beskytter deg mot uberettigede krav.
               </p>
             </div>
             {(damageReports as any[]).length > 0 && (
@@ -277,7 +277,7 @@ export default async function CustomerBookingPage({
         <div className="bg-white rounded-2xl border border-[var(--color-border)] p-6 mt-4">
           <h2 className="text-sm font-bold text-[var(--color-foreground)] mb-1">Spørsmål om bookingen?</h2>
           <p className="text-xs text-[var(--color-muted)] mb-5">
-            Ta kontakt med oss — vi svarer innen en arbeidsdag.
+            Ta kontakt med oss, vi svarer innen en arbeidsdag.
           </p>
           <ContactForm
             bookingId={id}

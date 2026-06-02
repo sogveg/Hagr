@@ -1,15 +1,19 @@
+import { getServerT } from '@/lib/get-locale'
+
 interface TrustBadgesProps {
   className?: string
 }
 
-const badges = [
-  { icon: '✓', label: 'Grundig vasket og desinfisert' },
-  { icon: '✓', label: 'Hent selv eller få det levert' },
-  { icon: '✓', label: 'Fleksibel leieperiode' },
-  { icon: '✓', label: 'Depositum tilbake etter retur' },
-]
+export async function TrustBadges({ className = '' }: TrustBadgesProps) {
+  const { t } = await getServerT()
 
-export function TrustBadges({ className = '' }: TrustBadgesProps) {
+  const badges = [
+    { icon: '✓', label: t.trust.cleaned  },
+    { icon: '✓', label: t.trust.delivery },
+    { icon: '✓', label: t.trust.flexible },
+    { icon: '✓', label: t.trust.deposit  },
+  ]
+
   return (
     <section className={`border-b border-[var(--color-border)] px-6 py-4 ${className}`} style={{ backgroundColor: 'var(--color-sand)' }}>
       <div className="max-w-[1200px] mx-auto flex flex-wrap gap-x-6 gap-y-2 justify-center">

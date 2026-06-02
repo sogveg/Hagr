@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { Button } from '@/components/ui/button'
+import { useLocale } from '@/context/locale-context'
 
 export default function LogoutButton() {
   const router = useRouter()
+  const { locale } = useLocale()
 
   async function handleLogout() {
     const supabase = createClient()
@@ -18,7 +20,7 @@ export default function LogoutButton() {
 
   return (
     <Button onClick={handleLogout} variant="secondary" size="sm">
-      Logg ut
+      {locale === 'en' ? 'Log out' : 'Logg ut'}
     </Button>
   )
 }

@@ -3,6 +3,8 @@ export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createServiceClient, createClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
+import { CATEGORY_NAMES } from '@/lib/i18n'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
@@ -52,8 +54,8 @@ export default async function ProductPage({
 }) {
   const { location: locationSlug, category: categorySlug, product: productSlug } = await params
   const supabase = createServiceClient()
+  const { t, locale } = await getServerT()
 
-  // Parallell: data + auth-sjekk
   const [
     [{ data: location }, { data: category }, { data: product }],
     authClient,
@@ -90,7 +92,6 @@ export default async function ProductPage({
   const isAvailable = (availableCount ?? 0) > 0
   const totalUnits  = inventoryCount ?? 1
 
-  // Hent bookinger for denne produkten de neste 6 månedene
   const sixMonthsOut = new Date()
   sixMonthsOut.setMonth(sixMonthsOut.getMonth() + 6)
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -116,10 +117,30 @@ export default async function ProductPage({
     leker:      '/images/products/babyutstyr.jpg',
   }
   const fallbackImage = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
-  // Use the images array if available, otherwise fall back to single image_url
   const carouselImages: string[] = (product.images && product.images.length > 0)
     ? product.images
     : (fallbackImage ? [fallbackImage] : [])
+
+  // Localised names
+  const localCatName = CATEGORY_NAMES[categorySlug]?.[locale] ?? category.name
+
+  // Price labels
+  const perDay   = locale === 'en' ? 'Per day'   : 'Per dag'
+  const perWeek  = locale === 'en' ? 'Per week'  : 'Per uke'
+  const perMonth = locale === 'en' ? 'Per month' : 'Per måned'
+  const mostPopular = locale === 'en' ? 'Most popular' : 'Mest populær'
+  const depositLabel = locale === 'en' ? 'Deposit (refundable)' : 'Depositum (refunderes)'
+  const minDaysLabel = locale === 'en'
+    ? `Minimum ${product.minimum_rental_days} day${product.minimum_rental_days !== 1 ? 's' : ''} rental`
+    : `Minimum ${product.minimum_rental_days} dagers leie`
+  const availabilityTitle = locale === 'en' ? 'Available dates' : 'Ledige datoer'
+  const homeLabel = locale === 'en' ? 'Home' : 'Hjem'
+
+  const trustItems = [
+    t.trust.cleaned,
+    t.trust.delivery,
+    t.trust.deposit,
+  ]
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
@@ -150,7 +171,7 @@ export default async function ProductPage({
           <Breadcrumb
             items={[
               { label: location.name, href: `/${locationSlug}` },
-              { label: category.name, href: `/${locationSlug}/${categorySlug}` },
+              { label: localCatName, href: `/${locationSlug}/${categorySlug}` },
               { label: product.name },
             ]}
           />
@@ -158,7 +179,7 @@ export default async function ProductPage({
 
         {/* Product layout */}
         <div className="grid lg:grid-cols-[1fr_440px] gap-12 items-start">
-          {/* Left — bilde(r) */}
+          {/* Left — image(s) */}
           <ImageCarousel images={carouselImages} alt={product.name} />
 
           {/* Right — info + booking */}
@@ -179,18 +200,20 @@ export default async function ProductPage({
               </p>
             )}
 
-            {/* Tilgjengelighet */}
+            {/* Availability badge */}
             <div className="mb-5">
               <Badge variant={isAvailable ? 'available' : 'cancelled'}>
-                {isAvailable ? `Tilgjengelig i ${location.name}` : 'Ikke tilgjengelig nå'}
+                {isAvailable
+                  ? `${t.product.available} ${t.product.inLocation(location.name)}`
+                  : t.product.unavailable}
               </Badge>
             </div>
 
-            {/* Prisoversikt */}
+            {/* Price overview */}
             <div className="bg-white rounded-[var(--radius-lg)] border border-[var(--color-border)] overflow-hidden mb-5">
               {product.price_day && (
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
-                  <span className="text-sm text-[var(--color-muted)]">Per dag</span>
+                  <span className="text-sm text-[var(--color-muted)]">{perDay}</span>
                   <span className="text-base font-semibold text-[var(--color-foreground)]">
                     {product.price_day} kr
                   </span>
@@ -200,9 +223,9 @@ export default async function ProductPage({
               {product.price_week && (
                 <div className="flex items-center justify-between px-5 py-4 bg-[var(--color-background)] border-b border-[var(--color-border)]">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-[var(--color-muted)]">Per uke</span>
+                    <span className="text-sm text-[var(--color-muted)]">{perWeek}</span>
                     <span className="text-[10px] font-bold text-[var(--color-primary-dark)] uppercase tracking-wide bg-[var(--color-primary-light)] px-2 py-0.5 rounded-[var(--radius-full)]">
-                      Mest populær
+                      {mostPopular}
                     </span>
                   </div>
                   <span className="text-lg font-bold text-[var(--color-foreground)]">
@@ -213,7 +236,7 @@ export default async function ProductPage({
 
               {product.price_month && (
                 <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
-                  <span className="text-sm text-[var(--color-muted)]">Per måned</span>
+                  <span className="text-sm text-[var(--color-muted)]">{perMonth}</span>
                   <span className="text-base font-semibold text-[var(--color-foreground)]">
                     {product.price_month} kr
                   </span>
@@ -222,7 +245,7 @@ export default async function ProductPage({
 
               {product.deposit_amount > 0 && (
                 <div className="flex items-center justify-between px-5 py-4">
-                  <span className="text-sm text-[var(--color-muted-foreground)]">Depositum (refunderes)</span>
+                  <span className="text-sm text-[var(--color-muted-foreground)]">{depositLabel}</span>
                   <span className="text-sm font-medium text-[var(--color-muted-foreground)]">
                     {product.deposit_amount} kr
                   </span>
@@ -251,7 +274,7 @@ export default async function ProductPage({
             ) : (
               <div className="space-y-3">
                 <div className="flex items-center justify-center w-full bg-gray-100 text-[var(--color-muted)] rounded-[var(--radius-lg)] py-4 text-base font-semibold">
-                  Ikke tilgjengelig nå
+                  {t.product.unavailable}
                 </div>
                 <WaitlistForm
                   productId={product.id}
@@ -263,31 +286,27 @@ export default async function ProductPage({
 
             {product.minimum_rental_days > 0 && isAvailable && (
               <p className="text-center text-xs text-[var(--color-muted-foreground)] mt-2">
-                Minimum {product.minimum_rental_days} dagers leie
+                {minDaysLabel}
               </p>
             )}
 
             {/* Trust micro-copy */}
             <div className="mt-5 pt-5 border-t border-[var(--color-border)] flex flex-col gap-2">
-              {[
-                'Grundig vasket og desinfisert',
-                'Hent selv eller få det levert',
-                'Depositum refunderes ved retur',
-              ].map(t => (
-                <p key={t} className="text-xs text-[var(--color-muted)] flex items-center gap-2">
+              {trustItems.map(item => (
+                <p key={item} className="text-xs text-[var(--color-muted)] flex items-center gap-2">
                   <span className="text-[var(--color-primary)] font-bold text-sm">✓</span>
-                  {t}
+                  {item}
                 </p>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Beskrivelse */}
+        {/* Description */}
         {product.description && (
           <div className="mt-20 pt-16 border-t border-[var(--color-border)] max-w-2xl">
             <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-5">
-              Om produktet
+              {t.product.aboutProduct}
             </h2>
             <p className="text-[15px] text-[var(--color-muted)] leading-[1.9] whitespace-pre-line">
               {product.description}
@@ -295,10 +314,10 @@ export default async function ProductPage({
           </div>
         )}
 
-        {/* Tilgjengelighetskalender */}
+        {/* Availability calendar */}
         <div className="mt-16 pt-16 border-t border-[var(--color-border)]">
           <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-6">
-            Ledige datoer
+            {availabilityTitle}
           </h2>
           <div className="max-w-2xl">
             <AvailabilityCalendar bookedRanges={bookedRanges} inventoryCount={totalUnits} />

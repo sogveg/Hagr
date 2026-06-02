@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Card } from './card'
+import { getServerT } from '@/lib/get-locale'
 
 interface ProductCardProps {
   product: {
@@ -23,9 +24,14 @@ const categoryImages: Record<string, string> = {
   leker:      '/images/products/babyutstyr.jpg',
 }
 
-export function ProductCard({ product, locationSlug, categorySlug }: ProductCardProps) {
+export async function ProductCard({ product, locationSlug, categorySlug }: ProductCardProps) {
+  const { locale } = await getServerT()
+
   const price = product.price_week ?? product.price_day
-  const priceLabel = product.price_week ? '/ uke' : '/ dag'
+  const priceLabel = product.price_week
+    ? (locale === 'en' ? '/ week' : '/ uke')
+    : (locale === 'en' ? '/ day'  : '/ dag')
+  const seeMoreLabel = locale === 'en' ? 'See more' : 'Se mer'
   const imageSrc = product.image_url ?? categoryImages[categorySlug] ?? '/images/products/babyutstyr.jpg'
 
   return (
@@ -49,11 +55,11 @@ export function ProductCard({ product, locationSlug, categorySlug }: ProductCard
               {product.brand}
             </p>
           )}
-          
+
           <h3 className="text-[17px] font-bold text-[var(--color-foreground)] mb-1.5 leading-snug">
             {product.name}
           </h3>
-          
+
           {product.short_description && (
             <p className="text-sm text-[var(--color-muted)] leading-relaxed line-clamp-2 mb-4">
               {product.short_description}
@@ -70,7 +76,7 @@ export function ProductCard({ product, locationSlug, categorySlug }: ProductCard
               </span>
             </div>
             <span className="text-sm text-[var(--color-primary-dark)] font-semibold group-hover:translate-x-0.5 transition-transform">
-              Se mer &rarr;
+              {seeMoreLabel} &rarr;
             </span>
           </div>
         </div>

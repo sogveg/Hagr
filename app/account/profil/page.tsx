@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { updateProfile } from '@/app/actions/customer'
@@ -14,13 +15,13 @@ export default async function ProfilPage({
 }) {
   const { error: errorMsg } = await searchParams
 
-  // Auth: use user client
   const authClient = await createClient()
   const { data: { user } } = await authClient.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch customer: use service client to bypass RLS (row may not exist yet)
   const supabase = createServiceClient()
+  const { t } = await getServerT()
+
   const { data: customer } = await supabase
     .from('customers')
     .select('*')
@@ -51,9 +52,9 @@ export default async function ProfilPage({
       <div className="max-w-[560px] mx-auto px-6 py-12">
         <div className="mb-8">
           <Link href="/account" className="text-xs font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors mb-4 inline-block">
-            ← Min konto
+            {t.profile.backLink}
           </Link>
-          <h1 className="text-2xl font-bold text-[var(--color-foreground)] tracking-tight">Rediger profil</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-foreground)] tracking-tight">{t.profile.title}</h1>
         </div>
 
         <div className="bg-white rounded-2xl border border-[var(--color-border)] p-8">
@@ -66,31 +67,31 @@ export default async function ProfilPage({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Fornavn
+                  {t.profile.firstName}
                 </label>
                 <input
                   name="first_name"
                   defaultValue={customer?.first_name ?? ''}
                   className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                  placeholder="Ola"
+                  placeholder={t.auth.firstNamePlaceholder}
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Etternavn
+                  {t.profile.lastName}
                 </label>
                 <input
                   name="last_name"
                   defaultValue={customer?.last_name ?? ''}
                   className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                  placeholder="Nordmann"
+                  placeholder={t.auth.lastNamePlaceholder}
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                E-post
+                {t.profile.email}
               </label>
               <input
                 type="email"
@@ -98,55 +99,55 @@ export default async function ProfilPage({
                 disabled
                 className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-400 cursor-not-allowed"
               />
-              <p className="text-xs text-gray-400 mt-1">E-post kan ikke endres her</p>
+              <p className="text-xs text-gray-400 mt-1">{t.profile.emailNote}</p>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                Telefon
+                {t.profile.phone}
               </label>
               <input
                 name="phone"
                 type="tel"
                 defaultValue={customer?.phone ?? ''}
                 className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                placeholder="+47 000 00 000"
+                placeholder={t.profile.phonePlaceholder}
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                Adresse
+                {t.profile.address}
               </label>
               <input
                 name="address_line1"
                 defaultValue={customer?.address_line1 ?? ''}
                 className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                placeholder="Gateveien 1"
+                placeholder={t.profile.addressPlaceholder}
               />
             </div>
 
             <div className="grid grid-cols-[1fr_2fr] gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Postnummer
+                  {t.profile.postalCode}
                 </label>
                 <input
                   name="postal_code"
                   defaultValue={customer?.postal_code ?? ''}
                   className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                  placeholder="5000"
+                  placeholder={t.profile.postalPlaceholder}
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">
-                  By
+                  {t.profile.city}
                 </label>
                 <input
                   name="city"
                   defaultValue={customer?.city ?? ''}
                   className="w-full border border-black/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40"
-                  placeholder="Bergen"
+                  placeholder={t.profile.cityPlaceholder}
                 />
               </div>
             </div>
@@ -156,13 +157,13 @@ export default async function ProfilPage({
                 href="/account"
                 className="flex-1 text-center border border-black/10 text-[var(--color-muted)] text-sm font-medium rounded-xl py-2.5 hover:bg-gray-50 transition-colors"
               >
-                Avbryt
+                {t.profile.cancel}
               </Link>
               <button
                 type="submit"
                 className="flex-1 bg-[var(--color-foreground)] text-white text-sm font-semibold rounded-xl py-2.5 hover:bg-black transition-colors"
               >
-                Lagre endringer
+                {t.profile.save}
               </button>
             </div>
           </form>

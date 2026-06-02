@@ -105,18 +105,17 @@ export async function createProduct(
         published:           input.published,
         image_url:           images[0] || null,
         images,
+        category_id:         input.category_id || null,
       })
       .select('id')
       .single()
 
     if (error || !product) return { success: false, error: error?.message ?? 'Kunne ikke opprette produkt' }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.from('product_locations').insert({
       product_id:  product.id,
       location_id: input.location_id,
-      category_id: input.category_id,
-    } as any)
+    })
 
     if (input.inventory_count > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,19 +162,11 @@ export async function updateProduct(
         published:           input.published,
         image_url:           images[0] || null,
         images,
+        category_id:         input.category_id || null,
       })
       .eq('id', id)
 
     if (error) return { success: false, error: error.message }
-
-    // Update category if provided
-    if (input.category_id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await supabase
-        .from('product_locations')
-        .update({ category_id: input.category_id } as any)
-        .eq('product_id', id)
-    }
 
     revalidatePath('/admin/products')
     revalidatePath(`/admin/products/${id}/edit`)

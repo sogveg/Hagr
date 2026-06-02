@@ -20,7 +20,7 @@ export function Header({ variant = 'default' }: HeaderProps) {
         <Link href="/" className="flex items-center shrink-0">
           <img
             src="/images/logo.png"
-            alt="TinyRent — Lei babyutstyr enkelt"
+            alt="TinyRent - Lei babyutstyr enkelt"
             style={{ height: '42px', width: 'auto' }}
           />
         </Link>
