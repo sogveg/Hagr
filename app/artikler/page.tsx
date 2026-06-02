@@ -34,7 +34,7 @@ export default async function ArticlesPage() {
   const supabase = createServiceClient()
   const { locale } = await getServerT()
   const { data: articles } = await (supabase.from as any)('articles')
-    .select('id, title, title_en, slug, excerpt, excerpt_en, cover_image, author, published_at, created_at')
+    .select('*')
     .eq('published', true)
     .order('published_at', { ascending: false })
 
