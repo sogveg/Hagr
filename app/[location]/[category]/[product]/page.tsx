@@ -194,9 +194,11 @@ export default async function ProductPage({
               {product.name}
             </h1>
 
-            {product.short_description && (
+            {(product.short_description || (product as any).short_description_en) && (
               <p className="text-[15px] text-[var(--color-muted)] leading-relaxed mb-5">
-                {product.short_description}
+                {locale === 'en'
+                  ? ((product as any).short_description_en || product.short_description)
+                  : product.short_description}
               </p>
             )}
 
@@ -303,13 +305,15 @@ export default async function ProductPage({
         </div>
 
         {/* Description */}
-        {product.description && (
+        {(product.description || (product as any).description_en) && (
           <div className="mt-20 pt-16 border-t border-[var(--color-border)] max-w-2xl">
             <h2 className="text-2xl font-bold text-[var(--color-foreground)] mb-5">
               {t.product.aboutProduct}
             </h2>
             <p className="text-[15px] text-[var(--color-muted)] leading-[1.9] whitespace-pre-line">
-              {product.description}
+              {locale === 'en'
+                ? ((product as any).description_en || product.description)
+                : product.description}
             </p>
           </div>
         )}

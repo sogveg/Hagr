@@ -28,43 +28,67 @@ interface ArticleFormProps {
   article?: {
     title: string; slug: string; excerpt: string
     content: string; cover_image: string; author: string; published: boolean
+    title_en?: string; excerpt_en?: string; content_en?: string
   }
 }
 
 type Tab = 'write' | 'preview' | 'settings'
+type Lang = 'no' | 'en'
 
 export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
   const isEdit = !!article
 
+  // Norwegian fields
   const [title,      setTitle]      = useState(article?.title       ?? '')
   const [slug,       setSlug]       = useState(article?.slug        ?? '')
   const [excerpt,    setExcerpt]    = useState(article?.excerpt     ?? '')
   const [content,    setContent]    = useState(article?.content     ?? '')
+  const [slugEdited, setSlugEdited] = useState(isEdit)
+
+  // English fields
+  const [titleEn,   setTitleEn]   = useState(article?.title_en   ?? '')
+  const [excerptEn, setExcerptEn] = useState(article?.excerpt_en ?? '')
+  const [contentEn, setContentEn] = useState(article?.content_en ?? '')
+
+  // Shared fields
   const [coverImage, setCoverImage] = useState(article?.cover_image ?? '')
   const [author,     setAuthor]     = useState(article?.author      ?? 'TinyRent')
   const [published,  setPublished]  = useState(article?.published   ?? false)
-  const [slugEdited, setSlugEdited] = useState(isEdit)
 
-  const [tab,        setTab]        = useState<Tab>('write')
+  const [lang,        setLang]        = useState<Lang>('no')
+  const [tab,         setTab]         = useState<Tab>('write')
   const [previewHtml, setPreviewHtml] = useState('')
-  const [saveState,  setSaveState]  = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [saveError,  setSaveError]  = useState<string | null>(null)
-  const [deleting,   setDeleting]   = useState(false)
-  const [isPending,  startTransition] = useTransition()
+  const [saveState,   setSaveState]   = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [saveError,   setSaveError]   = useState<string | null>(null)
+  const [deleting,    setDeleting]    = useState(false)
+  const [isPending,   startTransition] = useTransition()
 
-  // Update live preview whenever content changes
+  // Derive the active content/title for the current language
+  const activeContent = lang === 'no' ? content : contentEn
+  const activeTitle   = lang === 'no' ? title   : titleEn
+
+  // Update live preview whenever content or lang changes
   useEffect(() => {
-    if (content) {
-      const html = marked.parse(content)
+    if (activeContent) {
+      const html = marked.parse(activeContent)
       setPreviewHtml(typeof html === 'string' ? html : String(html))
     } else {
       setPreviewHtml('')
     }
-  }, [content])
+  }, [activeContent])
 
   function handleTitleChange(v: string) {
-    setTitle(v)
-    if (!slugEdited) setSlug(toSlug(v))
+    if (lang === 'no') {
+      setTitle(v)
+      if (!slugEdited) setSlug(toSlug(v))
+    } else {
+      setTitleEn(v)
+    }
+  }
+
+  function handleContentChange(v: string) {
+    if (lang === 'no') setContent(v)
+    else setContentEn(v)
   }
 
   function handleSave() {
@@ -72,7 +96,9 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
     setSaveError(null)
     startTransition(async () => {
       const result = await onSave({
-        title, slug, excerpt, content, cover_image: coverImage, author, published,
+        title, slug, excerpt, content,
+        cover_image: coverImage, author, published,
+        title_en: titleEn, excerpt_en: excerptEn, content_en: contentEn,
       })
       if (result.success) {
         setSaveState('saved')
@@ -91,7 +117,7 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
     await onDelete()
   }
 
-  const wc = wordCount(content)
+  const wc = wordCount(activeContent)
 
   return (
     <div className="flex flex-col bg-[#F8F7F4]" style={{ minHeight: '100vh' }}>
@@ -107,15 +133,37 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
 
         <div className="w-px h-5 bg-black/10 shrink-0" />
 
+        {/* Language toggle */}
+        <div className="flex items-center rounded-full border border-black/[0.10] bg-black/[0.03] p-0.5 gap-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => setLang('no')}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-all ${
+              lang === 'no' ? 'bg-white shadow-sm text-[#2B2B2B]' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            🇳🇴 NO
+          </button>
+          <button
+            type="button"
+            onClick={() => setLang('en')}
+            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-all ${
+              lang === 'en' ? 'bg-white shadow-sm text-[#2B2B2B]' : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            🇬🇧 EN
+          </button>
+        </div>
+
         {/* Title input */}
         <input
-          value={title}
+          value={activeTitle}
           onChange={e => handleTitleChange(e.target.value)}
-          placeholder="Artikkeltittel…"
+          placeholder={lang === 'no' ? 'Artikkeltittel…' : 'Article title…'}
           className="flex-1 text-base font-semibold text-[#2B2B2B] bg-transparent border-none outline-none placeholder-gray-300 min-w-0"
         />
 
-        {/* Word count — hidden on small screens */}
+        {/* Word count */}
         {wc > 0 && (
           <span className="hidden md:block text-xs text-gray-300 shrink-0 font-mono">
             {wc.toLocaleString('nb-NO')} ord · {readingTime(wc)}
@@ -159,6 +207,13 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
         </div>
       )}
 
+      {/* Language indicator bar */}
+      {lang === 'en' && (
+        <div className="bg-blue-50 border-b border-blue-100 px-6 py-1.5 text-xs text-blue-600 font-medium">
+          🇬🇧 Du redigerer den engelske versjonen. Norsk innhold bevares separat.
+        </div>
+      )}
+
       {/* ── Mobile tabs ─────────────────────────────────────────────── */}
       <div className="lg:hidden flex border-b border-black/[0.06] bg-white">
         {(['write', 'preview', 'settings'] as Tab[]).map(t => (
@@ -179,9 +234,8 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
       {/* ── Main editor area ────────────────────────────────────────── */}
       <div className="flex flex-1">
 
-        {/* Left: Editor — always shown on desktop, conditional on mobile */}
+        {/* Left: Editor */}
         <div className={`flex flex-col flex-1 border-r border-black/[0.06] bg-white ${tab !== 'write' ? 'hidden lg:flex' : 'flex'}`}>
-          {/* Editor toolbar hint */}
           <div className="flex items-center gap-3 px-5 py-2 border-b border-black/[0.04] bg-[#FAFAFA]">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Markdown</span>
             <div className="flex gap-2 text-[11px] text-gray-300 font-mono">
@@ -195,19 +249,24 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
           </div>
 
           <textarea
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            placeholder={'Skriv innholdet ditt her i Markdown-format…\n\n# Overskrift\n\nBrødtekst med **fet** og *kursiv* tekst.\n\n## Underoverskrift\n\n- Punktliste\n- Andre punkt'}
+            value={activeContent}
+            onChange={e => handleContentChange(e.target.value)}
+            placeholder={
+              lang === 'no'
+                ? 'Skriv innholdet ditt her i Markdown-format…\n\n# Overskrift\n\nBrødtekst med **fet** og *kursiv* tekst.\n\n## Underoverskrift\n\n- Punktliste\n- Andre punkt'
+                : 'Write your English content here in Markdown format…\n\n# Heading\n\nBody text with **bold** and *italic* text.\n\n## Subheading\n\n- Bullet point\n- Another point'
+            }
             className="flex-1 w-full px-8 py-6 font-mono text-[13px] leading-relaxed text-[#2B2B2B] bg-white resize-none border-none outline-none placeholder-gray-200"
             style={{ minHeight: 'calc(100vh - 56px - 200px)' }}
             spellCheck={false}
           />
         </div>
 
-        {/* Right: Preview — always shown on desktop, conditional on mobile */}
+        {/* Right: Preview */}
         <div className={`flex-col flex-1 bg-white ${tab !== 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           <div className="flex items-center gap-2 px-5 py-2 border-b border-black/[0.04] bg-[#FAFAFA]">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Forhåndsvisning</span>
+            <span className="text-[10px] text-gray-300">{lang === 'no' ? '🇳🇴' : '🇬🇧'}</span>
           </div>
           <div className="flex-1 overflow-y-auto px-10 py-8">
             {previewHtml ? (
@@ -220,8 +279,14 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
                     onError={e => (e.currentTarget.style.display = 'none')}
                   />
                 )}
-                <h1 className="text-3xl font-bold text-[#2B2B2B] mb-4 leading-tight">{title || 'Artikkeltittel'}</h1>
-                {excerpt && <p className="text-lg text-gray-500 mb-6 leading-relaxed">{excerpt}</p>}
+                <h1 className="text-3xl font-bold text-[#2B2B2B] mb-4 leading-tight">
+                  {activeTitle || (lang === 'no' ? 'Artikkeltittel' : 'Article title')}
+                </h1>
+                {(lang === 'no' ? excerpt : excerptEn) && (
+                  <p className="text-lg text-gray-500 mb-6 leading-relaxed">
+                    {lang === 'no' ? excerpt : excerptEn}
+                  </p>
+                )}
                 <div
                   className="prose prose-neutral max-w-none"
                   dangerouslySetInnerHTML={{ __html: previewHtml }}
@@ -230,7 +295,7 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-sm text-gray-300 text-center">
-                  Begynn å skrive for å se forhåndsvisning
+                  {lang === 'no' ? 'Begynn å skrive for å se forhåndsvisning' : 'Start writing to see preview'}
                 </p>
               </div>
             )}
@@ -244,7 +309,7 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Artikkelmeta</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            {/* Slug */}
+            {/* Slug — always Norwegian based */}
             <div>
               <label className="block text-xs font-bold text-gray-500 mb-1.5">URL-slug *</label>
               <div className="flex items-center border border-black/10 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-[#8FA68B]/40">
@@ -291,15 +356,27 @@ export function ArticleForm({ onSave, onDelete, article }: ArticleFormProps) {
               </div>
             </div>
 
-            {/* Excerpt */}
+            {/* Excerpt — Norwegian */}
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-1.5">Ingress / sammendrag</label>
+              <label className="block text-xs font-bold text-gray-500 mb-1.5">🇳🇴 Ingress (norsk)</label>
               <textarea
                 value={excerpt}
                 onChange={e => setExcerpt(e.target.value)}
                 rows={2}
                 className="w-full border border-black/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40 resize-none"
                 placeholder="Vises i artikkellisten og i søk…"
+              />
+            </div>
+
+            {/* Excerpt — English */}
+            <div className="lg:col-start-4">
+              <label className="block text-xs font-bold text-gray-500 mb-1.5">🇬🇧 Excerpt (English)</label>
+              <textarea
+                value={excerptEn}
+                onChange={e => setExcerptEn(e.target.value)}
+                rows={2}
+                className="w-full border border-black/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#8FA68B]/40 resize-none"
+                placeholder="Shown in article list and search…"
               />
             </div>
           </div>

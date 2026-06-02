@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase-server'
+import { getServerT } from '@/lib/get-locale'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import Link from 'next/link'
@@ -50,6 +51,7 @@ export default async function ArticlePage({
 }) {
   const { slug } = await params
   const supabase = createServiceClient()
+  const { locale } = await getServerT()
   const { data: article } = await (supabase.from as any)('articles')
     .select('*')
     .eq('slug', slug)
@@ -58,8 +60,13 @@ export default async function ArticlePage({
 
   if (!article) notFound()
 
-  const htmlContent = article.content
-    ? await marked.parse(article.content, { async: true })
+  // Use English fields when locale is EN, fall back to Norwegian
+  const displayTitle   = locale === 'en' ? (article.title_en   || article.title)   : article.title
+  const displayExcerpt = locale === 'en' ? (article.excerpt_en || article.excerpt) : article.excerpt
+  const displayContent = locale === 'en' ? (article.content_en || article.content) : article.content
+
+  const htmlContent = displayContent
+    ? await marked.parse(displayContent, { async: true })
     : ''
 
   return (
@@ -79,7 +86,7 @@ export default async function ArticlePage({
         {/* Breadcrumb */}
         <div className="mb-8">
           <Link href="/artikler" className="text-xs font-medium text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
-            ← Artikler
+            ← {locale === 'en' ? 'Articles' : 'Artikler'}
           </Link>
         </div>
 
@@ -87,18 +94,18 @@ export default async function ArticlePage({
         <header className="mb-10">
           {article.published_at && (
             <p className="text-xs text-[var(--color-muted)] mb-3">
-              {new Date(article.published_at).toLocaleDateString('nb-NO', {
+              {new Date(article.published_at).toLocaleDateString(locale === 'en' ? 'en-GB' : 'nb-NO', {
                 day: 'numeric', month: 'long', year: 'numeric'
               })}
-              {article.author && ` · Av ${article.author}`}
+              {article.author && ` · ${locale === 'en' ? 'By' : 'Av'} ${article.author}`}
             </p>
           )}
           <h1 className="text-4xl font-bold text-[var(--color-foreground)] tracking-tight leading-tight mb-4">
-            {article.title}
+            {displayTitle}
           </h1>
-          {article.excerpt && (
+          {displayExcerpt && (
             <p className="text-lg text-[var(--color-muted)] leading-relaxed">
-              {article.excerpt}
+              {displayExcerpt}
             </p>
           )}
         </header>
@@ -124,12 +131,14 @@ export default async function ArticlePage({
 
         {/* Footer CTA */}
         <div className="mt-16 pt-12 border-t border-[var(--color-border)] text-center">
-          <p className="text-sm text-[var(--color-muted)] mb-4">Trenger du babyutstyr i Bergen?</p>
+          <p className="text-sm text-[var(--color-muted)] mb-4">
+            {locale === 'en' ? 'Need baby gear in Bergen?' : 'Trenger du babyutstyr i Bergen?'}
+          </p>
           <Link
             href="/bergen"
             className="inline-flex items-center gap-2 bg-[var(--color-foreground)] text-white font-semibold rounded-xl px-6 py-3 text-sm hover:bg-black transition-colors"
           >
-            Se tilgjengelig utstyr →
+            {locale === 'en' ? 'See available gear →' : 'Se tilgjengelig utstyr →'}
           </Link>
         </div>
       </article>

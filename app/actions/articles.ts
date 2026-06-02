@@ -21,6 +21,9 @@ export type ArticleInput = {
   cover_image: string
   author: string
   published: boolean
+  title_en: string
+  excerpt_en: string
+  content_en: string
 }
 
 async function uniqueSlug(base: string, excludeId?: string): Promise<string> {

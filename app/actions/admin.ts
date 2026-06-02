@@ -38,7 +38,9 @@ export type ProductInput = {
   slug: string
   brand: string
   short_description: string
+  short_description_en: string
   description: string
+  description_en: string
   price_day: number | null
   price_week: number | null
   price_month: number | null
@@ -92,20 +94,22 @@ export async function createProduct(
     const { data: product, error } = await supabase
       .from('products')
       .insert({
-        name:                input.name,
-        slug:                input.slug,
-        brand:               input.brand || null,
-        short_description:   input.short_description || null,
-        description:         input.description || null,
-        price_day:           input.price_day,
-        price_week:          input.price_week,
-        price_month:         input.price_month,
-        deposit_amount:      input.deposit_amount,
-        minimum_rental_days: input.minimum_rental_days,
-        published:           input.published,
-        image_url:           images[0] || null,
+        name:                  input.name,
+        slug:                  input.slug,
+        brand:                 input.brand || null,
+        short_description:     input.short_description || null,
+        short_description_en:  input.short_description_en || null,
+        description:           input.description || null,
+        description_en:        input.description_en || null,
+        price_day:             input.price_day,
+        price_week:            input.price_week,
+        price_month:           input.price_month,
+        deposit_amount:        input.deposit_amount,
+        minimum_rental_days:   input.minimum_rental_days,
+        published:             input.published,
+        image_url:             images[0] || null,
         images,
-        category_id:         input.category_id || null,
+        category_id:           input.category_id || null,
       })
       .select('id')
       .single()
@@ -149,20 +153,22 @@ export async function updateProduct(
     const { error } = await supabase
       .from('products')
       .update({
-        name:                input.name,
-        slug:                input.slug,
-        brand:               input.brand || null,
-        short_description:   input.short_description || null,
-        description:         input.description || null,
-        price_day:           input.price_day,
-        price_week:          input.price_week,
-        price_month:         input.price_month,
-        deposit_amount:      input.deposit_amount,
-        minimum_rental_days: input.minimum_rental_days,
-        published:           input.published,
-        image_url:           images[0] || null,
+        name:                  input.name,
+        slug:                  input.slug,
+        brand:                 input.brand || null,
+        short_description:     input.short_description || null,
+        short_description_en:  input.short_description_en || null,
+        description:           input.description || null,
+        description_en:        input.description_en || null,
+        price_day:             input.price_day,
+        price_week:            input.price_week,
+        price_month:           input.price_month,
+        deposit_amount:        input.deposit_amount,
+        minimum_rental_days:   input.minimum_rental_days,
+        published:             input.published,
+        image_url:             images[0] || null,
         images,
-        category_id:         input.category_id || null,
+        category_id:           input.category_id || null,
       })
       .eq('id', id)
 
@@ -235,6 +241,22 @@ export async function deleteCategory(id: string): Promise<{ success: boolean; er
     const { error } = await supabase.from('categories').delete().eq('id', id)
     if (error) return { success: false, error: error.message }
     revalidatePath('/admin/categories')
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
+}
+
+export async function deleteProduct(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin()
+    const supabase = createServiceClient()
+    // Remove related records first
+    await supabase.from('inventory_items').delete().eq('product_id', id)
+    await supabase.from('product_locations').delete().eq('product_id', id)
+    const { error } = await supabase.from('products').delete().eq('id', id)
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/products')
     return { success: true }
   } catch (e) {
     return { success: false, error: (e as Error).message }

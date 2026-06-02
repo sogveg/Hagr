@@ -3,7 +3,7 @@
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ProductInput } from '@/app/actions/admin'
-import { uploadProductImage } from '@/app/actions/admin'
+import { uploadProductImage, deleteProduct } from '@/app/actions/admin'
 
 interface Category { id: string; name: string }
 interface Location { id: string; name: string }
@@ -13,20 +13,22 @@ interface ProductFormProps {
   locations:         Location[]
   currentCategoryId?: string
   product?: {
-    id:                  string
-    name:                string
-    slug:                string
-    brand:               string | null
-    short_description:   string | null
-    description:         string | null
-    price_day:           number | null
-    price_week:          number | null
-    price_month:         number | null
-    deposit_amount:      number
-    minimum_rental_days: number
-    published:           boolean
-    image_url:           string | null
-    images?:             string[] | null
+    id:                   string
+    name:                 string
+    slug:                 string
+    brand:                string | null
+    short_description:    string | null
+    short_description_en: string | null
+    description:          string | null
+    description_en:       string | null
+    price_day:            number | null
+    price_week:           number | null
+    price_month:          number | null
+    deposit_amount:       number
+    minimum_rental_days:  number
+    published:            boolean
+    image_url:            string | null
+    images?:              string[] | null
   }
   onSave: (data: ProductInput) => Promise<{ success: boolean; error?: string }>
 }
@@ -52,12 +54,15 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
   const isEdit = !!product
 
   // Form state
-  const [name,       setName]       = useState(product?.name ?? '')
-  const [slug,       setSlug]       = useState(product?.slug ?? '')
-  const [slugEdited, setSlugEdited] = useState(isEdit)
-  const [brand,      setBrand]      = useState(product?.brand ?? '')
-  const [shortDesc,  setShortDesc]  = useState(product?.short_description ?? '')
-  const [desc,       setDesc]       = useState(product?.description ?? '')
+  const [name,         setName]         = useState(product?.name ?? '')
+  const [slug,         setSlug]         = useState(product?.slug ?? '')
+  const [slugEdited,   setSlugEdited]   = useState(isEdit)
+  const [brand,        setBrand]        = useState(product?.brand ?? '')
+  const [shortDesc,    setShortDesc]    = useState(product?.short_description ?? '')
+  const [shortDescEn,  setShortDescEn]  = useState(product?.short_description_en ?? '')
+  const [desc,         setDesc]         = useState(product?.description ?? '')
+  const [descEn,       setDescEn]       = useState(product?.description_en ?? '')
+  const [deleting,     setDeleting]     = useState(false)
   const [priceDay,   setPriceDay]   = useState(product?.price_day?.toString()   ?? '')
   const [priceWeek,  setPriceWeek]  = useState(product?.price_week?.toString()  ?? '')
   const [priceMonth, setPriceMonth] = useState(product?.price_month?.toString() ?? '')
@@ -126,8 +131,10 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
       name,
       slug,
       brand,
-      short_description:   shortDesc,
-      description:         desc,
+      short_description:    shortDesc,
+      short_description_en: shortDescEn,
+      description:          desc,
+      description_en:       descEn,
       price_day:           priceDay   ? parseFloat(priceDay)   : null,
       price_week:          priceWeek  ? parseFloat(priceWeek)  : null,
       price_month:         priceMonth ? parseFloat(priceMonth) : null,
@@ -183,19 +190,46 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
           </p>
         </div>
 
+        {/* Norwegian descriptions */}
         <div className="mb-4">
-          <label className={labelCls}>Kort beskrivelse</label>
+          <label className={labelCls}>
+            <span className="mr-1.5">🇳🇴</span>Kort beskrivelse (norsk)
+          </label>
           <input className={inputCls} value={shortDesc}
             onChange={e => setShortDesc(e.target.value)}
             placeholder="1–2 setninger som vises i søkeresultater og produktliste" />
         </div>
 
-        <div>
-          <label className={labelCls}>Fullstendig beskrivelse</label>
+        <div className="mb-6">
+          <label className={labelCls}>
+            <span className="mr-1.5">🇳🇴</span>Fullstendig beskrivelse (norsk)
+          </label>
           <textarea
             className="w-full px-3 py-2.5 text-sm border border-black/[0.12] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#8FA68B] focus:border-transparent resize-none transition-all"
-            rows={6} value={desc} onChange={e => setDesc(e.target.value)}
+            rows={5} value={desc} onChange={e => setDesc(e.target.value)}
             placeholder="Detaljer, mål, aldersbegrensninger, inkludert tilbehør osv." />
+        </div>
+
+        {/* English translations */}
+        <div className="border-t border-black/[0.06] pt-5">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+            🇬🇧 Engelsk oversettelse (valgfritt)
+          </p>
+
+          <div className="mb-4">
+            <label className={labelCls}>Short description (English)</label>
+            <input className={inputCls} value={shortDescEn}
+              onChange={e => setShortDescEn(e.target.value)}
+              placeholder="1–2 sentences shown in search results" />
+          </div>
+
+          <div>
+            <label className={labelCls}>Full description (English)</label>
+            <textarea
+              className="w-full px-3 py-2.5 text-sm border border-black/[0.12] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#8FA68B] focus:border-transparent resize-none transition-all"
+              rows={5} value={descEn} onChange={e => setDescEn(e.target.value)}
+              placeholder="Details, dimensions, age limits, included accessories etc." />
+          </div>
         </div>
       </section>
 
@@ -410,6 +444,28 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
         >
           Avbryt
         </button>
+
+        {isEdit && product && (
+          <button
+            type="button"
+            disabled={deleting}
+            onClick={async () => {
+              if (!confirm(`Slette "${product.name}"? Dette fjerner produktet, lagerenhetene og tilknyttet data permanent.`)) return
+              setDeleting(true)
+              const res = await deleteProduct(product.id)
+              if (res.success) {
+                router.push('/admin/products')
+                router.refresh()
+              } else {
+                setDeleting(false)
+                alert(res.error ?? 'Sletting feilet')
+              }
+            }}
+            className="ml-auto text-sm text-red-400 hover:text-red-600 font-medium transition-colors disabled:opacity-50"
+          >
+            {deleting ? 'Sletter…' : 'Slett produkt'}
+          </button>
+        )}
       </div>
     </form>
   )
