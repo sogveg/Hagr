@@ -91,8 +91,8 @@ export async function createProduct(
     const supabase = createServiceClient()
 
     const images = input.images.length > 0 ? input.images : (input.image_url ? [input.image_url] : [])
-    const { data: product, error } = await supabase
-      .from('products')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: product, error } = await (supabase.from('products') as any)
       .insert({
         name:                  input.name,
         slug:                  input.slug,
@@ -150,8 +150,8 @@ export async function updateProduct(
     const supabase = createServiceClient()
 
     const images = input.images.length > 0 ? input.images : (input.image_url ? [input.image_url] : [])
-    const { error } = await supabase
-      .from('products')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('products') as any)
       .update({
         name:                  input.name,
         slug:                  input.slug,
