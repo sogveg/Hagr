@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Card } from './card'
 import { getServerT } from '@/lib/get-locale'
-import { CATEGORY_NAMES } from '@/lib/i18n'
+import { CATEGORY_NAMES, CATEGORY_DESCRIPTIONS } from '@/lib/i18n'
 
 interface CategoryCardProps {
   category: {
@@ -62,6 +62,7 @@ export async function CategoryCard({ category, locationSlug }: CategoryCardProps
   )
 
   const displayName = CATEGORY_NAMES[category.slug]?.[locale] ?? category.name
+  const displayDesc = CATEGORY_DESCRIPTIONS[category.slug]?.[locale] ?? category.description
   const seeProductsLabel = locale === 'en' ? 'See products' : 'Se produkter'
 
   return (
@@ -75,9 +76,9 @@ export async function CategoryCard({ category, locationSlug }: CategoryCardProps
           {displayName}
         </h2>
 
-        {category.description && (
+        {displayDesc && (
           <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-5">
-            {category.description}
+            {displayDesc}
           </p>
         )}
 

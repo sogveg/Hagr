@@ -6,8 +6,24 @@ export const CATEGORY_NAMES: Record<string, Record<Locale, string>> = {
   bilstoler:  { no: 'Bilstoler',   en: 'Car seats'      },
   matstolar:  { no: 'Matstolar',   en: 'High chairs'    },
   sovemobler: { no: 'Sovemøbler',  en: 'Sleep & cots'   },
+  soving:     { no: 'Soving',      en: 'Sleep & cots'   },
   baereseler: { no: 'Bæreseler',   en: 'Baby carriers'  },
   aktivitet:  { no: 'Aktivitet',   en: 'Activity'       },
+  babyutstyr: { no: 'Babyutstyr',  en: 'Baby essentials'},
+  leker:      { no: 'Leker',       en: 'Toys'           },
+}
+
+// ─── Category description lookup (by DB slug) ────────────────────────────────
+export const CATEGORY_DESCRIPTIONS: Record<string, Record<Locale, string>> = {
+  vogner:     { no: 'Barnevogner og reisevogner',                      en: 'Strollers and travel systems'             },
+  bilstoler:  { no: 'Godkjente bilstoler for alle aldersgrupper',      en: 'Approved car seats for all age groups'    },
+  matstolar:  { no: 'Høystoler og bærestoler for måltider',            en: 'High chairs and booster seats'            },
+  sovemobler: { no: 'Reisesenger, babynester og vugger',               en: 'Travel cots, baby nests and cribs'        },
+  soving:     { no: 'Hengekøyer, reisesenger, babynester og vugger',   en: 'Hammocks, travel cots, nests and cribs'   },
+  baereseler: { no: 'Bæreseler og bærearrangementer',                  en: 'Baby carriers and wraps'                  },
+  aktivitet:  { no: 'Hoppestativ, babygym og lekematter',              en: 'Bouncers, baby gyms and play mats'        },
+  babyutstyr: { no: 'Balansevipp, bilstoler og mer',                   en: 'Balance boards, car seats and more'       },
+  leker:      { no: 'Leker og aktiviteter for de minste',              en: 'Toys and activities for the little ones'  },
 }
 
 // ─── Booking status labels ────────────────────────────────────────────────────
