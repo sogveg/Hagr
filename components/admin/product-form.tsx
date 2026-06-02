@@ -17,10 +17,10 @@ interface ProductFormProps {
     name:                 string
     slug:                 string
     brand:                string | null
-    short_description:    string | null
-    short_description_en: string | null
-    description:          string | null
-    description_en:       string | null
+    short_description:     string | null
+    short_description_en?: string | null
+    description:           string | null
+    description_en?:       string | null
     price_day:            number | null
     price_week:           number | null
     price_month:          number | null
