@@ -10,9 +10,13 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Artikler & Tips | TinyRent',
   description: 'Les våre artikler om babyutstyr, reiser med baby og tips til foreldre i Bergen.',
+  alternates: {
+    canonical: 'https://www.tinyrent.no/artikler',
+  },
   openGraph: {
     title: 'Artikler & Tips | TinyRent',
     description: 'Les våre artikler om babyutstyr, reiser med baby og tips til foreldre i Bergen.',
+    url: 'https://www.tinyrent.no/artikler',
     images: [
       {
         url: '/images/hero.jpg',

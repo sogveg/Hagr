@@ -46,10 +46,14 @@ export async function generateMetadata({
   return {
     title: `${data.title} | TinyRent`,
     description: data.excerpt ?? undefined,
+    alternates: {
+      canonical: `https://www.tinyrent.no/artikler/${slug}`,
+    },
     openGraph: {
       title: data.title,
       description: data.excerpt ?? undefined,
       type: 'article',
+      url: `https://www.tinyrent.no/artikler/${slug}`,
       images: [ogImage],
     },
     twitter: {
