@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Kontakt oss | TinyRent',
     description: 'Ta kontakt. Vi svarer innen en arbeidsdag.',
+    url: 'https://www.tinyrent.no/kontakt',
+    images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent – Kontakt oss' }],
   },
 }
 

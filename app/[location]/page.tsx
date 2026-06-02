@@ -7,6 +7,9 @@ import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { CategoryCard } from '@/components/ui/category-card'
+import { BreadcrumbSchema, ItemListSchema } from '@/components/seo/json-ld'
+
+const BASE = 'https://www.tinyrent.no'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string }> }
@@ -15,13 +18,15 @@ export async function generateMetadata(
   const supabase = createServiceClient()
   const { data: location } = await supabase.from('locations').select('name').eq('slug', locationSlug).single()
   const name = location?.name ?? locationSlug
+  const url = `${BASE}/${locationSlug}`
   return {
     title: `Babyutstyr til leie i ${name}`,
     description: `Lei babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
-    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}` },
+    alternates: { canonical: url },
     openGraph: {
       title: `Babyutstyr til leie i ${name} | TinyRent`,
       description: `Lei babyutstyr i ${name}. Grundig vasket, hent selv eller få levert.`,
+      url,
       images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: `TinyRent ${name}` }],
     },
   }
@@ -30,7 +35,7 @@ export async function generateMetadata(
 export default async function LocationPage({ params }: { params: Promise<{ location: string }> }) {
   const { location: locationSlug } = await params
   const supabase = createServiceClient()
-  const { t } = await getServerT()
+  const { t, locale } = await getServerT()
 
   const { data: location } = await supabase
     .from('locations')
@@ -47,10 +52,26 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
     .eq('active', true)
     .order('sort_order')
 
-  const homeLabel = t.locale === 'en' ? 'Home' : 'Hjem'
+  const homeLabel = locale === 'en' ? 'Home' : 'Hjem'
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
+      <BreadcrumbSchema items={[
+        { name: 'Hjem', url: BASE },
+        { name: location.name },
+      ]} />
+      {categories && categories.length > 0 && (
+        <ItemListSchema
+          name={`Babyutstyr til leie i ${location.name}`}
+          url={`${BASE}/${locationSlug}`}
+          items={categories.map(cat => ({
+            name: cat.name,
+            url:  `${BASE}/${locationSlug}/${cat.slug}`,
+            description: (cat as any).description ?? null,
+            image: (cat as any).image_url ?? null,
+          }))}
+        />
+      )}
       <Header />
 
       {/* Location hero */}

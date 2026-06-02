@@ -8,7 +8,9 @@ import { Footer } from '@/components/layout/footer'
 import { TrustBadges } from '@/components/ui/trust-badges'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { ProductCard } from '@/components/ui/product-card'
-import { BreadcrumbSchema } from '@/components/seo/json-ld'
+import { BreadcrumbSchema, ItemListSchema } from '@/components/seo/json-ld'
+
+const BASE = 'https://www.tinyrent.no'
 
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string }> }
@@ -29,13 +31,15 @@ export async function generateMetadata(
   }
   const ogImage = categoryImages[categorySlug] ?? '/images/hero.jpg'
 
+  const url = `${BASE}/${locationSlug}/${categorySlug}`
   return {
     title: `${catName} til leie i ${locName}`,
     description: category?.description ?? `Lei ${catName.toLowerCase()} i ${locName}. Grundig vasket, hent selv eller få levert hjem.`,
-    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}/${categorySlug}` },
+    alternates: { canonical: url },
     openGraph: {
       title: `${catName} til leie i ${locName} | TinyRent`,
       description: category?.description ?? `Lei ${catName.toLowerCase()} i ${locName}.`,
+      url,
       images: [{ url: ogImage, width: 1200, height: 630, alt: `${catName} — TinyRent ${locName}` }],
     },
   }
@@ -93,10 +97,22 @@ export default async function CategoryPage({
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
       <BreadcrumbSchema items={[
-        { name: 'Hjem', url: 'https://www.tinyrent.no' },
-        { name: location.name, url: `https://www.tinyrent.no/${locationSlug}` },
+        { name: 'Hjem', url: BASE },
+        { name: location.name, url: `${BASE}/${locationSlug}` },
         { name: category.name },
       ]} />
+      {products.length > 0 && (
+        <ItemListSchema
+          name={`${category.name} til leie i ${location.name}`}
+          url={`${BASE}/${locationSlug}/${categorySlug}`}
+          items={products.map(p => ({
+            name: p.name,
+            url:  `${BASE}/${locationSlug}/${categorySlug}/${p.slug}`,
+            image: p.image_url ?? null,
+            description: p.short_description ?? null,
+          }))}
+        />
+      )}
       <Header />
 
       <section className="bg-[var(--color-foreground)] px-6 py-16">

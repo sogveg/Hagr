@@ -15,6 +15,8 @@ import { WaitlistForm } from '@/components/ui/waitlist-form'
 import { AvailabilityCalendar } from '@/components/ui/availability-calendar'
 import { ImageCarousel } from '@/components/ui/image-carousel'
 
+const BASE = 'https://www.tinyrent.no'
+
 export async function generateMetadata(
   { params }: { params: Promise<{ location: string; category: string; product: string }> }
 ): Promise<Metadata> {
@@ -22,7 +24,7 @@ export async function generateMetadata(
   const supabase = createServiceClient()
   const [{ data: location }, { data: product }] = await Promise.all([
     supabase.from('locations').select('name').eq('slug', locationSlug).single(),
-    supabase.from('products').select('name, short_description').eq('slug', productSlug).single(),
+    supabase.from('products').select('name, short_description, image_url').eq('slug', productSlug).single(),
   ])
   const locName  = location?.name  ?? locationSlug
   const prodName = product?.name   ?? productSlug
@@ -32,17 +34,26 @@ export async function generateMetadata(
     babyutstyr: '/images/products/babyutstyr.jpg',
     leker:      '/images/products/babyutstyr.jpg',
   }
-  const ogImage = categoryImages[categorySlug] ?? '/images/hero.jpg'
+  // Prefer actual product image, fall back to category image
+  const ogImage = product?.image_url ?? categoryImages[categorySlug] ?? '/images/hero.jpg'
+  const url = `${BASE}/${locationSlug}/${categorySlug}/${productSlug}`
 
   return {
     title: `Lei ${prodName} i ${locName}`,
     description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket og desinfisert. Hent selv eller få levert hjem.`,
-    alternates: { canonical: `https://www.tinyrent.no/${locationSlug}/${categorySlug}/${productSlug}` },
+    alternates: { canonical: url },
     openGraph: {
       title: `Lei ${prodName} i ${locName} | TinyRent`,
       description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
+      url,
       images: [{ url: ogImage, width: 1200, height: 630, alt: `${prodName} — TinyRent` }],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Lei ${prodName} i ${locName} | TinyRent`,
+      description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
+      images: [ogImage],
     },
   }
 }
@@ -152,15 +163,16 @@ export default async function ProductPage({
         priceDay={product.price_day}
         priceWeek={product.price_week}
         priceMonth={product.price_month}
+        depositAmount={product.deposit_amount}
         isAvailable={isAvailable}
         slug={productSlug}
         locationSlug={locationSlug}
         categorySlug={categorySlug}
       />
       <BreadcrumbSchema items={[
-        { name: 'Hjem',         url: 'https://www.tinyrent.no' },
-        { name: location.name,  url: `https://www.tinyrent.no/${locationSlug}` },
-        { name: category.name,  url: `https://www.tinyrent.no/${locationSlug}/${categorySlug}` },
+        { name: 'Hjem',         url: BASE },
+        { name: location.name,  url: `${BASE}/${locationSlug}` },
+        { name: category.name,  url: `${BASE}/${locationSlug}/${categorySlug}` },
         { name: product.name },
       ]} />
       <Header />

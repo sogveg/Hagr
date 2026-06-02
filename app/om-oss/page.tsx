@@ -6,9 +6,11 @@ import { getServerT } from '@/lib/get-locale'
 export const metadata = {
   title: 'Om oss',
   description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr. Vi laget løsningen vi ønsket fantes.',
+  alternates: { canonical: 'https://www.tinyrent.no/om-oss' },
   openGraph: {
     title: 'Om oss | TinyRent',
     description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr.',
+    url: 'https://www.tinyrent.no/om-oss',
     images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent om oss' }],
   },
 }
