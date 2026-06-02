@@ -9,6 +9,24 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Artikler & Tips | TinyRent',
   description: 'Les våre artikler om babyutstyr, reiser med baby og tips til foreldre i Bergen.',
+  openGraph: {
+    title: 'Artikler & Tips | TinyRent',
+    description: 'Les våre artikler om babyutstyr, reiser med baby og tips til foreldre i Bergen.',
+    images: [
+      {
+        url: '/images/hero.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'TinyRent – Artikler og tips om babyutstyr',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Artikler & Tips | TinyRent',
+    description: 'Les våre artikler om babyutstyr, reiser med baby og tips til foreldre i Bergen.',
+    images: ['/images/hero.jpg'],
+  },
 }
 
 export default async function ArticlesPage() {

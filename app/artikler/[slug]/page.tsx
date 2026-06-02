@@ -22,13 +22,23 @@ export async function generateMetadata({
     .eq('published', true)
     .single()
   if (!data) return {}
+  const ogImage = data.cover_image
+    ? { url: data.cover_image, width: 1200, height: 630, alt: data.title }
+    : { url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent – Babyutstyr til leie i Bergen' }
   return {
     title: `${data.title} | TinyRent`,
     description: data.excerpt ?? undefined,
     openGraph: {
       title: data.title,
       description: data.excerpt ?? undefined,
-      images: data.cover_image ? [{ url: data.cover_image }] : [],
+      type: 'article',
+      images: [ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: data.title,
+      description: data.excerpt ?? undefined,
+      images: [ogImage.url],
     },
   }
 }
