@@ -7,10 +7,13 @@ import Link from 'next/link'
 export default async function AdminProducts() {
   const supabase = createServiceClient()
 
-  const [{ data: products }, { data: inventory }] = await Promise.all([
+  const [{ data: products }, { data: inventory }, { data: categories }] = await Promise.all([
     supabase.from('products').select('*').order('name'),
     supabase.from('inventory_items').select('product_id, status'),
+    supabase.from('categories').select('id, name'),
   ])
+
+  const categoryMap = new Map((categories ?? []).map(c => [c.id, c.name]))
 
   const availableMap = new Map<string, number>()
   const totalMap     = new Map<string, number>()
@@ -45,6 +48,7 @@ export default async function AdminProducts() {
             <thead>
               <tr className="border-b border-black/[0.06] bg-[#F8F7F4]">
                 <th className="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Produkt</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Kategori</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Pris/uke</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Lager</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
@@ -65,6 +69,16 @@ export default async function AdminProducts() {
                       )}
                       <p className="font-semibold text-[#2B2B2B]">{product.name}</p>
                       <p className="text-xs text-gray-400 font-mono mt-0.5">{product.slug}</p>
+                    </td>
+
+                    <td className="px-4 py-4">
+                      {product.category_id && categoryMap.get(product.category_id) ? (
+                        <span className="inline-block text-xs font-semibold bg-[#EBF0E7] text-[#4A6741] px-2.5 py-1 rounded-full">
+                          {categoryMap.get(product.category_id)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">—</span>
+                      )}
                     </td>
 
                     <td className="px-4 py-4 text-[#2B2B2B] font-semibold">
