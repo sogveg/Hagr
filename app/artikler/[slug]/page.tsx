@@ -23,8 +23,25 @@ export async function generateMetadata({
     .eq('published', true)
     .single()
   if (!data) return {}
+
+  // Resize Unsplash images to 1200×630 for OG (avoids dimension mismatch)
+  function toOgImageUrl(src: string): string {
+    if (!src.includes('unsplash.com')) return src
+    try {
+      const u = new URL(src)
+      u.searchParams.set('w', '1200')
+      u.searchParams.set('h', '630')
+      u.searchParams.set('fit', 'crop')
+      u.searchParams.set('q', '85')
+      // Remove ixlib/ixid noise
+      u.searchParams.delete('ixlib')
+      u.searchParams.delete('ixid')
+      return u.toString()
+    } catch { return src }
+  }
+
   const ogImage = data.cover_image
-    ? { url: data.cover_image, width: 1200, height: 630, alt: data.title }
+    ? { url: toOgImageUrl(data.cover_image), width: 1200, height: 630, alt: data.title }
     : { url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent – Babyutstyr til leie i Bergen' }
   return {
     title: `${data.title} | TinyRent`,
