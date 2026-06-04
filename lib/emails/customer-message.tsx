@@ -16,7 +16,7 @@ export function CustomerMessageEmail({
   return (
     <Html lang="no">
       <Head />
-      <Preview>Melding fra TinyRent — {bookingId.slice(0, 8).toUpperCase()}</Preview>
+      <Preview>Melding fra TinyRent, booking #{bookingId.slice(0, 8).toUpperCase()}</Preview>
       <Body style={{ backgroundColor: '#F8F7F4', fontFamily: 'Arial, sans-serif' }}>
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '0 0 40px' }}>
 

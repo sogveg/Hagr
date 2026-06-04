@@ -64,7 +64,7 @@ export default async function ArticlesPage() {
         {(articles ?? []).length === 0 ? (
           <div className="text-center py-20">
             <p className="text-[var(--color-muted)] text-sm">
-              {locale === 'en' ? 'No articles published yet — check back soon!' : 'Ingen artikler publisert ennå — kom tilbake snart!'}
+              {locale === 'en' ? 'No articles published yet. Check back soon!' : 'Ingen artikler publisert ennå. Kom tilbake snart!'}
             </p>
           </div>
         ) : (

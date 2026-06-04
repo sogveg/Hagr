@@ -25,7 +25,7 @@ export function AdminNewBookingEmail({
   return (
     <Html lang="no">
       <Head />
-      <Preview>Ny booking fra {customerName} — {productNames.join(', ')}</Preview>
+      <Preview>Ny booking fra {customerName}: {productNames.join(', ')}</Preview>
       <Body style={{ backgroundColor: '#F8F7F4', fontFamily: 'Arial, sans-serif' }}>
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '0 0 40px' }}>
 

@@ -3,7 +3,7 @@ import { Footer } from '@/components/layout/footer'
 
 export const metadata = {
   title: 'Personvernerklæring',
-  description: 'Personvernerklæring for TinyRent — slik behandler vi dine personopplysninger i henhold til GDPR.',
+  description: 'Personvernerklæring for TinyRent. Slik behandler vi dine personopplysninger i henhold til GDPR.',
   robots: { index: true, follow: true },
 }
 

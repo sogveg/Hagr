@@ -40,7 +40,7 @@ export async function generateMetadata(
       title: `${catName} til leie i ${locName} | TinyRent`,
       description: category?.description ?? `Lei ${catName.toLowerCase()} i ${locName}.`,
       url,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${catName} — TinyRent ${locName}` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${catName} hos TinyRent ${locName}` }],
     },
   }
 }

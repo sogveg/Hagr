@@ -21,7 +21,7 @@ export async function generateMetadata(
   const url = `${BASE}/${locationSlug}`
   return {
     title: `Babyutstyr til leie i ${name}`,
-    description: `Lei babyutstyr i ${name}. Vogner, soveløsninger, leker og mer — grundig vasket, hent selv eller få levert.`,
+    description: `Lei babyutstyr i ${name}. Vogner, soveløsninger, leker og mer. Grundig vasket, hent selv eller få levert.`,
     alternates: { canonical: url },
     openGraph: {
       title: `Babyutstyr til leie i ${name} | TinyRent`,

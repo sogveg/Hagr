@@ -29,7 +29,7 @@ export function BookingConfirmedEmail({
   return (
     <Html lang="no">
       <Head />
-      <Preview>Bookingen din er bekreftet — {productName}</Preview>
+      <Preview>Bookingen din er bekreftet: {productName}</Preview>
       <Body style={main}>
         <Container style={container}>
 

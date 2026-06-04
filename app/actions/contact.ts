@@ -23,8 +23,8 @@ export async function sendContactMessage(input: {
       to:      ADMIN_EMAIL(),
       replyTo: input.email,
       subject: input.bookingId
-        ? `Kontakt — Booking #${input.bookingId.slice(0, 8).toUpperCase()}: ${input.subject}`
-        : `Kontakt — ${input.subject}`,
+        ? `Kontakt, booking #${input.bookingId.slice(0, 8).toUpperCase()}: ${input.subject}`
+        : `Kontakt: ${input.subject}`,
       react: React.createElement(ContactEmail, {
         name:      input.name,
         email:     input.email,

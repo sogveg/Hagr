@@ -131,8 +131,8 @@ export default async function AccountPage() {
 
           const bannerMsg = isPrepared
             ? (locale === 'en'
-              ? `Your booking is packed and ready — collection on ${startFmt}`
-              : `Din booking er pakket og klar — hentes ${startFmt}`)
+              ? `Your booking is packed and ready. Collection on ${startFmt}`
+              : `Din booking er pakket og klar. Hentes ${startFmt}`)
             : (locale === 'en'
               ? `Reminder: your rental period starts ${startFmt}`
               : `Husk at din leieperiode starter ${startFmt}`)
@@ -173,7 +173,7 @@ export default async function AccountPage() {
                       </p>
                       <p className="font-semibold text-[var(--color-foreground)] text-sm">
                         {new Date(booking.start_date).toLocaleDateString(dateLocale)}
-                        {' — '}
+                        {' - '}
                         {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
@@ -229,7 +229,7 @@ export default async function AccountPage() {
                       </p>
                       <p className="font-semibold text-[var(--color-foreground)] text-sm">
                         {new Date(booking.start_date).toLocaleDateString(dateLocale)}
-                        {' — '}
+                        {' - '}
                         {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>
@@ -274,7 +274,7 @@ export default async function AccountPage() {
                       </p>
                       <p className="text-sm text-[var(--color-muted)]">
                         {new Date(booking.start_date).toLocaleDateString(dateLocale)}
-                        {' — '}
+                        {' - '}
                         {new Date(booking.end_date).toLocaleDateString(dateLocale)}
                       </p>
                     </div>

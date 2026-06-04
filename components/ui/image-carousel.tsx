@@ -29,7 +29,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
       <div className="relative rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)] group">
         <img
           src={images[current]}
-          alt={`${alt} — bilde ${current + 1} av ${images.length}`}
+          alt={`${alt}, bilde ${current + 1} av ${images.length}`}
           className="w-full h-full object-cover transition-opacity duration-200"
         />
 

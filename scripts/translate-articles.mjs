@@ -25,7 +25,7 @@ const translations = [
     content_en: `
 Travelling with young children can be wonderful, but it can also require a lot of planning. Pushchairs, strollers, travel cots, car seats, baby carriers and other equipment take up space, weigh a lot and are often awkward to bring along. At TinyRent, we make it easier for families with young children to access quality equipment exactly when they need it.
 
-TinyRent is designed for families who want a simpler everyday life — whether you're going on holiday, having grandchildren to stay, need equipment for a short period, or want to try a product before deciding to buy it yourself.
+TinyRent is designed for families who want a simpler everyday life, whether you're going on holiday, having grandchildren to stay, need equipment for a short period, or want to try a product before deciding to buy it yourself.
 
 ## Why rent baby equipment?
 
@@ -173,7 +173,7 @@ Travelling with children is never entirely without planning, but the right equip
 
 – For us this was a very practical solution. The trip was easier and we didn't have to spend money on something we only needed for a short time.
 
-At TinyRent you can rent baby and children's equipment for short and longer periods — perfect for holidays, travel, visits or when you want to try a product before buying.
+At TinyRent you can rent baby and children's equipment for short and longer periods, perfect for holidays, travel, visits or when you want to try a product before buying.
 
 ## Rent a travel stroller from TinyRent
 
@@ -187,7 +187,7 @@ Check availability and book directly at TinyRent.no.
   {
     slug: 'lei-barnesete-nar-barnebarn-kommer-pa-besok-2',
     title_en: 'Rent a car seat when the grandchildren come to visit',
-    excerpt_en: 'Having grandchildren to stay and need a car seat? At TinyRent you can rent a car seat for short periods — perfect for family visits, holidays and a week with young children in the house.',
+    excerpt_en: 'Having grandchildren to stay and need a car seat? At TinyRent you can rent a car seat for short periods. Perfect for family visits, holidays and a week with young children in the house.',
     content_en: `
 When grandchildren come to visit, there's so much to look forward to. Maybe a trip to the playground, a short drive, dinner with family or just a few lovely days together at home. But if you're going in the car, the car seat needs to be ready.
 
@@ -225,7 +225,7 @@ The seat got used several times during the visit.
 
 ## No need to buy something that will just sit there
 
-For many grandparents, the need for baby equipment only comes around occasionally — when the children and grandchildren come to visit, but not otherwise.
+For many grandparents, the need for baby equipment only comes around occasionally, when the children and grandchildren come to visit but not otherwise.
 
 – We already have plenty of things taking up space, so it was good not to have to add more. When the visit was over, we simply returned the seat.
 
@@ -237,7 +237,7 @@ That made the whole thing simple and practical.
 
 Renting a car seat is ideal for grandparents, aunts, uncles and others who have young children visiting. It could be for a weekend, a week or a longer period.
 
-At TinyRent you can rent baby and children's equipment for short and longer periods, so you have what you need when you need it — without having to buy everything yourself.
+At TinyRent you can rent baby and children's equipment for short and longer periods, so you have what you need when you need it, without having to buy everything yourself.
 
 ## Rent a car seat from TinyRent
 

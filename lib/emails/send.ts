@@ -31,7 +31,7 @@ export async function sendBookingConfirmed(params: {
   return getResend().emails.send({
     from: FROM,
     to: params.to,
-    subject: `Booking bekreftet — ${params.productName}`,
+    subject: `Booking bekreftet: ${params.productName}`,
     html,
   })
 }

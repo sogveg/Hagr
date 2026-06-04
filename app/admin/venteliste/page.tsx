@@ -72,7 +72,7 @@ export default async function AdminVenteliste() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <a
-                    href={`mailto:${w.email}?subject=Godt nytt — ${productMap.get(w.product_id) ?? 'produktet'} er ledig!`}
+                    href={`mailto:${w.email}?subject=Godt nytt! ${productMap.get(w.product_id) ?? 'Produktet'} er ledig`}
                     className="text-xs font-semibold text-[#8FA68B] hover:underline"
                   >
                     Send e-post

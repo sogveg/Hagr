@@ -46,7 +46,7 @@ export async function generateMetadata(
       title: `Lei ${prodName} i ${locName} | TinyRent`,
       description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
       url,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: `${prodName} — TinyRent` }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${prodName} hos TinyRent` }],
       type: 'website',
     },
     twitter: {

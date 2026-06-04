@@ -119,7 +119,7 @@ export async function sendMessageToCustomer(
 
     await sendEmail({
       to:      customer.email,
-      subject: `Melding fra TinyRent — booking #${bookingId.slice(0, 8).toUpperCase()}`,
+      subject: `Melding fra TinyRent, booking #${bookingId.slice(0, 8).toUpperCase()}`,
       react:   React.createElement(CustomerMessageEmail, {
         customerName: `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email,
         message,

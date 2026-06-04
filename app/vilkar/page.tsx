@@ -3,7 +3,7 @@ import { Footer } from '@/components/layout/footer'
 
 export const metadata = {
   title: 'Leievilkår',
-  description: 'Leievilkår for TinyRent — les betingelsene for leie av babyutstyr i Bergen.',
+  description: 'Leievilkår for TinyRent. Les betingelsene for leie av babyutstyr i Bergen.',
   robots: { index: true, follow: true },
 }
 

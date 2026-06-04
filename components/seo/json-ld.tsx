@@ -45,7 +45,7 @@ export function OrganizationSchema() {
           '@id': `${BASE}/#organization`,
           name: 'TinyRent',
           alternateName: 'TinyRent Bergen',
-          description: 'Lei premium babyutstyr trygt og enkelt i Bergen. Vogner, bilstoler, hengekøyer, reisesenger og mer — grundig vasket mellom hver utleie.',
+          description: 'Lei premium babyutstyr trygt og enkelt i Bergen. Vogner, bilstoler, hengekøyer, reisesenger og mer. Grundig vasket mellom hver utleie.',
           url: BASE,
           logo: {
             '@type': 'ImageObject',
@@ -125,7 +125,7 @@ export function OrganizationSchema() {
               name: 'Hva koster det å leie babyutstyr hos TinyRent?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Prisene varierer etter produkt og leieperiode. Ukespris starter fra rundt 250 kr for enkelt tilbehør og opp til 600–900 kr for vogner og bilstoler. Vi tilbyr dagspris, ukespris og månedspris — jo lenger leieperiode, jo bedre pris per dag.',
+                text: 'Prisene varierer etter produkt og leieperiode. Ukespris starter fra rundt 250 kr for enkelt tilbehør og opp til 600-900 kr for vogner og bilstoler. Vi tilbyr dagspris, ukespris og månedspris. Jo lenger leieperiode, jo bedre pris per dag.',
               },
             },
             {
@@ -133,7 +133,7 @@ export function OrganizationSchema() {
               name: 'Kan jeg hente babyutstyr selv i Bergen?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Ja, du kan hente utstyret selv. Vi avtaler henting i Bergen. Du kan også få utstyret levert hjem til deg — ta kontakt for å avtale levering.',
+                text: 'Ja, du kan hente utstyret selv. Vi avtaler henting i Bergen. Du kan også få utstyret levert hjem til deg. Ta kontakt for å avtale levering.',
               },
             },
             {
