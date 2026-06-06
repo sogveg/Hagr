@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
 import { CartProvider } from '@/context/cart-context'
 import { LocaleProvider } from '@/context/locale-context'
+import { CookieConsent } from '@/components/ui/cookie-consent'
 import type { Locale } from '@/lib/i18n'
 import './globals.css'
 
@@ -72,6 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${inter.className} antialiased`}>
         <LocaleProvider initialLocale={locale}>
           <CartProvider>{children}</CartProvider>
+          <CookieConsent />
         </LocaleProvider>
       </body>
     </html>
