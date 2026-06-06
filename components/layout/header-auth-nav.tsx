@@ -51,7 +51,6 @@ export function HeaderAuthNav() {
         >
           {t.nav.myAccount}
         </Link>
-        <LanguageToggle />
         <CartIcon />
         <Link
           href="/bergen"
@@ -59,6 +58,7 @@ export function HeaderAuthNav() {
         >
           {t.nav.seeEquipment}
         </Link>
+        <LanguageToggle />
       </div>
     )
   }
@@ -77,7 +77,6 @@ export function HeaderAuthNav() {
       >
         {t.nav.login}
       </Link>
-      <LanguageToggle />
       <CartIcon />
       <Link
         href="/register"
@@ -85,6 +84,7 @@ export function HeaderAuthNav() {
       >
         {t.nav.getStarted}
       </Link>
+      <LanguageToggle />
     </div>
   )
 }
