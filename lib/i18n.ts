@@ -172,6 +172,14 @@ const TRANSLATIONS = {
       errorHotelName:  'Fyll inn hotellnavn.',
       errorHotelAddress: 'Fyll inn hotelladresse.',
       errorFlight:     'Fyll inn flightnummer.',
+      paymentTitle:    'Betaling',
+      paymentSubtitle: 'Velg betalingsmetode',
+      payment: {
+        vipps:         { name: 'Vipps MobilePay',           desc: 'Betal nå med Vipps. Bookingen bekreftes automatisk.' },
+        pay_at_pickup: { name: 'Betal ved henting/levering', desc: 'Betal med kort når du henter eller mottar utstyret. Vi sender bekreftelse innen 24 timer.' },
+      },
+      orderNowVipps:   'Betal med Vipps →',
+      noteVipps:       'Sikker betaling via Vipps. Bookingen bekreftes automatisk.',
     },
     auth: {
       tagline:       'Babyutstyr til leie i Bergen',
@@ -414,6 +422,14 @@ const TRANSLATIONS = {
       errorHotelName:  'Please enter the hotel name.',
       errorHotelAddress: 'Please enter the hotel address.',
       errorFlight:     'Please enter a flight number.',
+      paymentTitle:    'Payment',
+      paymentSubtitle: 'Choose payment method',
+      payment: {
+        vipps:         { name: 'Vipps MobilePay',           desc: 'Pay now with Vipps. Your booking is confirmed automatically.' },
+        pay_at_pickup: { name: 'Pay at pickup/delivery',     desc: 'Pay by card when you collect or receive the equipment. We\'ll confirm within 24 hours.' },
+      },
+      orderNowVipps:   'Pay with Vipps →',
+      noteVipps:       'Secure payment via Vipps. Your booking is confirmed automatically.',
     },
     auth: {
       tagline:       'Baby equipment for rent in Bergen',

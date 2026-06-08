@@ -3,6 +3,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase-server'
 import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
 import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
+import { initiateVippsPayment } from '@/lib/vipps'
 import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
 
@@ -13,14 +14,17 @@ export type DeliveryOption = {
   hotelName?:    string
 }
 
+export type PaymentMethod = 'vipps' | 'pay_at_pickup'
+
 export type CheckoutInput = {
-  rentals:     CartRental[]
-  accessories: CartAccessory[]
-  delivery:    DeliveryOption
+  rentals:       CartRental[]
+  accessories:   CartAccessory[]
+  delivery:      DeliveryOption
+  paymentMethod: PaymentMethod
 }
 
 export type CheckoutResult =
-  | { success: true;  bookingIds: string[] }
+  | { success: true;  bookingIds: string[]; vippsUrl?: string }
   | { success: false; error: string }
 
 function bestPrice(
@@ -105,6 +109,11 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
 
   const accessoryTotal = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
 
+  // ── Vipps: generate a shared order ID (first booking's UUID) ─────────────
+  // We pre-compute a UUID to use as the Vipps orderId so all bookings
+  // in this cart share the same identifier before any are inserted.
+  const isVipps = input.paymentMethod === 'vipps'
+
   // ── Opprett én booking per leieprodukt ───────────────────────────────────
   const bookingIds: string[] = []
 
@@ -125,18 +134,20 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     const rentalAmount = priceInfo.amount + thisAccessoryTotal
     const totalAmount  = rentalAmount + rental.depositAmount
 
-    const { data: booking, error: bookingErr } = await supabase
+    // Cast to any because migration 012 columns (payment_method, vipps_order_id) aren't in generated types yet
+    const { data: booking, error: bookingErr } = await (supabase as any)
       .from('bookings')
       .insert({
         customer_id:    customer.id,
         location_id:    rental.locationId,
-        status:         'draft',
+        status:         isVipps ? 'pending_payment' : 'draft',
         start_date:     rental.startDate,
         end_date:       rental.endDate,
         rental_amount:  rentalAmount,
         deposit_amount: rental.depositAmount,
         total_amount:   totalAmount,
         currency:       'NOK',
+        payment_method: input.paymentMethod,  // added in migration 012
         ...(isFirst ? {
           notes: [deliveryNote, accessoryNote].filter(Boolean).join(' | ') || null,
         } : {}),
@@ -170,7 +181,46 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     return { success: false, error: 'Ingen bookinger kunne opprettes. Prøv igjen.' }
   }
 
-  // ── E-postvarsling til admin ──────────────────────────────────────────────
+  // ── Vipps payment path ────────────────────────────────────────────────────
+  if (isVipps) {
+    const vippsOrderId = bookingIds[0]  // first booking UUID as Vipps orderId
+
+    // Store vipps_order_id on all bookings in this cart (column added in migration 012)
+    await (supabase as any)
+      .from('bookings')
+      .update({ vipps_order_id: vippsOrderId })
+      .in('id', bookingIds)
+
+    // Total NOK for all bookings
+    const totalNok = input.rentals.reduce((s, r) => {
+      const days = Math.ceil((new Date(r.endDate).getTime() - new Date(r.startDate).getTime()) / 86_400_000)
+      return s + (bestPrice(days, r.priceDay, r.priceWeek, r.priceMonth)?.amount ?? 0) + r.depositAmount
+    }, 0) + accessoryTotal
+
+    const productNames = input.rentals.map(r => r.productName)
+    const txText = `TinyRent: ${productNames.join(', ')}`.slice(0, 100)
+
+    const SITE = 'https://www.tinyrent.no'
+
+    try {
+      const vippsUrl = await initiateVippsPayment({
+        orderId:         vippsOrderId,
+        amountNok:       totalNok,
+        redirectUrl:     `${SITE}/vipps/success`,
+        callbackPrefix:  `${SITE}/api/vipps`,
+        transactionText: txText,
+        customerPhone:   customer.phone ?? undefined,
+      })
+      return { success: true, bookingIds, vippsUrl }
+    } catch (e) {
+      console.error('[checkoutCart] Vipps init failed:', e)
+      // Mark bookings as cancelled so they don't linger as pending_payment
+      await supabase.from('bookings').update({ status: 'cancelled' }).in('id', bookingIds)
+      return { success: false, error: 'Kunne ikke starte Vipps-betaling. Prøv igjen.' }
+    }
+  }
+
+  // ── Pay-at-pickup path: e-mail admin and return ───────────────────────────
   try {
     const productNames = input.rentals.map(r => r.productName)
     const allNames = input.accessories.length > 0

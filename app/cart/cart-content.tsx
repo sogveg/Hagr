@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCart, calcRentalPrice } from '@/context/cart-context'
-import { checkoutCart, type DeliveryOption } from '@/app/actions/checkout'
+import { checkoutCart, type DeliveryOption, type PaymentMethod } from '@/app/actions/checkout'
 import { useLocale } from '@/context/locale-context'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
@@ -40,6 +40,9 @@ export function CartContent() {
   const [deliveryAddress, setDeliveryAddress] = useState('')
   const [flightNumber,    setFlightNumber]    = useState('')
   const [hotelName,       setHotelName]       = useState('')
+
+  // Payment method state
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('vipps')
 
   const today = toStr(new Date())
   const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
@@ -93,6 +96,7 @@ export function CartContent() {
     const result = await checkoutCart({
       rentals,
       accessories,
+      paymentMethod,
       delivery: {
         type:         deliveryType,
         address:      deliveryAddress.trim() || undefined,
@@ -111,9 +115,17 @@ export function CartContent() {
       return
     }
 
+    clearCart()
+
+    // Vipps: redirect to Vipps landing page
+    if (result.vippsUrl) {
+      window.location.href = result.vippsUrl
+      return
+    }
+
+    // Pay-at-pickup: show success screen
     setBookingIds(result.bookingIds)
     setSuccess(true)
-    clearCart()
   }
 
   // ── Success screen ──────────────────────────────────────────────────────────
@@ -390,6 +402,67 @@ export function CartContent() {
             </div>
           </div>
 
+          {/* Payment method */}
+          <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
+            <div className="px-6 py-4 border-b border-black/[0.04]">
+              <h2 className="text-sm font-bold text-[var(--color-foreground)]">{t.cart.paymentTitle}</h2>
+              <p className="text-xs text-[var(--color-muted)] mt-0.5">{t.cart.paymentSubtitle}</p>
+            </div>
+            <div className="divide-y divide-black/[0.04]">
+
+              {/* Vipps */}
+              <label
+                className={`flex items-start gap-3 px-6 py-4 cursor-pointer transition-colors ${paymentMethod === 'vipps' ? 'bg-[#F5F8F4]' : 'hover:bg-gray-50'}`}
+              >
+                <div className="mt-0.5 shrink-0">
+                  <div
+                    onClick={() => setPaymentMethod('vipps')}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === 'vipps' ? 'border-[#4A6741]' : 'border-gray-300'}`}
+                  >
+                    {paymentMethod === 'vipps' && <div className="w-2 h-2 rounded-full bg-[#4A6741]" />}
+                  </div>
+                </div>
+                <div className="flex-1" onClick={() => setPaymentMethod('vipps')}>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-[var(--color-foreground)]">
+                      {t.cart.payment.vipps.name}
+                    </p>
+                    {/* Vipps brand colour pill */}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF5B24] text-white leading-none">
+                      VIPPS
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                    {t.cart.payment.vipps.desc}
+                  </p>
+                </div>
+              </label>
+
+              {/* Pay at pickup */}
+              <label
+                className={`flex items-start gap-3 px-6 py-4 cursor-pointer transition-colors ${paymentMethod === 'pay_at_pickup' ? 'bg-[#F5F8F4]' : 'hover:bg-gray-50'}`}
+              >
+                <div className="mt-0.5 shrink-0">
+                  <div
+                    onClick={() => setPaymentMethod('pay_at_pickup')}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === 'pay_at_pickup' ? 'border-[#4A6741]' : 'border-gray-300'}`}
+                  >
+                    {paymentMethod === 'pay_at_pickup' && <div className="w-2 h-2 rounded-full bg-[#4A6741]" />}
+                  </div>
+                </div>
+                <div className="flex-1" onClick={() => setPaymentMethod('pay_at_pickup')}>
+                  <p className="text-sm font-semibold text-[var(--color-foreground)]">
+                    {t.cart.payment.pay_at_pickup.name}
+                  </p>
+                  <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                    {t.cart.payment.pay_at_pickup.desc}
+                  </p>
+                </div>
+              </label>
+
+            </div>
+          </div>
+
           {/* Continue shopping */}
           <Link href="/bergen" className="inline-flex items-center gap-1.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
             {t.cart.continueShopping}
@@ -451,7 +524,9 @@ export function CartContent() {
             <button
               onClick={handleCheckout}
               disabled={loading || !rentals.length}
-              className="w-full py-4 rounded-[var(--radius-lg)] bg-[#4A6741] text-white text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              className={`w-full py-4 rounded-[var(--radius-lg)] text-white text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 ${
+                paymentMethod === 'vipps' ? 'bg-[#FF5B24]' : 'bg-[#4A6741]'
+              }`}
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -460,13 +535,15 @@ export function CartContent() {
                   </svg>
                   {t.cart.ordering}
                 </span>
+              ) : paymentMethod === 'vipps' ? (
+                t.cart.orderNowVipps
               ) : (
                 t.cart.orderNow
               )}
             </button>
 
             <p className="text-xs text-center text-[var(--color-muted-foreground)] mt-3">
-              {t.cart.note}
+              {paymentMethod === 'vipps' ? t.cart.noteVipps : t.cart.note}
             </p>
           </div>
         </div>
