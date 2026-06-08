@@ -4,6 +4,7 @@ import { createClient, createServiceClient } from '@/lib/supabase-server'
 import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
 import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
 import { initiateVippsPayment } from '@/lib/vipps'
+import { getStripe } from '@/lib/stripe'
 import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
 
@@ -14,7 +15,7 @@ export type DeliveryOption = {
   hotelName?:    string
 }
 
-export type PaymentMethod = 'vipps' | 'pay_at_pickup'
+export type PaymentMethod = 'stripe' | 'vipps' | 'pay_at_pickup'
 
 export type CheckoutInput = {
   rentals:       CartRental[]
@@ -24,7 +25,7 @@ export type CheckoutInput = {
 }
 
 export type CheckoutResult =
-  | { success: true;  bookingIds: string[]; vippsUrl?: string }
+  | { success: true;  bookingIds: string[]; vippsUrl?: string; stripeUrl?: string }
   | { success: false; error: string }
 
 function bestPrice(
@@ -109,10 +110,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
 
   const accessoryTotal = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
 
-  // ── Vipps: generate a shared order ID (first booking's UUID) ─────────────
-  // We pre-compute a UUID to use as the Vipps orderId so all bookings
-  // in this cart share the same identifier before any are inserted.
-  const isVipps = input.paymentMethod === 'vipps'
+  const isVipps  = input.paymentMethod === 'vipps'
+  const isStripe = input.paymentMethod === 'stripe'
 
   // ── Opprett én booking per leieprodukt ───────────────────────────────────
   const bookingIds: string[] = []
@@ -140,7 +139,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       .insert({
         customer_id:    customer.id,
         location_id:    rental.locationId,
-        status:         isVipps ? 'pending_payment' : 'draft',
+        status:         (isVipps || isStripe) ? 'pending_payment' : 'draft',
         start_date:     rental.startDate,
         end_date:       rental.endDate,
         rental_amount:  rentalAmount,
@@ -217,6 +216,82 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       // Mark bookings as cancelled so they don't linger as pending_payment
       await supabase.from('bookings').update({ status: 'cancelled' }).in('id', bookingIds)
       return { success: false, error: 'Kunne ikke starte Vipps-betaling. Prøv igjen.' }
+    }
+  }
+
+  // ── Stripe payment path ───────────────────────────────────────────────────
+  if (isStripe) {
+    const SITE = 'https://www.tinyrent.no'
+
+    // Build line items — one per rental + optional deposit + accessories
+    const lineItems: {
+      price_data: { currency: string; product_data: { name: string }; unit_amount: number }
+      quantity: number
+    }[] = []
+
+    for (const rental of input.rentals) {
+      const days      = Math.ceil((new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / 86_400_000)
+      const priceInfo = bestPrice(days, rental.priceDay, rental.priceWeek, rental.priceMonth)
+      if (!priceInfo) continue
+
+      const fmt = (d: string) => new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'short' })
+      lineItems.push({
+        price_data: {
+          currency:     'nok',
+          product_data: { name: `${rental.productName} (${fmt(rental.startDate)} – ${fmt(rental.endDate)})` },
+          unit_amount:  Math.round(priceInfo.amount * 100),
+        },
+        quantity: 1,
+      })
+    }
+
+    if (accessoryTotal > 0) {
+      lineItems.push({
+        price_data: {
+          currency:     'nok',
+          product_data: { name: 'Tilbehør' },
+          unit_amount:  Math.round(accessoryTotal * 100),
+        },
+        quantity: 1,
+      })
+    }
+
+    const depositTotal = input.rentals.reduce((s, r) => s + r.depositAmount, 0)
+    if (depositTotal > 0) {
+      lineItems.push({
+        price_data: {
+          currency:     'nok',
+          product_data: { name: 'Depositum (refunderes etter retur)' },
+          unit_amount:  Math.round(depositTotal * 100),
+        },
+        quantity: 1,
+      })
+    }
+
+    try {
+      const stripe  = getStripe()
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items:           lineItems,
+        mode:                 'payment',
+        success_url:          `${SITE}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url:           `${SITE}/cart`,
+        metadata:             { booking_ids: bookingIds.join(',') },
+        customer_email:       customer.email,
+        locale:               'nb',
+      })
+
+      // Tag bookings with stripe session id so webhook can find them
+      await supabase
+        .from('bookings')
+        .update({ stripe_checkout_session_id: session.id })
+        .in('id', bookingIds)
+
+      return { success: true, bookingIds, stripeUrl: session.url! }
+    } catch (e) {
+      console.error('[checkoutCart] Stripe session failed:', e)
+      await supabase.from('bookings').update({ status: 'cancelled' }).in('id', bookingIds)
+      return { success: false, error: 'Kunne ikke starte kortbetaling. Prøv igjen.' }
     }
   }
 

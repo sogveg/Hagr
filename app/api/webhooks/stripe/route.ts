@@ -34,16 +34,22 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const bookingId = session.metadata?.booking_id
-        if (!bookingId) break
 
+        // Support both single booking_id (legacy) and comma-separated booking_ids (multi-cart)
+        const rawIds    = session.metadata?.booking_ids ?? session.metadata?.booking_id ?? ''
+        const bookingIds = rawIds.split(',').map((s: string) => s.trim()).filter(Boolean)
+        if (!bookingIds.length) break
+
+        // Confirm all bookings in this cart
         await supabase
           .from('bookings')
           .update({ status: 'confirmed', stripe_checkout_session_id: session.id })
-          .eq('id', bookingId)
+          .in('id', bookingIds)
 
+        // Record payment against first booking (primary record)
+        const firstId = bookingIds[0]
         await supabase.from('payments').insert({
-          booking_id: bookingId,
+          booking_id: firstId,
           stripe_payment_intent_id: session.payment_intent as string,
           amount: (session.amount_total ?? 0) / 100,
           currency: session.currency?.toUpperCase() ?? 'NOK',
@@ -53,41 +59,43 @@ export async function POST(req: Request) {
 
         await supabase.from('audit_logs').insert({
           entity_type: 'booking',
-          entity_id: bookingId,
+          entity_id: firstId,
           action: 'payment_confirmed',
-          metadata: { stripe_session_id: session.id },
+          metadata: { stripe_session_id: session.id, booking_ids: bookingIds },
         })
 
-        // Hent booking, kunde og produkt for å sende e-post
-        const { data: booking } = await supabase
-          .from('bookings')
-          .select('start_date, end_date, total_amount, deposit_amount, customer_id')
-          .eq('id', bookingId)
-          .single()
+        // Send customer confirmation email for each booking
+        for (const bookingId of bookingIds) {
+          const { data: booking } = await supabase
+            .from('bookings')
+            .select('start_date, end_date, total_amount, deposit_amount, customer_id')
+            .eq('id', bookingId)
+            .single()
 
-        const { data: bookingItem } = await supabase
-          .from('booking_items')
-          .select('product_id')
-          .eq('booking_id', bookingId)
-          .single()
+          const { data: bookingItem } = await supabase
+            .from('booking_items')
+            .select('product_id')
+            .eq('booking_id', bookingId)
+            .single()
 
-        if (booking?.customer_id && bookingItem?.product_id) {
-          const [{ data: customer }, { data: product }] = await Promise.all([
-            supabase.from('customers').select('first_name, last_name, email').eq('id', booking.customer_id).single(),
-            supabase.from('products').select('name').eq('id', bookingItem.product_id).single(),
-          ])
+          if (booking?.customer_id && bookingItem?.product_id) {
+            const [{ data: customer }, { data: product }] = await Promise.all([
+              supabase.from('customers').select('first_name, last_name, email').eq('id', booking.customer_id).single(),
+              supabase.from('products').select('name').eq('id', bookingItem.product_id).single(),
+            ])
 
-          if (customer && product) {
-            await sendBookingConfirmed({
-              to: customer.email,
-              customerName: [customer.first_name, customer.last_name].filter(Boolean).join(' ') || 'der',
-              bookingId,
-              productName: product.name,
-              startDate: booking.start_date,
-              endDate: booking.end_date,
-              totalAmount: booking.total_amount,
-              depositAmount: booking.deposit_amount,
-            })
+            if (customer && product) {
+              await sendBookingConfirmed({
+                to: customer.email,
+                customerName: [customer.first_name, customer.last_name].filter(Boolean).join(' ') || 'der',
+                bookingId,
+                productName: product.name,
+                startDate: booking.start_date,
+                endDate: booking.end_date,
+                totalAmount: booking.total_amount,
+                depositAmount: booking.deposit_amount,
+              })
+            }
           }
         }
         break

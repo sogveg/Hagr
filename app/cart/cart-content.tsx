@@ -41,8 +41,8 @@ export function CartContent() {
   const [flightNumber,    setFlightNumber]    = useState('')
   const [hotelName,       setHotelName]       = useState('')
 
-  // Payment method state
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('vipps')
+  // Payment method state — default to card (Stripe), Vipps when configured
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe')
 
   const today = toStr(new Date())
   const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
@@ -117,7 +117,11 @@ export function CartContent() {
 
     clearCart()
 
-    // Vipps: redirect to Vipps landing page
+    // Online payment: redirect to Stripe or Vipps
+    if (result.stripeUrl) {
+      window.location.href = result.stripeUrl
+      return
+    }
     if (result.vippsUrl) {
       window.location.href = result.vippsUrl
       return
@@ -410,6 +414,35 @@ export function CartContent() {
             </div>
             <div className="divide-y divide-black/[0.04]">
 
+              {/* Stripe / betalingskort */}
+              <label
+                className={`flex items-start gap-3 px-6 py-4 cursor-pointer transition-colors ${paymentMethod === 'stripe' ? 'bg-[#F5F8F4]' : 'hover:bg-gray-50'}`}
+              >
+                <div className="mt-0.5 shrink-0">
+                  <div
+                    onClick={() => setPaymentMethod('stripe')}
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors ${paymentMethod === 'stripe' ? 'border-[#4A6741]' : 'border-gray-300'}`}
+                  >
+                    {paymentMethod === 'stripe' && <div className="w-2 h-2 rounded-full bg-[#4A6741]" />}
+                  </div>
+                </div>
+                <div className="flex-1" onClick={() => setPaymentMethod('stripe')}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-[var(--color-foreground)]">
+                      {t.cart.payment.stripe.name}
+                    </p>
+                    {/* Card brand icons */}
+                    <span className="flex items-center gap-1">
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#1A1F71] text-white leading-none">VISA</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#EB001B] text-white leading-none">MC</span>
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--color-muted)] mt-0.5">
+                    {t.cart.payment.stripe.desc}
+                  </p>
+                </div>
+              </label>
+
               {/* Vipps */}
               <label
                 className={`flex items-start gap-3 px-6 py-4 cursor-pointer transition-colors ${paymentMethod === 'vipps' ? 'bg-[#F5F8F4]' : 'hover:bg-gray-50'}`}
@@ -525,7 +558,11 @@ export function CartContent() {
               onClick={handleCheckout}
               disabled={loading || !rentals.length}
               className={`w-full py-4 rounded-[var(--radius-lg)] text-white text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 ${
-                paymentMethod === 'vipps' ? 'bg-[#FF5B24]' : 'bg-[#4A6741]'
+                paymentMethod === 'vipps'
+                  ? 'bg-[#FF5B24]'
+                  : paymentMethod === 'stripe'
+                    ? 'bg-[#635BFF]'
+                    : 'bg-[#4A6741]'
               }`}
             >
               {loading ? (
@@ -537,13 +574,19 @@ export function CartContent() {
                 </span>
               ) : paymentMethod === 'vipps' ? (
                 t.cart.orderNowVipps
+              ) : paymentMethod === 'stripe' ? (
+                t.cart.orderNowStripe
               ) : (
                 t.cart.orderNow
               )}
             </button>
 
             <p className="text-xs text-center text-[var(--color-muted-foreground)] mt-3">
-              {paymentMethod === 'vipps' ? t.cart.noteVipps : t.cart.note}
+              {paymentMethod === 'vipps'
+                ? t.cart.noteVipps
+                : paymentMethod === 'stripe'
+                  ? t.cart.noteStripe
+                  : t.cart.note}
             </p>
           </div>
         </div>
