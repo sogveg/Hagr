@@ -204,7 +204,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       const vippsUrl = await initiateVippsPayment({
         orderId:         vippsOrderId,
         amountNok:       totalNok,
-        redirectUrl:     `${SITE}/vipps/success`,
+        redirectUrl:     `${SITE}/vipps/success?orderId=${vippsOrderId}`,
         callbackPrefix:  `${SITE}/api/vipps`,
         transactionText: txText,
         customerPhone:   customer.phone ?? undefined,
