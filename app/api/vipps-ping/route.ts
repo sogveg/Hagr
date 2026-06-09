@@ -51,7 +51,7 @@ export async function GET() {
       merchantInfo: {
         merchantSerialNumber: msn,
         callbackPrefix:       'https://www.tinyrent.no/api/vipps',
-        redirectUrl:          'https://www.tinyrent.no/vipps/success',
+        fallBack:             'https://www.tinyrent.no/vipps/success',
         isApp:                false,
       },
       customerInfo: {},
