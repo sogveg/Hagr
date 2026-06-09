@@ -180,7 +180,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
 
   // ── Vipps payment path ────────────────────────────────────────────────────
   if (isVipps) {
-    const vippsOrderId = bookingIds[0]  // first booking UUID as Vipps orderId
+    // Vipps orderId: max 30 alphanumeric chars. Strip UUID dashes and take first 30.
+    const vippsOrderId = bookingIds[0].replace(/-/g, '').slice(0, 30)
 
     // Store vipps_order_id on all bookings in this cart (column added in migration 012)
     await (supabase as any)
@@ -210,7 +211,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       })
       return { success: true, bookingIds, vippsUrl }
     } catch (e) {
-      console.error('[checkoutCart] Vipps init failed:', e)
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('[checkoutCart] Vipps init failed — orderId:', vippsOrderId, '— error:', msg)
       // Mark bookings as cancelled so they don't linger as pending_payment
       await supabase.from('bookings').update({ status: 'cancelled' }).in('id', bookingIds)
       return { success: false, error: 'Kunne ikke starte Vipps-betaling. Prøv igjen.' }

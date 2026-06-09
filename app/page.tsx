@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { CategoryCard } from '@/components/ui/category-card'
 import { ProductCard } from '@/components/ui/product-card'
 import { OrganizationSchema } from '@/components/seo/json-ld'
+import { Testimonials } from '@/components/ui/testimonials'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
@@ -174,6 +175,8 @@ export default async function HomePage() {
       )}
 
       <HowItWorks />
+
+      <Testimonials />
 
       {/* Trygghet-seksjonen / Safety section */}
       <section className="bg-[var(--color-sand)] px-6 py-24">
