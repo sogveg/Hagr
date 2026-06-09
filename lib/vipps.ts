@@ -95,7 +95,7 @@ export async function initiateVippsPayment({
     merchantInfo: {
       merchantSerialNumber: cfg.msn,
       callbackPrefix,
-      redirectUrl,
+      fallBack: redirectUrl,   // Vipps eCom v2 uses "fallBack", not "redirectUrl"
       isApp: false,
     },
     customerInfo: customerPhone ? { mobileNumber: customerPhone.replace(/\D/g, '') } : {},
