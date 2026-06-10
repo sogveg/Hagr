@@ -261,8 +261,8 @@ export default function SalaryDividendPage() {
   const [showMarginalTable, setShowMarginalTable] = useState(false)
 
   const [form, setForm] = useState({
-    company_profit: '1000000',
-    current_salary: '600000',
+    net_profit: '',          // Årsresultat ETTER lønn (fra regnskapet)
+    current_salary: '',      // Nåværende lønn
     aga_zone: 'zone1' as AGAZone,
     shielding_deduction: '0',
   })
@@ -308,10 +308,17 @@ export default function SalaryDividendPage() {
     }
   }
 
+  // Derive profit-before-owner-salary from the fields users actually know:
+  //   net_profit (from accounts, after salary) + salary + AGA on salary
+  const netProfit = parseFloat(form.net_profit) || 0
+  const currentSalaryVal = parseFloat(form.current_salary) || 0
+  const agaRateForZone = (rates as any)[`aga_${form.aga_zone}`] as number ?? 0.141
+  const derivedProfitBeforeSalary = netProfit + currentSalaryVal * (1 + agaRateForZone)
+
   function calculate() {
     setResult(calculateSalaryDividend({
-      company_profit_before_owner_salary: parseFloat(form.company_profit) || 0,
-      current_salary: parseFloat(form.current_salary) || 0,
+      company_profit_before_owner_salary: derivedProfitBeforeSalary,
+      current_salary: currentSalaryVal,
       aga_zone: form.aga_zone,
       shielding_deduction: parseFloat(form.shielding_deduction) || 0,
       retained_earnings: 0,
@@ -321,7 +328,7 @@ export default function SalaryDividendPage() {
   const pensionMaxNok = rates.pension_max_nok
   const sickPayMaxNok = rates.sick_pay_max_nok
   const minBenefitsNok = rates.min_benefits_nok
-  const currentSalary = parseFloat(form.current_salary) || 0
+  const currentSalary = currentSalaryVal
 
   return (
     <div className="max-w-5xl">
@@ -449,37 +456,71 @@ export default function SalaryDividendPage() {
 
       {/* Input */}
       <div className="card p-6 mb-6">
-        <h2 className="font-semibold mb-4">Dine tall</h2>
+        <h2 className="font-semibold mb-1">Dine tall</h2>
+        <p className="text-xs text-gray-400 mb-4">Fyll inn de to første feltene — resten beregnes automatisk.</p>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label">Overskudd FØR eierlønn (kr)</label>
-            <input type="number" className="input" value={form.company_profit}
-              onChange={e => setForm(p => ({ ...p, company_profit: e.target.value }))} />
-            <p className="text-xs text-gray-400 mt-1">Resultat før du trekker ut din lønn</p>
+            <label className="label">Årsresultat i regnskapet (kr)</label>
+            <input
+              type="number" className="input" placeholder="f.eks. 500 000"
+              value={form.net_profit}
+              onChange={e => { setForm(p => ({ ...p, net_profit: e.target.value })); setResult(null) }}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Overskuddet etter at lønn og alle kostnader er trukket fra — fra regnskapet eller skattemeldingen
+            </p>
           </div>
           <div>
             <label className="label">Din nåværende lønn (kr/år)</label>
-            <input type="number" className="input" value={form.current_salary}
-              onChange={e => setForm(p => ({ ...p, current_salary: e.target.value }))} />
-            <p className="text-xs text-gray-400 mt-1">7,1 G = {pensionMaxNok.toLocaleString('nb-NO')} kr anbefalt</p>
+            <input
+              type="number" className="input" placeholder="f.eks. 700 000"
+              value={form.current_salary}
+              onChange={e => { setForm(p => ({ ...p, current_salary: e.target.value })); setResult(null) }}
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              7,1 G = {pensionMaxNok.toLocaleString('nb-NO')} kr — anbefalt for full pensjonsopptjening
+            </p>
           </div>
           <div>
-            <label className="label">Arbeidsgiveravgifts-sone</label>
+            <label className="label">AGA-sone (fylke)</label>
             <select className="input" value={form.aga_zone}
-              onChange={e => setForm(p => ({ ...p, aga_zone: e.target.value as AGAZone }))}>
+              onChange={e => { setForm(p => ({ ...p, aga_zone: e.target.value as AGAZone })); setResult(null) }}>
               {AGA_ZONE_KEYS.map(k => (
                 <option key={k} value={k}>{AGA_ZONE_LABELS[k]}</option>
               ))}
             </select>
+            <p className="text-xs text-gray-400 mt-1">Basert på hvor selskapet er registrert</p>
           </div>
           <div>
-            <label className="label">Skjermingsfradrag (kr/år)</label>
-            <input type="number" className="input" value={form.shielding_deduction}
-              onChange={e => setForm(p => ({ ...p, shielding_deduction: e.target.value }))} />
-            <p className="text-xs text-gray-400 mt-1">Fra VPS-årsoppgaven. Sett 0 hvis ukjent.</p>
+            <label className="label">
+              Skjermingsfradrag (kr/år)
+              <span className="ml-1 text-gray-400 font-normal">— valgfritt</span>
+            </label>
+            <input type="number" className="input" placeholder="0" value={form.shielding_deduction}
+              onChange={e => { setForm(p => ({ ...p, shielding_deduction: e.target.value })); setResult(null) }} />
+            <p className="text-xs text-gray-400 mt-1">Fra VPS-årsoppgaven — sett 0 hvis du er usikker</p>
           </div>
         </div>
-        <button onClick={calculate} className="btn-primary mt-5 w-full">
+
+        {/* Live preview of derived profit */}
+        {(form.net_profit || form.current_salary) && (
+          <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm">
+            <p className="text-blue-700 font-medium mb-0.5">Kalkulatoren beregner automatisk:</p>
+            <p className="text-blue-600 text-xs">
+              Årsresultat <span className="font-semibold">{(netProfit).toLocaleString('nb-NO')} kr</span>
+              {' + '}lønn <span className="font-semibold">{currentSalaryVal.toLocaleString('nb-NO')} kr</span>
+              {' + '}AGA ({(agaRateForZone * 100).toFixed(1)}% = <span className="font-semibold">{Math.round(currentSalaryVal * agaRateForZone).toLocaleString('nb-NO')} kr</span>)
+              {' = '}overskudd FØR eierlønn:{' '}
+              <span className="font-bold text-blue-800">{Math.round(derivedProfitBeforeSalary).toLocaleString('nb-NO')} kr</span>
+            </p>
+          </div>
+        )}
+
+        <button
+          onClick={calculate}
+          disabled={!form.net_profit || !form.current_salary}
+          className="btn-primary mt-5 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           Beregn og sammenlign alle scenarier
         </button>
       </div>
