@@ -442,7 +442,7 @@ export default function PeoplePage() {
                 {/* Person row */}
                 <div className="p-4 flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{person.name}</p>
+                    <a href={`/people/${person.id}`} className="font-medium text-gray-900 hover:text-blue-600 hover:underline transition-colors">{person.name}</a>
                     <div className="flex flex-wrap gap-2 mt-1.5">
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                         {ROLE_LABELS[person.role] ?? person.role}
