@@ -1,0 +1,21 @@
+{
+  "name": "skattsmart",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "db:migrate": "pnpm --filter @skattsmart/db migrate"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.5.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
