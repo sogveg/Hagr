@@ -4,13 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Lightbulb, ChevronDown, ChevronUp, ArrowRight, X } from 'lucide-react'
+// ChevronDown/Up used for show-more/less, ArrowRight for tool link
 import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, type Tip, type TipCategory } from '@/lib/shared'
 
 interface TipBoxProps {
   toolHref?: string
   category?: TipCategory
   maxTips?: number
-  compact?: boolean
   title?: string
 }
 
@@ -40,56 +40,32 @@ function getPool(toolHref?: string, category?: TipCategory): Tip[] {
   return sortTips(TIPS)
 }
 
-function SingleTip({ tip, currentPath, compact }: { tip: Tip; currentPath: string; compact?: boolean }) {
-  const [expanded, setExpanded] = useState(false)
-
+function SingleTip({ tip, currentPath }: { tip: Tip; currentPath: string }) {
   return (
     <div className={`border-l-4 rounded-r-xl px-4 py-3 ${TYPE_COLOR[tip.type] ?? 'border-l-gray-300 bg-gray-50'}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className={`text-xs font-semibold ${TYPE_TEXT[tip.type] ?? 'text-gray-600'}`}>
-              {TIP_TYPE_LABELS[tip.type]}
-            </span>
-            {tip.impact && (
-              <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
-                {tip.impact}
-              </span>
-            )}
-          </div>
-          <p className="text-sm font-semibold text-gray-900 leading-snug">{tip.title}</p>
-
-          {!compact && (
-            expanded ? (
-              <div className="mt-2">
-                <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
-                {tip.law_ref && (
-                  <p className="text-xs text-gray-400 mt-2">📌 {tip.law_ref}</p>
-                )}
-                {tip.tool_href && tip.tool_href !== currentPath && (
-                  <Link
-                    href={tip.tool_href}
-                    className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium mt-2"
-                  >
-                    Åpne verktøy <ArrowRight size={11} />
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{tip.body}</p>
-            )
-          )}
-        </div>
-        {!compact && (
-          <button
-            type="button"
-            onClick={() => setExpanded(v => !v)}
-            className="shrink-0 text-gray-400 hover:text-gray-600 mt-0.5"
-          >
-            {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-          </button>
+      <div className="flex items-center gap-2 mb-1 flex-wrap">
+        <span className={`text-xs font-semibold ${TYPE_TEXT[tip.type] ?? 'text-gray-600'}`}>
+          {TIP_TYPE_LABELS[tip.type]}
+        </span>
+        {tip.impact && (
+          <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
+            {tip.impact}
+          </span>
         )}
       </div>
+      <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{tip.title}</p>
+      <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
+      {tip.law_ref && (
+        <p className="text-xs text-gray-400 mt-1.5">📌 {tip.law_ref}</p>
+      )}
+      {tip.tool_href && tip.tool_href !== currentPath && (
+        <Link
+          href={tip.tool_href}
+          className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium mt-1.5"
+        >
+          Åpne verktøy <ArrowRight size={11} />
+        </Link>
+      )}
     </div>
   )
 }
@@ -98,7 +74,6 @@ export default function TipBox({
   toolHref,
   category,
   maxTips = 3,
-  compact = false,
   title = 'Tips og regler',
 }: TipBoxProps) {
   const pathname = usePathname()
@@ -136,7 +111,7 @@ export default function TipBox({
 
       <div className="space-y-2.5">
         {visible.map(tip => (
-          <SingleTip key={tip.id} tip={tip} currentPath={pathname} compact={compact} />
+          <SingleTip key={tip.id} tip={tip} currentPath={pathname} />
         ))}
       </div>
 

@@ -119,7 +119,6 @@ function RuleCardView({ card }: { card: RuleCard }) {
 }
 
 function TipRow({ tip }: { tip: Tip }) {
-  const [open, setOpen] = useState(false)
   const borderColor = {
     saving:   'border-l-green-400 bg-green-50',
     gotcha:   'border-l-amber-400 bg-amber-50',
@@ -134,37 +133,25 @@ function TipRow({ tip }: { tip: Tip }) {
   }[tip.type]
 
   return (
-    <div className={`border-l-4 rounded-r-xl ${borderColor}`}>
-      <button className="w-full text-left px-4 py-3" onClick={() => setOpen(v => !v)}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span className={`text-xs font-semibold ${textColor}`}>{TIP_TYPE_LABELS[tip.type]}</span>
-              {tip.impact && (
-                <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
-                  {tip.impact}
-                </span>
-              )}
-            </div>
-            <p className="text-sm font-semibold text-gray-900 leading-snug">{tip.title}</p>
-            {!open && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{tip.body}</p>}
-          </div>
-          {open ? <ChevronUp size={14} className="text-gray-400 shrink-0 mt-0.5" /> : <ChevronDown size={14} className="text-gray-400 shrink-0 mt-0.5" />}
-        </div>
-      </button>
-      {open && (
-        <div className="px-4 pb-4">
-          <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
-          <div className="flex items-center gap-3 mt-3 flex-wrap">
-            {tip.law_ref && <span className="text-xs text-gray-400">📌 {tip.law_ref}</span>}
-            {tip.tool_href && (
-              <Link href={tip.tool_href} className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium">
-                Åpne verktøy <ArrowRight size={10} />
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+    <div className={`border-l-4 rounded-r-xl px-4 py-3 ${borderColor}`}>
+      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+        <span className={`text-xs font-semibold ${textColor}`}>{TIP_TYPE_LABELS[tip.type]}</span>
+        {tip.impact && (
+          <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
+            {tip.impact}
+          </span>
+        )}
+      </div>
+      <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{tip.title}</p>
+      <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
+      <div className="flex items-center gap-3 mt-2 flex-wrap">
+        {tip.law_ref && <span className="text-xs text-gray-400">📌 {tip.law_ref}</span>}
+        {tip.tool_href && (
+          <Link href={tip.tool_href} className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium">
+            Åpne verktøy <ArrowRight size={10} />
+          </Link>
+        )}
+      </div>
     </div>
   )
 }
