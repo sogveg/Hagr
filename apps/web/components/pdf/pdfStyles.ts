@@ -1,0 +1,131 @@
+import { StyleSheet, Font } from '@react-pdf/renderer'
+
+// Register a clean font (using built-in Helvetica)
+export const colors = {
+  brand: '#2563eb',
+  brandLight: '#eff6ff',
+  gray900: '#111827',
+  gray700: '#374151',
+  gray500: '#6b7280',
+  gray300: '#d1d5db',
+  gray100: '#f3f4f6',
+  green: '#16a34a',
+  greenLight: '#f0fdf4',
+  red: '#dc2626',
+  redLight: '#fef2f2',
+  yellow: '#d97706',
+  yellowLight: '#fffbeb',
+}
+
+export const styles = StyleSheet.create({
+  page: {
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    color: colors.gray900,
+    paddingTop: 50,
+    paddingBottom: 60,
+    paddingHorizontal: 50,
+  },
+  // Header
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.brand,
+  },
+  headerLeft: { flex: 1 },
+  headerRight: { alignItems: 'flex-end' },
+  logo: { fontSize: 18, fontFamily: 'Helvetica-Bold', color: colors.brand, marginBottom: 2 },
+  docTitle: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: colors.gray900, marginBottom: 4 },
+  docSubtitle: { fontSize: 9, color: colors.gray500 },
+  companyName: { fontSize: 11, fontFamily: 'Helvetica-Bold', color: colors.gray900 },
+  companyMeta: { fontSize: 8, color: colors.gray500, marginTop: 2 },
+  // Sections
+  section: { marginBottom: 20 },
+  sectionTitle: {
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
+    color: colors.gray700,
+    marginBottom: 8,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray300,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  // Info rows
+  infoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 0 },
+  infoItem: { width: '50%', marginBottom: 6 },
+  infoLabel: { fontSize: 8, color: colors.gray500, marginBottom: 1 },
+  infoValue: { fontSize: 10, color: colors.gray900 },
+  // Table
+  table: { width: '100%' },
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: colors.gray100,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 3,
+    marginBottom: 2,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray100,
+  },
+  tableRowAlt: { backgroundColor: colors.gray100 },
+  tableCell: { fontSize: 9, color: colors.gray700 },
+  tableCellBold: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: colors.gray900 },
+  tableHeaderCell: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: colors.gray500 },
+  // Risk badge
+  riskGreen: { backgroundColor: colors.greenLight, color: colors.green, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, fontSize: 8, fontFamily: 'Helvetica-Bold' },
+  riskYellow: { backgroundColor: colors.yellowLight, color: colors.yellow, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, fontSize: 8, fontFamily: 'Helvetica-Bold' },
+  riskRed: { backgroundColor: colors.redLight, color: colors.red, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, fontSize: 8, fontFamily: 'Helvetica-Bold' },
+  // Footer
+  footer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 50,
+    right: 50,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: colors.gray300,
+    paddingTop: 8,
+  },
+  footerText: { fontSize: 8, color: colors.gray500 },
+  // Signature block
+  signatureBlock: {
+    flexDirection: 'row',
+    gap: 20,
+    marginTop: 16,
+  },
+  signatureLine: {
+    flex: 1,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray300,
+    paddingTop: 4,
+  },
+  signatureLabel: { fontSize: 8, color: colors.gray500 },
+  // Alert box
+  alertGreen: { backgroundColor: colors.greenLight, borderLeftWidth: 3, borderLeftColor: colors.green, padding: 8, marginBottom: 8, borderRadius: 2 },
+  alertYellow: { backgroundColor: colors.yellowLight, borderLeftWidth: 3, borderLeftColor: colors.yellow, padding: 8, marginBottom: 8, borderRadius: 2 },
+  alertRed: { backgroundColor: colors.redLight, borderLeftWidth: 3, borderLeftColor: colors.red, padding: 8, marginBottom: 8, borderRadius: 2 },
+  alertText: { fontSize: 9, color: colors.gray700 },
+  // Misc
+  badge: { fontSize: 8, paddingHorizontal: 5, paddingVertical: 2, borderRadius: 3 },
+  mt4: { marginTop: 4 },
+  mt8: { marginTop: 8 },
+  mt16: { marginTop: 16 },
+  bold: { fontFamily: 'Helvetica-Bold' },
+  green: { color: colors.green },
+  red: { color: colors.red },
+  gray: { color: colors.gray500 },
+  textSm: { fontSize: 9 },
+  textXs: { fontSize: 8 },
+})

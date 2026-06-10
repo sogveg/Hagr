@@ -4,7 +4,33 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RiskCard from '@/components/risk/RiskCard'
-import { assessRisk, type RiskResult } from '@skattsmart/shared'
+import { assessRisk, type RiskResult } from '@/lib/shared'
+import { Lightbulb, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
+
+function TipBox({ tips }: { tips: string[] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="bg-amber-50 border border-amber-100 rounded-lg overflow-hidden">
+      <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left">
+        <div className="flex items-center gap-2">
+          <Lightbulb size={14} className="text-amber-500 shrink-0" strokeWidth={2} />
+          <span className="text-sm font-medium text-amber-800">Tips og råd</span>
+        </div>
+        {open ? <ChevronUp size={13} className="text-amber-400" /> : <ChevronDown size={13} className="text-amber-400" />}
+      </button>
+      {open && (
+        <ul className="px-4 pb-4 space-y-2 border-t border-amber-100 pt-3">
+          {tips.map((tip, i) => (
+            <li key={i} className="text-sm text-amber-800 flex gap-2">
+              <span className="shrink-0 mt-0.5 text-amber-400">•</span>
+              <span dangerouslySetInnerHTML={{ __html: tip }} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 interface ProgramBlock {
   day_number: number
@@ -199,7 +225,14 @@ export default function NewStrategyPage() {
       <div className="card p-6 space-y-5">
         {step === 1 && (
           <>
-            <h2 className="font-semibold">Formål og detaljer</h2>
+            <h2 className="font-semibold mb-4">Formål og detaljer</h2>
+            <TipBox tips={[
+              '<strong>Skriv konkret formål</strong> — ikke «planleggingssamling», men f.eks. «Gjennomgang av budsjett 2026 og strategi for ekspansjon til nye markeder».',
+              '<strong>Velg sted med konferanselokale</strong> — hotell med møterom ser langt bedre ut enn et feriested eller hytte.',
+              '<strong>Unngå fellesferie og helligdager</strong> — samling i uke 28 er et rødt flagg hos Skatteetaten.',
+              'Varighet 1–3 dager er normalt. Over 4 dager krever ekstra sterk faglig begrunnelse.',
+              'Fyll inn «Begrunnelse for valg av sted» — det er ett av de første feltene en revisor ser på.',
+            ]} />
             <div>
               <label className="label">Selskap *</label>
               <select className="input" value={form.company_id} onChange={e => set('company_id', e.target.value)}>
@@ -257,8 +290,14 @@ export default function NewStrategyPage() {
 
         {step === 2 && (
           <>
-            <h2 className="font-semibold">Deltakere og roller</h2>
-            <p className="text-sm text-gray-500">Dokumenter alle deltakeres reelle funksjon under samlingen.</p>
+            <h2 className="font-semibold mb-1">Deltakere og roller</h2>
+            <p className="text-sm text-gray-500 mb-4">Dokumenter alle deltakeres reelle funksjon under samlingen.</p>
+            <TipBox tips={[
+              '<strong>Alle deltakere MÅ ha en reell, faglig rolle</strong> — ikke bare «deltaker». Skriv konkret: «Presenterte markedsplan for Q1» eller «Ansvarlig for budsjettgjennomgang».',
+              '<strong>Kun eier + ektefelle/samboer</strong> som eneste deltakere = svært høy risiko. Ha med minst én ekstern eller ikke-familietilknyttet person.',
+              'Ektefelle/samboer <strong>uten ansettelsesforhold</strong>: kostnaden for ledsager er skattepliktig lønn for den ansatte — dokumentér separat og innberett.',
+              'Eksternt innleide (konsulenter, styremedlemmer) teller som legitime deltakere — bruk dem gjerne.',
+            ]} />
             <div className="space-y-4">
               {form.participants.map((p, i) => (
                 <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-3">
@@ -287,8 +326,15 @@ export default function NewStrategyPage() {
 
         {step === 3 && (
           <>
-            <h2 className="font-semibold">Faglig program</h2>
-            <p className="text-sm text-gray-500">Faglig program bør utgjøre hoveddelen av samlingen.</p>
+            <h2 className="font-semibold mb-1">Faglig program</h2>
+            <p className="text-sm text-gray-500 mb-4">Faglig program bør utgjøre hoveddelen av samlingen.</p>
+            <TipBox tips={[
+              '<strong>70/30-regelen</strong>: faglig innhold bør utgjøre minst 70% av timene. Sosialt er OK, men hold balansen.',
+              'Fyll inn tidspunkter nøyaktig — Skatteetaten kan spørre: «Hva gjorde dere mellom 10.00 og 14.00 på dag 2?»',
+              '<strong>Ta bilder</strong> under faglige sesjoner og lagre presentasjoner/slides — ekstremt verdifullt ved bokettersyn.',
+              'Felles middag = sosialt innslag, men akseptert som del av samlingen. Konsert eller fornøyelsespark = privat — registrér det som privat aktivitet.',
+              'Private aktiviteter reduserer fradragsretten forholdsmessig — vurder om det er verdt det.',
+            ]} />
             <div className="space-y-4">
               {form.program_blocks.map((block, i) => (
                 <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-3">
@@ -339,14 +385,24 @@ export default function NewStrategyPage() {
 
         {step === 4 && (
           <>
-            <h2 className="font-semibold">Kostnader</h2>
-            <div>
+            <h2 className="font-semibold mb-4">Kostnader</h2>
+            <TipBox tips={[
+              'Over <strong>30 000 kr totalt</strong> øker sannsynligheten for kontroll — ikke et forbud, men dokumentér ekstra grundig.',
+              '<strong>Alkohol er ikke fradragsberettiget</strong> for interne arrangementer — be om separat alkoholregning for å holde det ryddig.',
+              'Reise (tog, fly, bil) og overnatting = fradragsberettiget som driftsutgift — ta vare på alle billetter.',
+              'Business class krever særskilt begrunnelse (f.eks. arbeid ombord). Økonomi er alltid tryggere.',
+              'Husk å ta vare på alle kvitteringer — de kan knyttes til bokettersynsmappen herfra.',
+            ]} />
+            <div className="mt-4">
               <label className="label">Totale kostnader (NOK)</label>
               <input type="number" min="0" className="input" value={form.costs_total} onChange={e => set('costs_total', parseFloat(e.target.value) || 0)} />
             </div>
-            <p className="text-sm text-gray-500">
-              Husk å ta vare på alle kvitteringer. Kostnadsoversikt kan eksporteres til bokettersynsmappen.
-            </p>
+            {form.costs_total > 30000 && (
+              <div className="flex items-start gap-2.5 bg-yellow-50 border border-yellow-100 rounded-lg p-3 text-sm text-yellow-800 mt-3">
+                <AlertTriangle size={15} className="text-yellow-500 shrink-0 mt-0.5" strokeWidth={2} />
+                Over 30 000 kr — sørg for at alle kostnader har kvittering og at faglig program er grundig dokumentert.
+              </div>
+            )}
             <div className="flex gap-3">
               <button onClick={() => setStep(3)} className="btn-secondary flex-1">Tilbake</button>
               <button onClick={computeRisk} className="btn-primary flex-1">Kjør risikovurdering</button>

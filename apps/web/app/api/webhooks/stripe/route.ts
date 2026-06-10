@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const supabase = getServiceClient()
 
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.CheckoutSession
+    const session = event.data.object as Stripe.Checkout.Session
     const userId = session.metadata?.user_id
     const planId = session.metadata?.plan_id as 'start' | 'pro' | 'premium'
     if (userId && planId) {

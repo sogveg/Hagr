@@ -1,4 +1,4 @@
-import type { RiskResult } from '@skattsmart/shared'
+import type { RiskResult } from '@/lib/shared'
 import RiskBadge from './RiskBadge'
 
 interface Props {

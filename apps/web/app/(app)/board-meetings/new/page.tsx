@@ -4,7 +4,33 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RiskCard from '@/components/risk/RiskCard'
-import { assessRisk, type RiskResult } from '@skattsmart/shared'
+import { assessRisk, type RiskResult } from '@/lib/shared'
+import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react'
+
+function TipBox({ tips }: { tips: string[] }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="bg-amber-50 border border-amber-100 rounded-lg overflow-hidden">
+      <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left">
+        <div className="flex items-center gap-2">
+          <Lightbulb size={14} className="text-amber-500 shrink-0" strokeWidth={2} />
+          <span className="text-sm font-medium text-amber-800">Tips og råd</span>
+        </div>
+        {open ? <ChevronUp size={13} className="text-amber-400" /> : <ChevronDown size={13} className="text-amber-400" />}
+      </button>
+      {open && (
+        <ul className="px-4 pb-4 space-y-2 border-t border-amber-100 pt-3">
+          {tips.map((tip, i) => (
+            <li key={i} className="text-sm text-amber-800 flex gap-2">
+              <span className="shrink-0 mt-0.5 text-amber-400">•</span>
+              <span dangerouslySetInnerHTML={{ __html: tip }} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 interface AgendaItem {
   title: string
@@ -192,7 +218,13 @@ export default function NewBoardMeetingPage() {
       <div className="card p-6 space-y-5">
         {step === 1 && (
           <>
-            <h2 className="font-semibold">Møteinformasjon</h2>
+            <h2 className="font-semibold mb-4">Møteinformasjon</h2>
+            <TipBox tips={[
+              'Styreprotokoll er <strong>lovpålagt for AS</strong> (aksjeloven § 6-29) — manglende protokoll kan gi styremedlemmer personlig ansvar.',
+              '<strong>Digitalt møte</strong>: lagre deltakerliste fra Zoom/Teams + skjermbilder som bevis på at møtet faktisk ble holdt.',
+              'Årsregnskap skal behandles av styret <strong>innen 6 måneder etter regnskapsårets slutt</strong> (senest 30. juni for kalenderårsselskaper).',
+              'Møt med minst en gang per halvår selv om loven ikke krever det — det viser aktiv styreforvaltning.',
+            ]} />
             <div>
               <label className="label">Selskap *</label>
               <select className="input" value={form.company_id} onChange={e => set('company_id', e.target.value)}>
@@ -253,7 +285,14 @@ export default function NewBoardMeetingPage() {
 
         {step === 2 && (
           <>
-            <h2 className="font-semibold">Dagsorden</h2>
+            <h2 className="font-semibold mb-4">Dagsorden</h2>
+            <TipBox tips={[
+              '<strong>Lønnsvedtak for daglig leder MÅ protokolleres</strong> med konkret beløp og stemmetall — ellers kan Skatteetaten avvise fradrag.',
+              'Typiske faste saker: økonomi/regnskap, strategiske beslutninger, fullmakter, HMS, og lønns-/honorarvedtak.',
+              'Daglig leder har <strong>ikke stemmerett</strong> i styret med mindre de også er styremedlem.',
+              'Skriv vedtaksteksten eksplisitt: «Styret vedtar enstemmig at…» — ikke bare «saken ble diskutert».',
+              'Protokollen bør signeres av <strong>alle styremedlemmer</strong> for å ha full rettskraft.',
+            ]} />
             <div className="space-y-4">
               {form.agenda_items.map((item, i) => (
                 <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-3">
@@ -332,7 +371,13 @@ export default function NewBoardMeetingPage() {
 
         {step === 3 && (
           <>
-            <h2 className="font-semibold">Kostnader og risikomarkering</h2>
+            <h2 className="font-semibold mb-4">Kostnader og risikomarkering</h2>
+            <TipBox tips={[
+              'Styrehonorar er <strong>fradragsberettiget for selskapet</strong> og skattepliktig som lønn for mottakeren — husk å innberette på a-meldingen.',
+              '<strong>Kaffe, lunsj og enkel servering</strong> under møtet: 100% fradragsberettiget som driftsutgift — ta vare på kvitteringen som vedlegg til protokollen.',
+              'Leie av møterom: 100% fradragsberettiget — bruk faktura som bilag.',
+              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2025-satsen).',
+            ]} />
             <div>
               <label className="label">Totale møtekostnader (NOK)</label>
               <input

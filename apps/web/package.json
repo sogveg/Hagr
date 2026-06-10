@@ -10,12 +10,16 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@skattsmart/shared": "workspace:*",
+    "@anthropic-ai/sdk": "^0.104.1",
+    "@react-pdf/renderer": "^4.5.1",
     "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.45.0",
+    "jszip": "^3.10.1",
+    "lucide-react": "^1.17.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.12.4",
     "stripe": "^17.0.0",
     "zod": "^3.23.0"
   },

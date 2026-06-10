@@ -8,17 +8,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
-  // Check that user has at least one company
+  // Redirect to onboarding if user has no companies yet
   const { data: access } = await supabase
     .from('company_access')
     .select('company_id')
     .eq('user_id', user.id)
     .limit(1)
 
-  const hasCompany = access && access.length > 0
-  const isOnboarding = false // determined by route, not here
-
-  if (!hasCompany && !isOnboarding) {
+  if (!access || access.length === 0) {
     redirect('/onboarding')
   }
 

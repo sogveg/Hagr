@@ -1,4 +1,5 @@
-import type { RiskLevel } from '@skattsmart/shared'
+import type { RiskLevel } from '@/lib/shared'
+import { ShieldCheck, ShieldAlert, ShieldX } from 'lucide-react'
 
 interface Props {
   level: RiskLevel
@@ -6,33 +7,27 @@ interface Props {
   size?: 'sm' | 'md'
 }
 
-const CONFIG: Record<RiskLevel, { label: string; className: string; dot: string }> = {
-  green: {
-    label: 'Lav risiko',
-    className: 'bg-green-100 text-green-700',
-    dot: 'bg-green-500',
-  },
-  yellow: {
-    label: 'Moderat risiko',
-    className: 'bg-yellow-100 text-yellow-700',
-    dot: 'bg-yellow-500',
-  },
-  red: {
-    label: 'Høy risiko',
-    className: 'bg-red-100 text-red-700',
-    dot: 'bg-red-500',
-  },
+const CONFIG: Record<RiskLevel, {
+  label: string
+  className: string
+  Icon: typeof ShieldCheck
+}> = {
+  green:  { label: 'Lav risiko',      className: 'bg-green-50  text-green-700  border border-green-200',  Icon: ShieldCheck },
+  yellow: { label: 'Moderat risiko',  className: 'bg-yellow-50 text-yellow-700 border border-yellow-200', Icon: ShieldAlert },
+  red:    { label: 'Høy risiko',      className: 'bg-red-50    text-red-700    border border-red-200',    Icon: ShieldX },
 }
 
 export default function RiskBadge({ level, score, size = 'md' }: Props) {
-  const { label, className, dot } = CONFIG[level]
-  const text = size === 'sm' ? 'text-xs' : 'text-sm'
+  const { label, className, Icon } = CONFIG[level]
+  const textSize = size === 'sm' ? 'text-xs' : 'text-sm'
   const px = size === 'sm' ? 'px-2 py-0.5' : 'px-3 py-1'
+  const iconSize = size === 'sm' ? 13 : 15
+
   return (
-    <span className={`inline-flex items-center gap-1.5 ${px} rounded-full font-medium ${text} ${className}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+    <span className={`inline-flex items-center gap-1.5 ${px} rounded-full font-medium ${textSize} ${className}`}>
+      <Icon size={iconSize} strokeWidth={2} />
       {label}
-      {score !== undefined && <span className="opacity-60">({score})</span>}
+      {score !== undefined && <span className="opacity-50 font-normal">({score})</span>}
     </span>
   )
 }
