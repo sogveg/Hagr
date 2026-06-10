@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { evaluateRepresentation, REPRESENTATION_LIMIT_PER_PERSON_NOK } from '@/lib/shared'
 import { UtensilsCrossed, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, CheckCircle } from 'lucide-react'
+import TipBox from '@/components/TipBox'
 
 function TipBox({ tips }: { tips: string[] }) {
   const [open, setOpen] = useState(false)
@@ -157,6 +158,10 @@ export default function RepresentationPage() {
         <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
           <Plus size={15} /> Registrer
         </button>
+      </div>
+
+      <div className="mb-5">
+        <TipBox toolHref="/representation" title="Regler og tips for representasjon" />
       </div>
 
       <div className="flex gap-3 mb-5">

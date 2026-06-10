@@ -9,6 +9,7 @@ import {
   type PensionImpact,
 } from '@/lib/shared'
 import { DEFAULT_TAX_RATES, TAX_RATES_2025, type DynamicTaxRates } from '@/lib/shared/tax-rates'
+import TipBox from '@/components/TipBox'
 import {
   TrendingUp, Lightbulb, ChevronDown, ChevronUp,
   Info, ShieldCheck, AlertTriangle, Heart, Baby,
@@ -329,6 +330,10 @@ export default function SalaryDividendPage() {
         <p className="text-gray-500 mt-1 text-sm">
           Optimal fordeling med pensjonsopptjening, sykepenger og skatt — {rates.year ?? new Date().getFullYear()}
         </p>
+      </div>
+
+      <div className="mb-5">
+        <TipBox toolHref="/salary-dividend" title="Tips for lønn og utbytte-optimalisering" maxTips={3} />
       </div>
 
       {/* Year selector */}

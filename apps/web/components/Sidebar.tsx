@@ -21,6 +21,7 @@ import {
   Anchor,
   Heart,
   Bot,
+  Lightbulb,
 } from 'lucide-react'
 
 const NAV_GROUPS = [
@@ -32,14 +33,14 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'Dokumentasjon',
+    label: 'Lær & Regler',
     items: [
-      { href: '/board-meetings', label: 'Styremøter',        icon: ClipboardList },
-      { href: '/strategy',       label: 'Strategisamlinger', icon: Target },
+      { href: '/rules',     label: 'Regelbibliotek & tips', icon: Lightbulb, highlight: true },
+      { href: '/salary-dividend', label: 'Lønn vs. utbytte',      icon: TrendingUp },
     ],
   },
   {
-    label: 'Ytelser og fradrag',
+    label: 'Verktøy og fradrag',
     items: [
       { href: '/gifts',           label: 'Gaver og rabatter',    icon: Gift },
       { href: '/phone-internet',  label: 'Telefon og internett', icon: Smartphone },
@@ -51,10 +52,10 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'Planlegging',
+    label: 'Dokumentasjon',
     items: [
-      { href: '/salary-dividend', label: 'Lønn vs. utbytte', icon: TrendingUp },
-      { href: '/rules',           label: 'Regelbibliotek',   icon: BookOpen },
+      { href: '/board-meetings', label: 'Styremøter',        icon: ClipboardList },
+      { href: '/strategy',       label: 'Strategisamlinger', icon: Target },
     ],
   },
   {
@@ -106,7 +107,7 @@ export default function Sidebar({ userId }: Props) {
               {group.label}
             </p>
             <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => {
+              {group.items.map(({ href, label, icon: Icon, highlight }: any) => {
                 const active = pathname === href || pathname.startsWith(href + '/')
                 return (
                   <Link
@@ -115,13 +116,15 @@ export default function Sidebar({ userId }: Props) {
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       active
                         ? 'bg-brand-50 text-brand-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        : highlight
+                          ? 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
                     <Icon
                       size={16}
-                      className={active ? 'text-brand-600' : 'text-gray-400'}
-                      strokeWidth={active ? 2.2 : 1.8}
+                      className={active ? 'text-brand-600' : highlight ? 'text-amber-500' : 'text-gray-400'}
+                      strokeWidth={active || highlight ? 2.2 : 1.8}
                     />
                     {label}
                   </Link>

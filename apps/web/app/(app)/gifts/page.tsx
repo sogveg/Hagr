@@ -10,6 +10,7 @@ import {
   PERSONAL_DISCOUNT_TAX_FREE_LIMIT_NOK,
 } from '@/lib/shared'
 import { Gift, Tag, Lightbulb, AlertTriangle, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import TipBox from '@/components/TipBox'
 
 // ─── Tip box ──────────────────────────────────────────────────────────────────
 function TipBox({ tips }: { tips: string[] }) {
@@ -190,6 +191,10 @@ export default function GiftsPage() {
         <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
           <Plus size={15} /> Registrer
         </button>
+      </div>
+
+      <div className="mb-5">
+        <TipBox toolHref="/gifts" title="Tips og regler for gaver og rabatter" maxTips={3} />
       </div>
 
       {/* Filters */}

@@ -48,7 +48,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Mottaker og rolle', 'Dato', 'Verdi og type gave', 'Kvittering', 'Bekreftelse på at gavekort ikke kan innløses kontant'],
     law_reference: 'FSFIN § 5-15-3',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'personal_discount',
@@ -75,7 +75,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Ansatt og rolle', 'Vare/tjeneste', 'Markedspris og betalt pris', 'Dato', 'Bekreftelse på at selskapet normalt selger dette'],
     law_reference: 'Skatteloven § 5-15 (2), FSFIN § 5-15-5',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'phone_internet',
@@ -101,7 +101,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Tjenstlig behovsnotat', 'Fakturaer', 'Innberetning i a-melding'],
     law_reference: 'Skatteloven § 5-12 (3), FSFIN § 5-12-20',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'board_meeting',
@@ -124,7 +124,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Innkalling', 'Agenda', 'Deltakerliste', 'Signert protokoll med vedtak'],
     law_reference: 'Aksjeloven § 6-19, § 6-29',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'strategy_gathering',
@@ -148,7 +148,7 @@ export const RULE_CARDS: RuleCard[] = [
       'Ingen deltakere med faglige roller',
     ],
     required_documentation: ['Formålsnotat', 'Program med tidspunkter', 'Deltakerliste med rollebeskrivelser', 'Kvitteringer', 'Referat/beslutningslogg'],
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'representation_dinner',
@@ -175,7 +175,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Dato og sted', 'Deltakerliste (navn + selskap)', 'Forretningsmessig formål', 'Kvittering'],
     law_reference: 'Skatteloven § 6-21, FSFIN § 6-21-1',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'welfare_measures',
@@ -201,7 +201,7 @@ export const RULE_CARDS: RuleCard[] = [
       'Luksusreise for én person kalt velferdstiltak',
     ],
     required_documentation: ['Deltakerliste', 'Formål', 'Kvitteringer'],
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'home_office',
@@ -226,7 +226,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Arealberegning (ved faktiske kostnader)', 'Leiekontrakt eller takstdokument'],
     law_reference: 'FSFIN § 6-44',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'shareholder_loan',
@@ -245,7 +245,7 @@ export const RULE_CARDS: RuleCard[] = [
     ],
     required_documentation: ['Tilbakebetalingsplan', 'Styrevedtak', 'Renteberegning til markedsrente'],
     law_reference: 'Skatteloven § 10-11 (4)',
-    updated_year: 2025,
+    updated_year: 2026,
   },
   {
     id: 'salary_vs_dividend',
@@ -266,7 +266,75 @@ export const RULE_CARDS: RuleCard[] = [
       'Ingen lønn til aktivt arbeidende eier — risiko for omklassifisering',
     ],
     required_documentation: ['Styrevedtak ved utbyttevedtak', 'Generalforsamlingsprotokoll'],
-    updated_year: 2025,
+    updated_year: 2026,
+  },
+]
+
+  {
+    id: 'education_employer',
+    title: 'Utdanning på arbeidsgivers bekostning',
+    category: 'Naturalytelser',
+    company_types: ['AS', 'ENK', 'Holding-AS'],
+    base_risk: 'green',
+    summary: 'Arbeidsgiver kan dekke kurs og videreutdanning skattefritt for den ansatte — forutsatt at utdanningen har tilknytning til arbeidet. Ingen øvre beløpsgrense. Selskapet får fullt fradrag. Intern opplæring er alltid skattefri.',
+    green_examples: [
+      'MBA relevant for lederrollen din — dekket av selskapet',
+      'Fagkurs og bransjesertifiseringer (IT, økonomi, jus)',
+      'Internt Excel- eller systemkurs for alle ansatte',
+      'Språkkurs (engelsk) for ansatt med internasjonale kunder',
+      'Studier i regnskapsføring for regnskapsansatt',
+    ],
+    yellow_examples: [
+      'Generell lederutvikling uten tydelig kobling til nåværende stilling',
+      'Dyr utdanning (mastergrad) avsluttet kort tid før oppsigelse',
+      'Kurs i et felt selskapet vurderer å ekspandere inn i — men ikke er i ennå',
+    ],
+    red_examples: [
+      'Hobbyspråkkurs uten jobberelevans',
+      'Utdanning i et felt som er helt fremmed for selskapets virksomhet',
+      'Privat livscoachutdanning uten noen forretningsmessig tilknytning',
+    ],
+    required_documentation: [
+      'Formålsnotat: tilknytning mellom utdanning og nåværende stilling',
+      'Kursbevis / eksamensbevis',
+      'Kvitteringer for kursavgift, reise og materiell',
+      'Styrevedtak ved større utdanningsinvesteringer',
+    ],
+    law_reference: 'FSFIN §§ 5-15-10 til 5-15-14',
+    updated_year: 2026,
+  },
+  {
+    id: 'family_employees',
+    title: 'Familieansatte — barn og ektefelle i selskapet',
+    category: 'Risiko',
+    company_types: ['AS', 'ENK'],
+    base_risk: 'yellow',
+    summary: 'Barn og ektefelle kan ansettes i selskapet på vanlige vilkår. Frikortgrensen er 100 000 kr (2025/2026) — barn som tjener under dette betaler ingen skatt. Lønn MÅ svare til markedsverdi for reelt arbeid. Skatteetaten har økt fokus på transaksjoner mellom nærstående.',
+    green_examples: [
+      'Barn 15+ ansatt som sommervikar, lønn 80 000 kr/år — under frikortgrensen',
+      'Ektefelle ansatt i deltidsstilling med skriftlig kontrakt og markedslønn',
+      'Barn 16 år hjelper med sosiale medier og pakking — 120 kr/time, dokumenterte timer',
+    ],
+    yellow_examples: [
+      'Ektefelle ansatt uten skriftlig ansettelseskontrakt',
+      'Barn 13–14 år i lettere arbeid — krever nøye overholdelse av arbeidstidsregler',
+      'Lønn til barn akkumulert til like under frikortgrensen hvert år',
+    ],
+    red_examples: [
+      'Lønn til barn under 13 år',
+      'Lønn som overstiger markedsverdi for arbeidet — behandles som utbytte/gave',
+      'Lønn for arbeid som ikke er reelt utført og dokumentert',
+      'Barn ansatt kun på papiret uten faktisk arbeidsinnsats',
+    ],
+    required_documentation: [
+      'Skriftlig ansettelseskontrakt',
+      'Timeregistrering',
+      'Beskrivelse av arbeidsoppgaver',
+      'Lønnsslipp og a-melding',
+      'Bekreftelse på at lønn svarer til markedsverdi',
+    ],
+    law_reference: 'Arbeidsmiljøloven §§ 11-1 til 11-7 · Skatteloven § 5-15',
+    updated_year: 2026,
   },
 ]
 
