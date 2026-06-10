@@ -268,8 +268,6 @@ export const RULE_CARDS: RuleCard[] = [
     required_documentation: ['Styrevedtak ved utbyttevedtak', 'Generalforsamlingsprotokoll'],
     updated_year: 2026,
   },
-]
-
   {
     id: 'education_employer',
     title: 'Utdanning på arbeidsgivers bekostning',
