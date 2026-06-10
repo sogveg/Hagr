@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/Sidebar'
+import { LanguageModeProvider } from '@/contexts/LanguageMode'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -20,11 +21,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar userId={user.id} />
-      <main className="flex-1 ml-64 p-8 min-h-screen bg-gray-50">
-        {children}
-      </main>
-    </div>
+    <LanguageModeProvider>
+      <div className="flex min-h-screen">
+        <Sidebar userId={user.id} />
+        <main className="flex-1 ml-64 p-8 min-h-screen bg-gray-50">
+          {children}
+        </main>
+      </div>
+    </LanguageModeProvider>
   )
 }

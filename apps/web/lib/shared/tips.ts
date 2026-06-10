@@ -25,13 +25,24 @@ export type TipCategory =
 export interface Tip {
   id: string
   title: string
-  body: string        // 2-4 setninger, konkrete tall
+  title_enkel?: string  // Friendly plain-language title (optional, falls back to title)
+  body: string          // Default body (professional / neutral)
+  body_enkel?: string   // Plain-language version for "enkel" mode
   category: TipCategory
   tags: string[]
   type: TipType
-  impact?: string     // "Spar inntil 11 000 kr"
+  impact?: string       // "Spar inntil 11 000 kr"
   law_ref?: string
-  tool_href?: string  // lenke til relevant verktøy
+  tool_href?: string    // lenke til relevant verktøy
+}
+
+/** Returns the appropriate title/body based on language mode */
+export function getTipTitle(tip: Tip, mode: 'enkel' | 'pro'): string {
+  return (mode === 'enkel' && tip.title_enkel) ? tip.title_enkel : tip.title
+}
+
+export function getTipBody(tip: Tip, mode: 'enkel' | 'pro'): string {
+  return (mode === 'enkel' && tip.body_enkel) ? tip.body_enkel : tip.body
 }
 
 export const TIPS: Tip[] = [
@@ -52,6 +63,7 @@ export const TIPS: Tip[] = [
     id: 'welfare_no_spirits',
     title: 'Brennevin på julebordet kan nulle ut hele fradraget',
     body: 'Skatteloven § 6-21 sier at representasjon med brennevin ikke er fradragsberettiget. Hvis julebordet omklassifiseres til representasjon (f.eks. fordi mat+drikke overstiger 560 kr/person), og det ble servert sprit, mister du fradraget på hele arrangementet — ikke bare spritdelen. Stick to øl og vin.',
+    body_enkel: 'Serverer dere sprit (whisky, vodka, akevitt osv.) på julebordet, kan selskapet miste retten til å trekke utgiften fra på skatten — ikke bare spritdelen, men hele julebordet. Øl og vin er trygt. Sprit er risikabelt. Hold deg til vin og øl.',
     category: 'velferd',
     tags: ['julebord', 'sprit', 'brennevin', 'fradrag'],
     type: 'gotcha',
@@ -62,6 +74,7 @@ export const TIPS: Tip[] = [
     id: 'welfare_all_employees',
     title: 'Alle-ansatte-kravet: én glemt ansatt kan koste deg mye',
     body: 'For at et velferdstiltak skal være skattefritt for de som deltar, MÅ alle ansatte (eller alle i en hel avdeling) være invitert. Inviterer du bare noen, blir fordelen skattepliktig lønn for de som var med — og du sitter igjen med AGA-plikt. Documenter at alle ble tilbudt å delta.',
+    body_enkel: 'Alle ansatte MÅ inviteres til julebordet. Inviterer du bare noen utvalgte, risikerer du at de som var med må betale skatt av fordelen — som om det var ekstra lønn. Løsning: send invitasjon til alle, og lagre dokumentasjon på at de fikk tilbudet.',
     category: 'velferd',
     tags: ['julebord', 'alle-ansatte', 'skattefrihet'],
     type: 'rule',
@@ -71,6 +84,7 @@ export const TIPS: Tip[] = [
     id: 'welfare_5000_guideline',
     title: 'Skatteetaten bruker 5 000 kr/ansatt/år som veiledende grense',
     body: '5 000 kr per ansatt per år er ikke en lovfestet grense — det er en retningslinje Skatteetaten bruker i rimelighetsvurderingen. Går du over, er det ikke automatisk skattepliktig, men du bør ha god dokumentasjon og forklaring. Eks.: julebord (1 500 kr) + sommerfest (1 000 kr) + teambuilding (1 000 kr) = 3 500 kr — trygt innenfor.',
+    body_enkel: 'Det finnes ingen fast lovgrense for hva julebordet kan koste. Skatteetaten bruker "rimelig" som test. Tommelfingerregelen er at samlet velferd (julebord + sommerfest + teambuilding) ikke bør overstige ca. 5 000 kr per ansatt per år uten god grunn — men dette er ikke en lov, bare en rettesnor.',
     category: 'velferd',
     tags: ['velferd', '5000-kr', 'rimelighet'],
     type: 'rule',
@@ -110,6 +124,7 @@ export const TIPS: Tip[] = [
     id: 'rep_560_middag',
     title: 'Middag med kunder: 560 kr per person er grensen for fradrag',
     body: 'Du kan trekke fra inntil 560 kr per person (eks. mva) for representasjonsmiddag med kunder og forretningsforbindelser. Overskyter du grensen, er det bare de første 560 kr per person som er fradragsberettiget — resten er ikke-fradragsberettiget kostnad.',
+    body_enkel: 'Tar du med en kunde på middag, kan selskapet trekke fra inntil 560 kr per person på skatten. Koster middagen mer, er det bare de første 560 kr per person som teller. Kvitteringen må ha navn på alle som var med og hva dere møttes for.',
     category: 'representasjon',
     tags: ['representasjon', '560-kr', 'middag', 'kunder'],
     type: 'rule',
@@ -121,6 +136,7 @@ export const TIPS: Tip[] = [
     id: 'rep_lunch_no_limit',
     title: 'Lunsj i arbeidstid med kunder er fullt fradragsberettiget',
     body: '560 kr-grensen gjelder middag, ikke lunsj. Lunsj med kunder i arbeidstid er fullt fradragsberettiget uansett beløp — så lenge formålet er forretningsmessig og du dokumenterer hvem som var med og hva møtet handlet om. Lunsj i stedet for middag er altså gunstigere skattemessig.',
+    body_enkel: 'Lunsj med kunder i arbeidstiden = fullt skattefradrag, uansett beløp. Middag = maks 560 kr per person i fradrag. Lunsj er altså skattemessig bedre enn middag! Husk å notere hvem som var med og hva dere snakket om.',
     category: 'representasjon',
     tags: ['representasjon', 'lunsj', 'fradrag'],
     type: 'saving',
@@ -130,6 +146,7 @@ export const TIPS: Tip[] = [
     id: 'rep_no_spirits',
     title: 'Brennevin på kundemiddag: alt fradraget faller bort',
     body: 'Bestilles det brennevin/sprit på en representasjonsmiddag, mister du fradragsretten på hele utgiften — inkludert mat. Ikke bare spritdelen, men alt. Dette er en absolutt regel i skatteloven § 6-21. Holder du deg til øl, vin og mat er du trygg innenfor 560 kr-grensen.',
+    body_enkel: 'Bestiller noen sprit (whisky, akevitt, vodka o.l.) på kundemiddagen, mister selskapet fradraget på HELE regningen — ikke bare spritglasset. Bestill øl og vin, spar fradraget.',
     category: 'representasjon',
     tags: ['representasjon', 'sprit', 'brennevin'],
     type: 'gotcha',
@@ -140,6 +157,7 @@ export const TIPS: Tip[] = [
     id: 'rep_documentation',
     title: 'Representasjonsbilag uten navn på deltakerne blir avvist',
     body: 'Kvittering alene er ikke nok. For representasjon krever Skatteetaten: dato, sted, navn og selskap på ALLE deltakere, og det forretningsmessige formålet. Mangler du dette kan revisor eller Skatteetaten nekte fradraget. Skriv det på kvitteringen med en gang — glem det ikke dagen etter.',
+    body_enkel: 'En kvittering er ikke nok. Du må skrive på kvitteringen: hvem var med, hvilke selskaper de er fra, og hva dere møttes for. Gjør det på stedet med telefonen — det er lett å glemme neste dag.',
     category: 'representasjon',
     tags: ['representasjon', 'dokumentasjon', 'bilag'],
     type: 'gotcha',
@@ -149,6 +167,7 @@ export const TIPS: Tip[] = [
     id: 'rep_internal_only',
     title: 'Kun interne ansatte? Det er velferd — ikke representasjon',
     body: 'Representasjon er for eksternt bruk: kunder, leverandører, samarbeidspartnere. Interne arrangement (kun ansatte) heter velferdstiltak og har egne, gunstigere regler. Blander du de to opp i bilagene risikerer du feil skattebehandling begge veier.',
+    body_enkel: 'Er alle med på middagen fra din bedrift? Da er det "velferd", ikke "representasjon" — og det er faktisk gunstigere! Representasjon er kun for når du har kunder, leverandører eller samarbeidspartnere med.',
     category: 'representasjon',
     tags: ['representasjon', 'velferd', 'definisjon'],
     type: 'rule',

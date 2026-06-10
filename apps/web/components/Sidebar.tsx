@@ -4,65 +4,58 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguageMode } from '@/contexts/LanguageMode'
 import {
-  LayoutDashboard,
-  Users,
-  ClipboardList,
-  Target,
-  Gift,
-  FileText,
-  Smartphone,
-  UtensilsCrossed,
-  TrendingUp,
-  CreditCard,
-  BookOpen,
-  LogOut,
-  Car,
-  Anchor,
-  Heart,
-  Bot,
-  Lightbulb,
+  LayoutDashboard, Users, ClipboardList, Target, Gift, FileText,
+  Smartphone, UtensilsCrossed, TrendingUp, CreditCard,
+  LogOut, Car, Anchor, Heart, Bot, Lightbulb,
 } from 'lucide-react'
 
+// Each item has both an "enkel" (plain) and "pro" (professional) label
 const NAV_GROUPS = [
   {
-    label: 'Hjem',
+    enkel: 'Hjem',
+    pro:   'Oversikt',
     items: [
-      { href: '/dashboard', label: 'Min skatteposisjon', icon: LayoutDashboard },
-      { href: '/people',    label: 'Ansatte og familie',  icon: Users },
+      { href: '/dashboard', enkel: 'Min skatteposisjon',   pro: 'Oversikt',              icon: LayoutDashboard },
+      { href: '/people',    enkel: 'Ansatte og familie',   pro: 'Ansatte og aksjonærer', icon: Users },
     ],
   },
   {
-    label: 'Optimalisering',
+    enkel: 'Optimalisering',
+    pro:   'Skatteplanlegging',
     items: [
-      { href: '/salary-dividend', label: 'Lønn vs. utbytte',  icon: TrendingUp, highlight: true },
-      { href: '/rules',           label: 'Tips og regler',    icon: Lightbulb },
+      { href: '/salary-dividend', enkel: 'Lønn vs. utbytte',  pro: 'Lønns- og utbytteoptimalisering', icon: TrendingUp, highlight: true },
+      { href: '/rules',           enkel: 'Tips og regler',    pro: 'Regelbibliotek',                  icon: Lightbulb },
     ],
   },
   {
-    label: 'Skattefrie goder',
+    enkel: 'Skattefrie goder',
+    pro:   'Naturalytelser og fradrag',
     items: [
-      { href: '/gifts',           label: 'Gaver (5 000 kr/pers)',   icon: Gift },
-      { href: '/phone-internet',  label: 'Mobil og internett',      icon: Smartphone },
-      { href: '/welfare',         label: 'Julebord og velferd',     icon: Heart },
-      { href: '/car',             label: 'Bil og kjørebok',         icon: Car },
-      { href: '/cabin-boat',      label: 'Hytte og båt',            icon: Anchor },
+      { href: '/gifts',          enkel: 'Gaver (5 000 kr/pers)',  pro: 'Gaver og personalrabatter',         icon: Gift },
+      { href: '/phone-internet', enkel: 'Mobil og internett',     pro: 'Elektronisk kommunikasjon (EK)',    icon: Smartphone },
+      { href: '/welfare',        enkel: 'Julebord og velferd',    pro: 'Velferdstiltak',                    icon: Heart },
+      { href: '/car',            enkel: 'Bil og kjørebok',        pro: 'Firmabil og kjøregodtgjørelse',     icon: Car },
+      { href: '/cabin-boat',     enkel: 'Hytte og båt',           pro: 'Fritidseiendommer og båt',          icon: Anchor },
     ],
   },
   {
-    label: 'Fradrag og bilag',
+    enkel: 'Fradrag og bilag',
+    pro:   'Fradragsberettigede kostnader',
     items: [
-      { href: '/representation',  label: 'Kundemøter (560 kr)',    icon: UtensilsCrossed },
-      { href: '/company-card',    label: 'Firmakort',              icon: CreditCard },
-      { href: '/board-meetings',  label: 'Styremøter',             icon: ClipboardList },
-      { href: '/strategy',        label: 'Strategisamlinger',      icon: Target },
+      { href: '/representation', enkel: 'Kundemøter (560 kr)',  pro: 'Representasjon',         icon: UtensilsCrossed },
+      { href: '/company-card',   enkel: 'Firmakort',            pro: 'Firmakort',              icon: CreditCard },
+      { href: '/board-meetings', enkel: 'Styremøter',           pro: 'Styreprotokoll',         icon: ClipboardList },
+      { href: '/strategy',       enkel: 'Strategisamlinger',    pro: 'Faglige samlinger',      icon: Target },
     ],
   },
   {
-    label: 'Verktøy',
+    enkel: 'Verktøy',
+    pro:   'Verktøy',
     items: [
-      { href: '/assistant', label: 'Spør AI om skatt',    icon: Bot },
-      { href: '/documents', label: 'Bokettersynsmappe',   icon: FileText },
+      { href: '/assistant', enkel: 'Spør AI om skatt',   pro: 'Skatteassistent',      icon: Bot },
+      { href: '/documents', enkel: 'Bokettersynsmappe',  pro: 'Dokumentarkiv',        icon: FileText },
     ],
   },
 ]
@@ -74,6 +67,7 @@ interface Props {
 export default function Sidebar({ userId }: Props) {
   const pathname = usePathname()
   const router = useRouter()
+  const { mode, setMode, t } = useLanguageMode()
 
   async function signOut() {
     const supabase = createClient()
@@ -97,12 +91,12 @@ export default function Sidebar({ userId }: Props) {
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto">
         {NAV_GROUPS.map(group => (
-          <div key={group.label}>
+          <div key={group.enkel}>
             <p className="px-3 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              {group.label}
+              {t(group.enkel, group.pro)}
             </p>
             <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon, highlight }: any) => {
+              {group.items.map(({ href, enkel, pro, icon: Icon, highlight }: any) => {
                 const active = pathname === href || pathname.startsWith(href + '/')
                 return (
                   <Link
@@ -121,7 +115,7 @@ export default function Sidebar({ userId }: Props) {
                       className={active ? 'text-brand-600' : highlight ? 'text-amber-500' : 'text-gray-400'}
                       strokeWidth={active || highlight ? 2.2 : 1.8}
                     />
-                    {label}
+                    {t(enkel, pro)}
                   </Link>
                 )
               })}
@@ -132,6 +126,31 @@ export default function Sidebar({ userId }: Props) {
 
       {/* Footer */}
       <div className="px-3 pb-4 border-t border-gray-100 pt-3">
+
+        {/* Language mode toggle */}
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1 mb-3">
+          <button
+            onClick={() => setMode('enkel')}
+            className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${
+              mode === 'enkel'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Enkel
+          </button>
+          <button
+            onClick={() => setMode('pro')}
+            className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-all ${
+              mode === 'pro'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Faglig
+          </button>
+        </div>
+
         <button
           onClick={signOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm

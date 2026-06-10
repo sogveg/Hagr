@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Lightbulb, ChevronDown, ChevronUp, ArrowRight, X } from 'lucide-react'
 // ChevronDown/Up used for show-more/less, ArrowRight for tool link
-import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, type Tip, type TipCategory } from '@/lib/shared'
+import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, getTipBody, getTipTitle, type Tip, type TipCategory } from '@/lib/shared'
+import { useLanguageMode } from '@/contexts/LanguageMode'
 
 interface TipBoxProps {
   toolHref?: string
@@ -30,6 +31,14 @@ const TYPE_TEXT: Record<string, string> = {
 
 const TYPE_ORDER: Record<string, number> = { saving: 0, gotcha: 1, rule: 2, planning: 3 }
 
+// Plain-language labels for "enkel" mode
+const TYPE_LABELS_ENKEL: Record<string, string> = {
+  saving:   '💰 Spar penger',
+  gotcha:   '⚠️ Pass på',
+  rule:     '📋 Regel',
+  planning: '📅 Planlegg',
+}
+
 function sortTips(pool: Tip[]): Tip[] {
   return [...pool].sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9))
 }
@@ -40,12 +49,12 @@ function getPool(toolHref?: string, category?: TipCategory): Tip[] {
   return sortTips(TIPS)
 }
 
-function SingleTip({ tip, currentPath }: { tip: Tip; currentPath: string }) {
+function SingleTip({ tip, currentPath, mode }: { tip: Tip; currentPath: string; mode: 'enkel' | 'pro' }) {
   return (
     <div className={`border-l-4 rounded-r-xl px-4 py-3 ${TYPE_COLOR[tip.type] ?? 'border-l-gray-300 bg-gray-50'}`}>
       <div className="flex items-center gap-2 mb-1 flex-wrap">
         <span className={`text-xs font-semibold ${TYPE_TEXT[tip.type] ?? 'text-gray-600'}`}>
-          {TIP_TYPE_LABELS[tip.type]}
+          {mode === 'enkel' ? (TYPE_LABELS_ENKEL[tip.type] ?? TIP_TYPE_LABELS[tip.type]) : TIP_TYPE_LABELS[tip.type]}
         </span>
         {tip.impact && (
           <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
@@ -53,8 +62,8 @@ function SingleTip({ tip, currentPath }: { tip: Tip; currentPath: string }) {
           </span>
         )}
       </div>
-      <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{tip.title}</p>
-      <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
+      <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{getTipTitle(tip, mode)}</p>
+      <p className="text-sm text-gray-700 leading-relaxed">{getTipBody(tip, mode)}</p>
       {tip.law_ref && (
         <p className="text-xs text-gray-400 mt-1.5">📌 {tip.law_ref}</p>
       )}
@@ -77,6 +86,7 @@ export default function TipBox({
   title = 'Tips og regler',
 }: TipBoxProps) {
   const pathname = usePathname()
+  const { mode } = useLanguageMode()
   const [dismissed, setDismissed] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
@@ -111,7 +121,7 @@ export default function TipBox({
 
       <div className="space-y-2.5">
         {visible.map(tip => (
-          <SingleTip key={tip.id} tip={tip} currentPath={pathname} />
+          <SingleTip key={tip.id} tip={tip} currentPath={pathname} mode={mode} />
         ))}
       </div>
 
