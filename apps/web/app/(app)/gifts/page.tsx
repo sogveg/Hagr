@@ -9,39 +9,9 @@ import {
   evaluatePersonalDiscount,
   PERSONAL_DISCOUNT_TAX_FREE_LIMIT_NOK,
 } from '@/lib/shared'
-import { Gift, Tag, Lightbulb, AlertTriangle, ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { Gift, Tag, AlertTriangle, Plus } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
-
-// ─── Tip box ──────────────────────────────────────────────────────────────────
-function TipBox({ tips }: { tips: string[] }) {
-  const [open, setOpen] = useState(false)
-  return (
-    <div className="bg-amber-50 border border-amber-100 rounded-lg overflow-hidden mb-6">
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left"
-      >
-        <div className="flex items-center gap-2">
-          <Lightbulb size={15} className="text-amber-500 shrink-0" strokeWidth={2} />
-          <span className="text-sm font-medium text-amber-800">Tips og regler</span>
-        </div>
-        {open
-          ? <ChevronUp size={14} className="text-amber-400" />
-          : <ChevronDown size={14} className="text-amber-400" />}
-      </button>
-      {open && (
-        <ul className="px-4 pb-4 space-y-1.5 border-t border-amber-100 pt-3">
-          {tips.map((tip, i) => (
-            <li key={i} className="text-sm text-amber-800 flex gap-2">
-              <span className="shrink-0 mt-0.5 text-amber-400">•</span>
-              <span dangerouslySetInnerHTML={{ __html: tip }} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
-}
+import EmptyToolState from '@/components/EmptyToolState'
 
 const GIFT_TIPS = [
   '<strong>Grensen er 5 000 kr per person per år (2026)</strong> — regn med hele kalenderåret, ikke per hendelse.',
@@ -231,7 +201,25 @@ export default function GiftsPage() {
       {/* ── GAVER ─────────────────────────────────────────────────────────── */}
       {tab === 'gifts' && (
         <>
-          <TipBox tips={GIFT_TIPS} />
+          {gifts.length === 0 && (
+            <EmptyToolState
+              icon={<Gift size={22} className="text-brand-600" strokeWidth={1.8} />}
+              title="Gi gaver skattefritt — inntil 5 000 kr per person"
+              tagline="Opp til 5 000 kr/person/år skattefritt"
+              description="Selskapet kan gi gaver til ansatte og eier i naturalier uten at noen betaler skatt — forutsatt at gaven ikke er kontanter eller et gavekort som kan løses inn i penger."
+              bulletPoints={[
+                'Gaver i naturalier (opplevelse, vin, elektronikk, butikkgavekort): 5 000 kr/år',
+                'Jubileumsgaver: 8 000 kr ekstra ved runde bursdager og ansettelsesrunder',
+                'Kontanter, Vipps og innløsbare gavekort er alltid skattepliktig — uansett beløp',
+                'Husk kvittering og notat om mottaker for å dokumentere ved bokettersyn',
+              ]}
+              lawRef="Skatteloven § 5-15 (2) + Skatteetaten 2026-sats"
+            >
+              <button onClick={() => setShowForm(true)} className="btn-primary text-sm flex items-center gap-2">
+                <Plus size={14} /> Registrer første gave
+              </button>
+            </EmptyToolState>
+          )}
 
           {/* Summary */}
           <div className="grid grid-cols-3 gap-4 mb-6">

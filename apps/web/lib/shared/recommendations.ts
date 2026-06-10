@@ -244,3 +244,85 @@ export function generateRecommendations(ctx: CompanyContext): Recommendation[] {
 
   return recs
 }
+
+/**
+ * Estimate total annual tax savings potential for a company context.
+ * Used for the dashboard "savings hero" number.
+ */
+export function estimateAnnualSavings(ctx: CompanyContext): {
+  total: number
+  items: { label: string; amount: number; activated: boolean }[]
+} {
+  const employees = Math.max(1, ctx.employee_count || 1)
+  const items: { label: string; amount: number; activated: boolean }[] = []
+
+  // Phone/internet: sjablong 4 392 kr/year saved vs. full taxation
+  // Company saves AGA (14.1%) on not giving as salary, employee saves income tax ~30%
+  if (ctx.uses_phone_for_work) {
+    items.push({
+      label: 'Mobil og internett',
+      amount: Math.round(employees * 6000 * 0.44), // ~44% combined benefit
+      activated: ctx.company_pays_phone && ctx.phone_benefit_count > 0,
+    })
+  }
+
+  // Gifts: 5 000 kr × employees × 22% company tax saving
+  if (ctx.has_employees || ctx.owner_employed) {
+    items.push({
+      label: 'Gaver til ansatte',
+      amount: Math.round(employees * 5000 * 0.22),
+      activated: ctx.gift_count > 0,
+    })
+  }
+
+  // Welfare: ~3 000 kr avg per employee × employees × 22%
+  if (ctx.has_employees) {
+    items.push({
+      label: 'Julebord og ansattgoder',
+      amount: Math.round(employees * 3000 * 0.22),
+      activated: ctx.welfare_count > 0,
+    })
+  }
+
+  // Mileage: 10 000 km × 3.50 kr × 22% if not already logged
+  if (ctx.uses_private_car_for_biz) {
+    items.push({
+      label: 'Kjørebok og kjøregodtgjørelse',
+      amount: Math.round(10000 * 3.50 * 0.22),
+      activated: ctx.mileage_trip_count > 0,
+    })
+  }
+
+  // Salary/dividend optimization: rough estimate
+  if (ctx.owner_employed && ctx.approx_annual_profit && ctx.approx_annual_profit > 500000) {
+    const salary = ctx.current_owner_salary ?? 0
+    const optimal = 750000 // rough optimal for most companies
+    const isOptimized = Math.abs(salary - optimal) < 150000
+    items.push({
+      label: 'Lønn vs. utbytte-optimalisering',
+      amount: isOptimized ? 0 : Math.round(ctx.approx_annual_profit * 0.03), // ~3% of profit as rough savings
+      activated: isOptimized,
+    })
+  }
+
+  // Board meeting documentation
+  if (ctx.holds_board_meetings) {
+    items.push({
+      label: 'Styremøte-fradrag',
+      amount: 5000, // rough: meeting costs deductible
+      activated: ctx.board_meeting_count > 0,
+    })
+  }
+
+  // Representation
+  if (ctx.has_client_entertainment) {
+    items.push({
+      label: 'Representasjon',
+      amount: Math.round(12 * 560 * 0.22), // 12 events × 560 kr × 22%
+      activated: ctx.representation_count > 0,
+    })
+  }
+
+  const total = items.reduce((s, i) => s + i.amount, 0)
+  return { total, items }
+}

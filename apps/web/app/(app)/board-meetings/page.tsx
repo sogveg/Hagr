@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
 import { Plus, ClipboardList, CheckCircle, Clock } from 'lucide-react'
+import EmptyToolState from '@/components/EmptyToolState'
 
 export default async function BoardMeetingsPage() {
   const supabase = await createClient()
@@ -30,6 +31,26 @@ export default async function BoardMeetingsPage() {
           <Plus size={16} /> Nytt styremøte
         </Link>
       </div>
+
+      {(!meetings || meetings.length === 0) && (
+        <EmptyToolState
+          icon={<ClipboardList size={22} className="text-brand-600" strokeWidth={1.8} />}
+          title="Styremøter er lovpålagt — og gir fradragsrett"
+          tagline="Aksjeloven § 6-19 — plikt for alle AS"
+          description="Alle AS må avholde styremøter og skrive protokoll. Uten protokoll kan du ikke dokumentere møtekostnader overfor Skatteetaten — og risikerer sanksjoner ved bokettersyn."
+          bulletPoints={[
+            'Mat og drikke under styremøtet: fullt fradrag (ikke representasjon, men driftsutgift)',
+            'Reisekostnader for styremedlemmer: fullt fradrag',
+            'Styrehonorar kan betales og trekkes fra som driftskostnad',
+            'Minstekrav: ett styremøte per år for aksjeselskaper',
+          ]}
+          lawRef="Aksjeloven § 6-19 + Skatteloven § 6-1 (generell fradragsrett)"
+        >
+          <Link href="/board-meetings/new" className="btn-primary text-sm flex items-center gap-2">
+            <Plus size={14} /> Opprett første styreprotokoll
+          </Link>
+        </EmptyToolState>
+      )}
 
       {meetings && meetings.length > 0 ? (
         <div className="space-y-2">

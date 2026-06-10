@@ -26,48 +26,43 @@ import {
 
 const NAV_GROUPS = [
   {
-    label: 'Oversikt',
+    label: 'Hjem',
     items: [
-      { href: '/dashboard', label: 'Oversikt', icon: LayoutDashboard },
-      { href: '/people',    label: 'Personer og roller', icon: Users },
+      { href: '/dashboard', label: 'Min skatteposisjon', icon: LayoutDashboard },
+      { href: '/people',    label: 'Ansatte og familie',  icon: Users },
     ],
   },
   {
-    label: 'Lær & Regler',
+    label: 'Optimalisering',
     items: [
-      { href: '/rules',     label: 'Regelbibliotek & tips', icon: Lightbulb, highlight: true },
-      { href: '/salary-dividend', label: 'Lønn vs. utbytte',      icon: TrendingUp },
+      { href: '/salary-dividend', label: 'Lønn vs. utbytte',  icon: TrendingUp, highlight: true },
+      { href: '/rules',           label: 'Tips og regler',    icon: Lightbulb },
     ],
   },
   {
-    label: 'Verktøy og fradrag',
+    label: 'Skattefrie goder',
     items: [
-      { href: '/gifts',           label: 'Gaver og rabatter',    icon: Gift },
-      { href: '/phone-internet',  label: 'Telefon og internett', icon: Smartphone },
-      { href: '/representation',  label: 'Representasjon',       icon: UtensilsCrossed },
-      { href: '/company-card',    label: 'Firmakort',            icon: CreditCard },
-      { href: '/car',             label: 'Bil og kjørebok',      icon: Car },
-      { href: '/cabin-boat',      label: 'Hytte og båt',         icon: Anchor },
-      { href: '/welfare',         label: 'Velferdstiltak',       icon: Heart },
+      { href: '/gifts',           label: 'Gaver (5 000 kr/pers)',   icon: Gift },
+      { href: '/phone-internet',  label: 'Mobil og internett',      icon: Smartphone },
+      { href: '/welfare',         label: 'Julebord og velferd',     icon: Heart },
+      { href: '/car',             label: 'Bil og kjørebok',         icon: Car },
+      { href: '/cabin-boat',      label: 'Hytte og båt',            icon: Anchor },
     ],
   },
   {
-    label: 'Dokumentasjon',
+    label: 'Fradrag og bilag',
     items: [
-      { href: '/board-meetings', label: 'Styremøter',        icon: ClipboardList },
-      { href: '/strategy',       label: 'Strategisamlinger', icon: Target },
+      { href: '/representation',  label: 'Kundemøter (560 kr)',    icon: UtensilsCrossed },
+      { href: '/company-card',    label: 'Firmakort',              icon: CreditCard },
+      { href: '/board-meetings',  label: 'Styremøter',             icon: ClipboardList },
+      { href: '/strategy',        label: 'Strategisamlinger',      icon: Target },
     ],
   },
   {
-    label: 'AI-assistent',
+    label: 'Verktøy',
     items: [
-      { href: '/assistant', label: 'Spør AI om skatt', icon: Bot },
-    ],
-  },
-  {
-    label: 'Eksport',
-    items: [
-      { href: '/documents', label: 'Bokettersynsmappe', icon: FileText },
+      { href: '/assistant', label: 'Spør AI om skatt',    icon: Bot },
+      { href: '/documents', label: 'Bokettersynsmappe',   icon: FileText },
     ],
   },
 ]
