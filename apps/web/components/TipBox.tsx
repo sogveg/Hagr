@@ -1,46 +1,54 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Lightbulb, ChevronDown, ChevronUp, ArrowRight, X } from 'lucide-react'
 import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, type Tip, type TipCategory } from '@/lib/shared'
 
 interface TipBoxProps {
-  /** Filter til verktøy-URL (f.eks. "/welfare") — viser tips relevante for dette verktøyet */
   toolHref?: string
-  /** Filter til kategori */
   category?: TipCategory
-  /** Maks antall tips å vise (default 3) */
   maxTips?: number
-  /** Vis kompakt variant uten utvidet innhold */
   compact?: boolean
-  /** Overskrift (default "Visste du at...") */
   title?: string
 }
 
-function SingleTip({ tip, compact }: { tip: Tip; compact?: boolean }) {
+const TYPE_COLOR: Record<string, string> = {
+  saving:   'border-l-green-400 bg-green-50',
+  gotcha:   'border-l-amber-400 bg-amber-50',
+  rule:     'border-l-blue-400 bg-blue-50',
+  planning: 'border-l-purple-400 bg-purple-50',
+}
+
+const TYPE_TEXT: Record<string, string> = {
+  saving:   'text-green-700',
+  gotcha:   'text-amber-700',
+  rule:     'text-blue-700',
+  planning: 'text-purple-700',
+}
+
+const TYPE_ORDER: Record<string, number> = { saving: 0, gotcha: 1, rule: 2, planning: 3 }
+
+function sortTips(pool: Tip[]): Tip[] {
+  return [...pool].sort((a, b) => (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9))
+}
+
+function getPool(toolHref?: string, category?: TipCategory): Tip[] {
+  if (toolHref) return sortTips(getTipsByTool(toolHref))
+  if (category) return sortTips(getTipsByCategory(category))
+  return sortTips(TIPS)
+}
+
+function SingleTip({ tip, currentPath, compact }: { tip: Tip; currentPath: string; compact?: boolean }) {
   const [expanded, setExpanded] = useState(false)
 
-  const typeColor = {
-    saving:   'border-l-green-400 bg-green-50',
-    gotcha:   'border-l-amber-400 bg-amber-50',
-    rule:     'border-l-blue-400 bg-blue-50',
-    planning: 'border-l-purple-400 bg-purple-50',
-  }[tip.type]
-
-  const typeTextColor = {
-    saving:   'text-green-700',
-    gotcha:   'text-amber-700',
-    rule:     'text-blue-700',
-    planning: 'text-purple-700',
-  }[tip.type]
-
   return (
-    <div className={`border-l-4 rounded-r-xl px-4 py-3 ${typeColor}`}>
+    <div className={`border-l-4 rounded-r-xl px-4 py-3 ${TYPE_COLOR[tip.type] ?? 'border-l-gray-300 bg-gray-50'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className={`text-xs font-semibold ${typeTextColor}`}>
+            <span className={`text-xs font-semibold ${TYPE_TEXT[tip.type] ?? 'text-gray-600'}`}>
               {TIP_TYPE_LABELS[tip.type]}
             </span>
             {tip.impact && (
@@ -52,30 +60,29 @@ function SingleTip({ tip, compact }: { tip: Tip; compact?: boolean }) {
           <p className="text-sm font-semibold text-gray-900 leading-snug">{tip.title}</p>
 
           {!compact && (
-            <>
-              {expanded ? (
-                <div className="mt-2">
-                  <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
-                  {tip.law_ref && (
-                    <p className="text-xs text-gray-400 mt-2">📌 {tip.law_ref}</p>
-                  )}
-                  {tip.tool_href && tip.tool_href !== window?.location?.pathname && (
-                    <Link
-                      href={tip.tool_href}
-                      className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium mt-2"
-                    >
-                      Åpne verktøy <ArrowRight size={11} />
-                    </Link>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{tip.body}</p>
-              )}
-            </>
+            expanded ? (
+              <div className="mt-2">
+                <p className="text-sm text-gray-700 leading-relaxed">{tip.body}</p>
+                {tip.law_ref && (
+                  <p className="text-xs text-gray-400 mt-2">📌 {tip.law_ref}</p>
+                )}
+                {tip.tool_href && tip.tool_href !== currentPath && (
+                  <Link
+                    href={tip.tool_href}
+                    className="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 font-medium mt-2"
+                  >
+                    Åpne verktøy <ArrowRight size={11} />
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{tip.body}</p>
+            )
           )}
         </div>
         {!compact && (
           <button
+            type="button"
             onClick={() => setExpanded(v => !v)}
             className="shrink-0 text-gray-400 hover:text-gray-600 mt-0.5"
           >
@@ -94,22 +101,12 @@ export default function TipBox({
   compact = false,
   title = 'Tips og regler',
 }: TipBoxProps) {
+  const pathname = usePathname()
   const [dismissed, setDismissed] = useState(false)
   const [showAll, setShowAll] = useState(false)
 
-  const tips = useMemo(() => {
-    let pool: Tip[]
-    if (toolHref) {
-      pool = getTipsByTool(toolHref)
-    } else if (category) {
-      pool = getTipsByCategory(category)
-    } else {
-      pool = TIPS
-    }
-    // Stable sort: saving first, then gotcha, then rule, then planning
-    const order = { saving: 0, gotcha: 1, rule: 2, planning: 3 }
-    return [...pool].sort((a, b) => order[a.type] - order[b.type])
-  }, [toolHref, category])
+  // Computed once — stable because inputs are module-level constants
+  const tips = getPool(toolHref, category)
 
   if (dismissed || tips.length === 0) return null
 
@@ -128,19 +125,24 @@ export default function TipBox({
             {tips.length} tips
           </span>
         </div>
-        <button onClick={() => setDismissed(true)} className="text-gray-300 hover:text-gray-500">
+        <button
+          type="button"
+          onClick={() => setDismissed(true)}
+          className="text-gray-300 hover:text-gray-500"
+        >
           <X size={14} />
         </button>
       </div>
 
       <div className="space-y-2.5">
         {visible.map(tip => (
-          <SingleTip key={tip.id} tip={tip} compact={compact} />
+          <SingleTip key={tip.id} tip={tip} currentPath={pathname} compact={compact} />
         ))}
       </div>
 
       {hasMore && !showAll && (
         <button
+          type="button"
           onClick={() => setShowAll(true)}
           className="mt-3 text-xs text-brand-600 hover:text-brand-800 font-medium flex items-center gap-1"
         >
@@ -150,6 +152,7 @@ export default function TipBox({
 
       {showAll && hasMore && (
         <button
+          type="button"
           onClick={() => setShowAll(false)}
           className="mt-3 text-xs text-gray-400 hover:text-gray-600 font-medium flex items-center gap-1"
         >
