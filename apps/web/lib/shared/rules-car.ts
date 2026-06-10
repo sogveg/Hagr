@@ -1,4 +1,4 @@
-// Norwegian car rules 2025
+// Norwegian car rules 2026
 // Firmabil (company car): taxable private benefit based on list price
 // Kjøregodtgjørelse (mileage): reimbursement for private car used for business
 
@@ -7,12 +7,12 @@
 export const CAR_BENEFIT_RATE_NEW = 0.30          // Under 3 år gammel: 30% av listepris
 export const CAR_BENEFIT_RATE_OLD = 0.20          // Over 3 år gammel: 20% av redusert listepris
 export const CAR_LIST_PRICE_REDUCTION_OLD = 0.75  // Listepris reduseres til 75% etter 3 år
-export const CAR_BENEFIT_ELECTRIC_DISCOUNT = 0.50 // El-bil: 50% reduksjon i fordelsgrunnlaget (2025)
+export const CAR_BENEFIT_ELECTRIC_DISCOUNT = 0.50 // El-bil: 50% reduksjon i fordelsgrunnlaget (2026)
 export const CAR_BENEFIT_HIGH_USAGE_THRESHOLD_KM = 40000 // Yrkeskjøring: over 40 000 km/år gir reduksjon
 export const CAR_BENEFIT_HIGH_USAGE_REDUCTION = 0.25 // Reduksjon: 25% av beregnet fordel
 
 // ─── Kjøregodtgjørelse ────────────────────────────────────────────────────────
-export const MILEAGE_RATE_2025 = 4.50         // kr/km (statens sats 2025, alle km)
+export const MILEAGE_RATE_2025 = 4.50         // kr/km (statens sats 2026, alle km — eksportert navn beholdes for bakoverkompatibilitet)
 export const MILEAGE_RATE_ABOVE_10000 = 4.25  // kr/km over 10 000 km
 
 export interface CarBenefitInput {
@@ -46,7 +46,7 @@ export function evaluateCarBenefit(input: CarBenefitInput): CarBenefitResult {
   // El-bil-rabatt
   if (input.is_electric) {
     annualBenefit = annualBenefit * (1 - CAR_BENEFIT_ELECTRIC_DISCOUNT)
-    flags.push('El-bil: 50% reduksjon i fordelsgrunnlag (2025)')
+    flags.push('El-bil: 50% reduksjon i fordelsgrunnlag (2026)')
   }
 
   // Høy yrkeskjøring

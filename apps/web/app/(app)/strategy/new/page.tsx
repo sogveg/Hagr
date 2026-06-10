@@ -242,7 +242,7 @@ export default function NewStrategyPage() {
             </div>
             <div>
               <label className="label">Tittel på samlingen *</label>
-              <input type="text" className="input" value={form.title} onChange={e => set('title', e.target.value)} placeholder="Strategisamling Q1 2025" />
+              <input type="text" className="input" value={form.title} onChange={e => set('title', e.target.value)} placeholder="Strategisamling Q1 2026" />
             </div>
             <div>
               <label className="label">Forretningsmessig formål *</label>

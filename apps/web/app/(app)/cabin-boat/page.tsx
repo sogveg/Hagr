@@ -32,7 +32,7 @@ function TipBox({ tips }: { tips: string[] }) {
 }
 
 const TIPS = [
-  `<strong>Standardsatser 2025:</strong> Høysesong (hytte): ${CABIN_BENEFIT_RATE_PEAK_PER_DAY.toLocaleString('nb-NO')} kr/dag, lavsesong: ${CABIN_BENEFIT_RATE_OFF_PEAK_PER_DAY.toLocaleString('nb-NO')} kr/dag. Båt: samme satser i sesong.`,
+  `<strong>Standardsatser 2026:</strong> Høysesong (hytte): ${CABIN_BENEFIT_RATE_PEAK_PER_DAY.toLocaleString('nb-NO')} kr/dag, lavsesong: ${CABIN_BENEFIT_RATE_OFF_PEAK_PER_DAY.toLocaleString('nb-NO')} kr/dag. Båt: samme satser i sesong.`,
   '<strong>Faglig innhold er nøkkelen:</strong> Har oppholdet et faglig program (styremøte, kurs, konferanse)? Da kan deler av kostnadene behandles som driftsutgift, ikke privat fordel. Dokumentér programmet nøye.',
   '<strong>Betaler ansatt markedspris?</strong> Da er fordelen eliminert. Markedspris = hva du ville leid for på f.eks. Finn.no. Ta vare på dokumentasjonen.',
   '<strong>A-melding kode 122-A:</strong> Fordelen MÅ innberettes. Unnlatelse er straffbart og kan medføre tilleggsskatt på 20–40%.',

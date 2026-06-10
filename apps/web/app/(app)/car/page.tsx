@@ -34,10 +34,10 @@ function TipBox({ tips }: { tips: string[] }) {
 
 const CAR_TIPS = [
   '<strong>30%-regelen:</strong> Privat bruk av firmabil beskattes som 30% av listepris (20% for biler over 3 år, på 75% av listepris).',
-  '<strong>El-bil-fordel 2025:</strong> For el-biler reduseres fordelsgrunnlaget med 50% — el-bil er fremdeles betydelig billigere enn fossil bil i firma.',
+  '<strong>El-bil-fordel 2026:</strong> For el-biler reduseres fordelsgrunnlaget med 50% — el-bil er fremdeles betydelig billigere enn fossil bil i firma.',
   '<strong>Over 40 000 km yrke?</strong> Du kan få 25% reduksjon i fordelen ved dokumentert høy yrkeskjøring. Kjøreboken er beviset.',
   '<strong>Kjørebok er ikke valgfritt:</strong> Uten elektronisk kjørebok regnes ALL kjøring som privat. Finn en app som Tripletex, Timesheet eller Trip Logger.',
-  '<strong>Kjøregodtgjørelse:</strong> Statens sats er 4,50 kr/km (2025) — dette er skattefritt å utbetale. Vær nøye med å dokumentere sted, formål og km.',
+  '<strong>Kjøregodtgjørelse:</strong> Statens sats er 4,50 kr/km (2026) — dette er skattefritt å utbetale. Vær nøye med å dokumentere sted, formål og km.',
   '<strong>Unngå grå soner:</strong> Kjøring mellom hjem og fast arbeidssted = pendling. Det er ikke kjøregodtgjørelse, uansett hvordan du kaller det.',
 ]
 
@@ -265,7 +265,7 @@ export default function CarPage() {
                 <p className="text-2xl font-bold text-green-700">{totalReimbursement.toLocaleString('nb-NO')} kr</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mt-3">Sats: {MILEAGE_RATE_2025} kr/km (statens sats 2025). Utbetalt inntil statens sats er skattefritt.</p>
+            <p className="text-xs text-gray-400 mt-3">Sats: {MILEAGE_RATE_2025} kr/km (statens sats 2026). Utbetalt inntil statens sats er skattefritt.</p>
 
             <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-start gap-2 text-sm text-green-800">
               <CheckCircle size={14} className="shrink-0 mt-0.5 text-green-600" />

@@ -44,7 +44,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Hei! Jeg er din norske skatteassistent. Still meg spørsmål om fradrag, naturalytelser, firmabil, representasjon, lønn vs. utbytte, og alt annet relatert til norsk skatt for AS.\n\nJeg gir veiledning basert på norske skatteregler (2025), men er ikke en erstatning for profesjonell regnskapsfører eller skatteadvokat.',
+      content: 'Hei! Jeg er din norske skatteassistent. Still meg spørsmål om fradrag, naturalytelser, firmabil, representasjon, lønn vs. utbytte, og alt annet relatert til norsk skatt for AS.\n\nJeg gir veiledning basert på norske skatteregler (2026), men er ikke en erstatning for profesjonell regnskapsfører eller skatteadvokat.',
     },
   ])
   const [input, setInput] = useState('')
@@ -104,7 +104,7 @@ export default function AssistantPage() {
       {/* Disclaimer */}
       <div className="shrink-0 flex items-start gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 mb-4">
         <AlertTriangle size={13} className="shrink-0 mt-0.5 text-amber-500" />
-        Svarene er veiledende og basert på regler per 2025. Ikke juridisk eller regnskapsrådgivning — konsulter alltid med regnskapsfører ved tvil.
+        Svarene er veiledende og basert på regler per 2026. Ikke juridisk eller regnskapsrådgivning — konsulter alltid med regnskapsfører ved tvil.
       </div>
 
       {/* Chat window */}

@@ -1,4 +1,4 @@
-// Norwegian welfare measure rules 2025
+// Norwegian welfare measure rules 2026
 // Velferdstiltak for ansatte: julebord, sommerfest, teambuilding osv.
 
 // Ingen lovfestet øvre grense, men Skatteetaten bruker rimelighetsvurdering

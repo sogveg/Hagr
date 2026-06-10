@@ -151,6 +151,7 @@ export default function PersonProfilePage({ params }: { params: Promise<{ id: st
         bank_account: editForm.bank_account || null,
         notes: editForm.notes || null,
         employment_percentage: editForm.employment_percentage || null,
+        family_relation: editForm.family_relation || null,
       })
       .eq('id', id)
 
@@ -225,8 +226,15 @@ export default function PersonProfilePage({ params }: { params: Promise<{ id: st
                   </span>
                 )}
                 {person.family_relation && (
-                  <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full">
-                    {person.family_relation}
+                  <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Heart size={10} strokeWidth={2} />
+                    Familie: {{
+                      ektefelle: 'Ektefelle/samboer',
+                      barn: 'Barn',
+                      forelder: 'Forelder',
+                      søsken: 'Søsken',
+                      annen: 'Familierelasjon',
+                    }[person.family_relation] ?? person.family_relation}
                   </span>
                 )}
               </div>
@@ -302,6 +310,39 @@ export default function PersonProfilePage({ params }: { params: Promise<{ id: st
             <div className="col-span-2">
               <label className="label">Notater (intern informasjon)</label>
               <textarea className="input min-h-[80px] resize-none" placeholder="F.eks. AGA-sone, særavtaler, o.l." value={editForm.notes ?? ''} onChange={e => setEditForm(p => ({ ...p, notes: e.target.value }))} />
+            </div>
+            <div className="col-span-2 border-t border-blue-200 pt-4">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Familierelasjon til eier</p>
+              <div className="flex items-start gap-3">
+                <label className="flex items-center gap-2 cursor-pointer text-sm mt-1">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded"
+                    checked={!!editForm.family_relation}
+                    onChange={e => setEditForm(p => ({ ...p, family_relation: e.target.checked ? 'annen' : null }))}
+                  />
+                  <span className="font-medium text-gray-800">Er i familie med eier</span>
+                </label>
+                {!!editForm.family_relation && (
+                  <select
+                    className="input flex-1"
+                    value={editForm.family_relation ?? ''}
+                    onChange={e => setEditForm(p => ({ ...p, family_relation: e.target.value || null }))}
+                  >
+                    <option value="ektefelle">Ektefelle / samboer</option>
+                    <option value="barn">Barn</option>
+                    <option value="forelder">Forelder</option>
+                    <option value="søsken">Søsken</option>
+                    <option value="annen">Annen familierelasjon</option>
+                  </select>
+                )}
+              </div>
+              {!!editForm.family_relation && (
+                <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-2 flex items-start gap-1.5">
+                  <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+                  Familiemedlemmer av eier har økt risiko for ulovlig utbytte/lønn. Alle gaver, ytelser og lønnsutbetalinger bør dokumenteres nøye.
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-2 mt-4">

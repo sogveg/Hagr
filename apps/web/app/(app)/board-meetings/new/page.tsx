@@ -376,7 +376,7 @@ export default function NewBoardMeetingPage() {
               'Styrehonorar er <strong>fradragsberettiget for selskapet</strong> og skattepliktig som lønn for mottakeren — husk å innberette på a-meldingen.',
               '<strong>Kaffe, lunsj og enkel servering</strong> under møtet: 100% fradragsberettiget som driftsutgift — ta vare på kvitteringen som vedlegg til protokollen.',
               'Leie av møterom: 100% fradragsberettiget — bruk faktura som bilag.',
-              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2025-satsen).',
+              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2026-satsen).',
             ]} />
             <div>
               <label className="label">Totale møtekostnader (NOK)</label>

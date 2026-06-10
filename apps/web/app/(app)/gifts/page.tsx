@@ -43,7 +43,7 @@ function TipBox({ tips }: { tips: string[] }) {
 }
 
 const GIFT_TIPS = [
-  '<strong>Grensen er 5 000 kr per person per år (2025)</strong> — regn med hele kalenderåret, ikke per hendelse.',
+  '<strong>Grensen er 5 000 kr per person per år (2026)</strong> — regn med hele kalenderåret, ikke per hendelse.',
   'Kontantgaver og gavekort er <strong>alltid skattepliktige</strong> — uansett beløp. Gi heller en fysisk gave.',
   'Gaver i naturalier (vin, opplevelse, elektronikk) er skattefrie under grensen — husk kvittering.',
   'Juletips: gi gave verdt 4 900 kr + ta vare på kvittering. Gjenværende 100 kr kan brukes resten av året.',
@@ -52,7 +52,7 @@ const GIFT_TIPS = [
 ]
 
 const DISCOUNT_TIPS = [
-  '<strong>Grensen er 10 000 kr rabatt per ansatt per år (2025)</strong> — beregnes på markedspris minus det de betaler.',
+  '<strong>Grensen er 10 000 kr rabatt per ansatt per år (2026)</strong> — beregnes på markedspris minus det de betaler.',
   'Gjelder <strong>kun varer og tjenester selskapet selv produserer eller selger</strong>. Ikke rabatt hos en leverandør.',
   'Familie til ansatte uten ansettelsesforhold = ikke personalrabatt. Da er det en skattepliktig fordel for den ansatte.',
   'Rabatten kan ikke kombineres med andre skattefrie ytelser for å "doble" fordelen.',
@@ -198,7 +198,11 @@ export default function GiftsPage() {
           {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-          {[2025, 2024, 2023].map(y => <option key={y} value={y}>{y}</option>)}
+          {(() => {
+            const cy = new Date().getFullYear()
+            const showNext = new Date().getMonth() >= 11 // desember
+            return (showNext ? [cy + 1, cy, cy - 1, cy - 2] : [cy, cy - 1, cy - 2])
+          })().map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
 

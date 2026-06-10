@@ -31,7 +31,7 @@ function TipBox({ tips }: { tips: string[] }) {
 }
 
 const TIPS = [
-  `<strong>Grensen for middag/middag: ${REPRESENTATION_LIMIT_PER_PERSON_NOK} kr per person eks. mva (2025)</strong> — over grensen er overskytende ikke fradragsberettiget.`,
+  `<strong>Grensen for middag/middag: ${REPRESENTATION_LIMIT_PER_PERSON_NOK} kr per person eks. mva (2026)</strong> — over grensen er overskytende ikke fradragsberettiget.`,
   '<strong>Lunsj i arbeidstid</strong> med ekstern part = 100% fradragsberettiget, ingen beløpsgrense.',
   '<strong>Det MÅ være en ekstern part</strong> (kunde, leverandør, potensiell partner) — kun interne ansatte = internt arrangement, ikke representasjon.',
   'Alkohol er <strong>aldri fradragsberettiget</strong> og gir heller ikke MVA-fradrag. Be om separat alkoholnota.',
@@ -151,7 +151,7 @@ export default function RepresentationPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Representasjon</h1>
           <p className="text-gray-500 mt-1 text-sm">
-            Maks {REPRESENTATION_LIMIT_PER_PERSON_NOK} kr/person for middag (2025) · Lunsj i arbeidstid = fullt fradrag
+            Maks {REPRESENTATION_LIMIT_PER_PERSON_NOK} kr/person for middag (2026) · Lunsj i arbeidstid = fullt fradrag
           </p>
         </div>
         <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
@@ -164,7 +164,7 @@ export default function RepresentationPage() {
           {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-          {[2025, 2024, 2023].map(y => <option key={y} value={y}>{y}</option>)}
+          {(() => { const cy = new Date().getFullYear(); const sn = new Date().getMonth() >= 11; return (sn ? [cy+1,cy,cy-1,cy-2] : [cy,cy-1,cy-2]) })().map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
 

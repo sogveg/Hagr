@@ -31,7 +31,7 @@ function TipBox({ tips }: { tips: string[] }) {
 }
 
 const TIPS = [
-  `<strong>Sjablongbeløp 2025: ${PHONE_INTERNET_TAXABLE_BENEFIT_NOK.toLocaleString('nb-NO')} kr per år</strong> — dette er skattepliktig fordel uavhengig av faktisk privat bruk.`,
+  `<strong>Sjablongbeløp 2026: ${PHONE_INTERNET_TAXABLE_BENEFIT_NOK.toLocaleString('nb-NO')} kr per år</strong> — dette er skattepliktig fordel uavhengig av faktisk privat bruk.`,
   'Ordningen gjelder <strong>én mobil og ett internettabonnement</strong> per ansatt. To mobiler = dobbelt sjablongbeløp.',
   'Hytte-internett: kan dekkes av selskapet <strong>hvis det er dokumentert tjenstlig behov</strong> (f.eks. at man jobber derfra).',
   'TV/streaming inkludert i bredbåndsabonnementet? Det er <strong>ikke fradragsberettiget</strong> for selskapet.',
@@ -136,7 +136,7 @@ export default function PhoneInternetPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Telefon og internett</h1>
           <p className="text-gray-500 mt-1 text-sm">
-            EK-ytelse — sjablongbeløp {PHONE_INTERNET_TAXABLE_BENEFIT_NOK.toLocaleString('nb-NO')} kr/år per ansatt (2025)
+            EK-ytelse — sjablongbeløp {PHONE_INTERNET_TAXABLE_BENEFIT_NOK.toLocaleString('nb-NO')} kr/år per ansatt (2026)
           </p>
         </div>
         <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2 text-sm">
@@ -149,7 +149,7 @@ export default function PhoneInternetPage() {
           {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-          {[2025, 2024, 2023].map(y => <option key={y} value={y}>{y}</option>)}
+          {(() => { const cy = new Date().getFullYear(); const sn = new Date().getMonth() >= 11; return (sn ? [cy+1,cy,cy-1,cy-2] : [cy,cy-1,cy-2]) })().map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
 

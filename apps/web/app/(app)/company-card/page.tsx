@@ -159,7 +159,7 @@ export default function CompanyCardPage() {
           {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
-          {[2025, 2024, 2023].map(y => <option key={y} value={y}>{y}</option>)}
+          {(() => { const cy = new Date().getFullYear(); const sn = new Date().getMonth() >= 11; return (sn ? [cy+1,cy,cy-1,cy-2] : [cy,cy-1,cy-2]) })().map(y => <option key={y} value={y}>{y}</option>)}
         </select>
       </div>
 

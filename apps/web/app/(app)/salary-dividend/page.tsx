@@ -354,12 +354,12 @@ export default function SalaryDividendPage() {
             ? 'Laster satser…'
             : rates.fetched_at
               ? `Satser hentet fra Skatteetaten/SSB ${new Date(rates.fetched_at).toLocaleDateString('nb-NO')}`
-              : 'Standardverdier 2025 (ikke hentet)'
+              : 'Standardverdier 2026 (ikke hentet)'
           }
         </div>
 
         <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
-          G {rates.year ?? 2025} = <strong className="text-gray-800">{rates.g_value.toLocaleString('nb-NO')} kr</strong>
+          G {rates.year ?? 2026} =<strong className="text-gray-800">{rates.g_value.toLocaleString('nb-NO')} kr</strong>
         </div>
 
         <button
@@ -398,7 +398,7 @@ export default function SalaryDividendPage() {
       )}
 
       <TipBox tips={[
-        `<strong>7,1 G er den magiske grensen:</strong> Pensjonsopptjening gjelder kun opp til 7,1 G = <strong>${pensionMaxNok.toLocaleString('nb-NO')} kr</strong> i ${rates.year ?? 2025}. Over dette tjener du ingen ekstra pensjon på å ta ut lønn.`,
+        `<strong>7,1 G er den magiske grensen:</strong> Pensjonsopptjening gjelder kun opp til 7,1 G = <strong>${pensionMaxNok.toLocaleString('nb-NO')} kr</strong> i ${rates.year ?? 2026}. Over dette tjener du ingen ekstra pensjon på å ta ut lønn.`,
         `<strong>Sykepenger og foreldrepenger</strong> beregnes av lønn opp til 6 G = ${sickPayMaxNok.toLocaleString('nb-NO')} kr. Utbytte teller ikke — én dag syk uten lønn kan koste hundretusenvis.`,
         `<strong>Under 0,5 G (${minBenefitsNok.toLocaleString('nb-NO')} kr)?</strong> Ingen rett til sykepenger, foreldrepenger eller dagpenger fra NAV.`,
         'Du får <strong>to anbefalinger</strong>: «7,1 G» (full trygdedekning) og «Skattemessig optimal» (maks netto privat uten hensyn til pensjon). Velg bevisst.',

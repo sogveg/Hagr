@@ -121,7 +121,7 @@ export function GiftsPDF({ company, year, gifts, discounts }: Props) {
         {/* Disclaimer */}
         <View style={[styles.alertYellow, { marginTop: 16 }]}>
           <Text style={styles.alertText}>
-            Dokumentet er generert av SkatteSmart og er ment som et hjelpemiddel ved bokettersyn. Kontroller alltid tallene med din regnskapsfører. Skattefrie grenser: gave 5 000 kr/person/år, personalrabatt 10 000 kr/person/år (2025).
+            Dokumentet er generert av SkatteSmart og er ment som et hjelpemiddel ved bokettersyn. Kontroller alltid tallene med din regnskapsfører. Skattefrie grenser: gave 5 000 kr/person/år, personalrabatt 10 000 kr/person/år (2026).
           </Text>
         </View>
 

@@ -249,7 +249,7 @@ export function calculateSalaryDividend(
   if (input.current_salary > taxCrossoverNok) {
     notes.push(`Lønn over skattemessig kryssingspunkt (${taxCrossoverNok.toLocaleString('nb-NO')} kr) — marginalskatt på lønn overstiger utbytteskatten på 37,84%`)
   }
-  notes.push(`G ${rates.year ?? CURRENT_YEAR}: ${rates.g_value.toLocaleString('nb-NO')} kr${rates.fetched_at ? ` (hentet ${new Date(rates.fetched_at).toLocaleDateString('nb-NO')})` : ' (standardverdier 2025)'}`)
+  notes.push(`G ${rates.year ?? CURRENT_YEAR}: ${rates.g_value.toLocaleString('nb-NO')} kr${rates.fetched_at ? ` (hentet ${new Date(rates.fetched_at).toLocaleDateString('nb-NO')})` : ' (standardverdier 2026)'}`)
   notes.push('Beregningen er en forenkling. Kontakt regnskapsfører for endelig beslutning.')
   notes.push('Skjermingsfradrag, holding-AS og IPS er ikke hensyntatt.')
 

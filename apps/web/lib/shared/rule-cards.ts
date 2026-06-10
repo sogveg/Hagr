@@ -86,7 +86,7 @@ export const RULE_CARDS: RuleCard[] = [
     limit_period: 'year',
     limit_unit: 'kr skattepliktig sjablongbeløp',
     base_risk: 'green',
-    summary: 'Arbeidsgiver kan dekke mobil og internett. Ansatte beskattes av en sjablongsum på 4 392 kr per år (2025) uavhengig av faktisk bruk, forutsatt tjenstlig behov.',
+    summary: 'Arbeidsgiver kan dekke mobil og internett. Ansatte beskattes av en sjablongsum på 4 392 kr per år (2026) uavhengig av faktisk bruk, forutsatt tjenstlig behov.',
     green_examples: [
       'Ansatt med behov for kontakt med kunder/leverandører får mobil dekket',
       'Hjemmekontor-arbeider får bredbånd dekket',

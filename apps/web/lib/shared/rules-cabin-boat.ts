@@ -1,7 +1,7 @@
-// Norwegian cabin/boat rules 2025
+// Norwegian cabin/boat rules 2026
 // Fri bruk av arbeidsgivers hytte/båt = skattepliktig naturalytelse
 
-// Skattedirektoratets standardsatser for fri fritidsbolig/båt (2025)
+// Skattedirektoratets standardsatser for fri fritidsbolig/båt (2026)
 export const CABIN_BENEFIT_RATE_PEAK_PER_DAY = 1135    // kr/dag (høysesong: 15. juni – 31. aug + romjul)
 export const CABIN_BENEFIT_RATE_OFF_PEAK_PER_DAY = 530 // kr/dag (lavsesong: resten av året)
 export const BOAT_BENEFIT_RATE_PEAK_PER_DAY = 1135     // kr/dag (båtsesong: mai–sept)
