@@ -28,6 +28,13 @@ export async function POST(req: NextRequest) {
     name, org_number, company_type,
     has_employees, employee_count,
     owner_employed, payroll_active, spouse_involved,
+    uses_phone_for_work, company_pays_phone,
+    works_from_home, company_pays_internet,
+    has_company_car, uses_private_car_for_biz,
+    has_cabin_boat, holds_board_meetings,
+    holds_strategy_gatherings, has_client_entertainment,
+    approx_annual_profit, current_owner_salary,
+    aga_zone, onboarding_completed,
   } = body
 
   if (!name || !company_type) {
@@ -83,6 +90,20 @@ export async function POST(req: NextRequest) {
       owner_employed: owner_employed ?? true,
       payroll_active: payroll_active ?? false,
       spouse_involved: spouse_involved ?? false,
+      uses_phone_for_work: uses_phone_for_work ?? false,
+      company_pays_phone: company_pays_phone ?? false,
+      works_from_home: works_from_home ?? false,
+      company_pays_internet: company_pays_internet ?? false,
+      has_company_car: has_company_car ?? false,
+      uses_private_car_for_biz: uses_private_car_for_biz ?? false,
+      has_cabin_boat: has_cabin_boat ?? false,
+      holds_board_meetings: holds_board_meetings ?? false,
+      holds_strategy_gatherings: holds_strategy_gatherings ?? false,
+      has_client_entertainment: has_client_entertainment ?? false,
+      approx_annual_profit: approx_annual_profit ?? null,
+      current_owner_salary: current_owner_salary ?? null,
+      aga_zone: aga_zone ?? 'zone1',
+      onboarding_completed: onboarding_completed ?? true,
     })
     .select()
     .single()

@@ -108,26 +108,34 @@ function ScenarioCard({
       </div>
 
       <div className="space-y-1.5 text-sm flex-1">
+        {/* Selskapets faktiske kostnad */}
+        {s.salary > 0 && (
+          <div className="flex justify-between text-xs bg-gray-50 rounded-lg px-2 py-1.5">
+            <span className="text-gray-500">Selskapskostnad (lønn + AGA)</span>
+            <span className="font-semibold text-gray-700">{(s.salary + s.aga_cost).toLocaleString('nb-NO')} kr</span>
+          </div>
+        )}
         <div className="flex justify-between">
-          <span className="text-gray-500">Lønn</span>
+          <span className="text-gray-500">Din lønn</span>
           <span className="font-medium">{s.salary.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-500">Utbytte (etter selskapsskatt)</span>
+          <span className="text-gray-500">Utbytte (etter 22% selskapsskatt)</span>
           <span className="font-medium">{s.dividend.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="border-t border-gray-100 my-2" />
         <div className="flex justify-between text-xs text-gray-400">
-          <span>AGA</span><span>−{s.aga_cost.toLocaleString('nb-NO')} kr</span>
+          <span>AGA ({s.salary > 0 ? 'betalt av selskapet' : '—'})</span>
+          <span>−{s.aga_cost.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="flex justify-between text-xs text-gray-400">
-          <span>Selskapsskatt</span><span>−{s.corporation_tax.toLocaleString('nb-NO')} kr</span>
+          <span>Selskapsskatt 22% (av overskudd)</span><span>−{s.corporation_tax.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="flex justify-between text-xs text-gray-400">
-          <span>Personskatt</span><span>−{s.personal_income_tax.toLocaleString('nb-NO')} kr</span>
+          <span>Personskatt (lønn)</span><span>−{s.personal_income_tax.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="flex justify-between text-xs text-gray-400">
-          <span>Utbytteskatt</span><span>−{s.dividend_tax.toLocaleString('nb-NO')} kr</span>
+          <span>Utbytteskatt (37,84%)</span><span>−{s.dividend_tax.toLocaleString('nb-NO')} kr</span>
         </div>
         <div className="border-t border-gray-200 my-2" />
         <div className="flex justify-between font-semibold">
@@ -398,6 +406,8 @@ export default function SalaryDividendPage() {
       )}
 
       <TipBox tips={[
+        `<strong>AGA er en ekstra kostnad for selskapet:</strong> I tillegg til lønnen betaler selskapet arbeidsgiveravgift (AGA) — 14,1% i sone I. Betaler du deg selv 1 000 000 kr i lønn koster det selskapet <strong>1 141 000 kr</strong>. Dette er avgjørende for å sammenligne lønn vs. utbytte riktig.`,
+        `<strong>Selskapsskatt (22%) betales FØR utbytte:</strong> Av årsoverskuddet betaler selskapet 22% i selskapsskatt. Deretter kan resten deles ut som utbytte, som igjen beskattes med 37,84% effektivt hos eier.`,
         `<strong>7,1 G er den magiske grensen:</strong> Pensjonsopptjening gjelder kun opp til 7,1 G = <strong>${pensionMaxNok.toLocaleString('nb-NO')} kr</strong> i ${rates.year ?? 2026}. Over dette tjener du ingen ekstra pensjon på å ta ut lønn.`,
         `<strong>Sykepenger og foreldrepenger</strong> beregnes av lønn opp til 6 G = ${sickPayMaxNok.toLocaleString('nb-NO')} kr. Utbytte teller ikke — én dag syk uten lønn kan koste hundretusenvis.`,
         `<strong>Under 0,5 G (${minBenefitsNok.toLocaleString('nb-NO')} kr)?</strong> Ingen rett til sykepenger, foreldrepenger eller dagpenger fra NAV.`,
