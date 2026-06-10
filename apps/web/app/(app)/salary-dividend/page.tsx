@@ -147,8 +147,26 @@ function ScenarioCard({
           <span className="text-gray-900">Netto privat</span>
           <span className="text-green-600">{s.net_private.toLocaleString('nb-NO')} kr</span>
         </div>
+        {/* Salary-only effective rate — directly comparable to dividend's 51.5% */}
+        {s.salary_effective_rate !== null && s.salary > 0 && (
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-400">
+              Lønn-kostnad inkl. AGA
+              <span className="ml-1 text-gray-300" title="(AGA + personskatt) / (lønn + AGA) — sammenlignbart med utbyttets 51,5%">ⓘ</span>
+            </span>
+            <span className={`font-medium ${s.salary_effective_rate > 0.515 ? 'text-orange-500' : 'text-green-600'}`}>
+              {(s.salary_effective_rate * 100).toFixed(1)}%
+            </span>
+          </div>
+        )}
+        {s.salary === 0 && (
+          <div className="flex justify-between text-xs">
+            <span className="text-gray-400">Utbytteskostnad totalt</span>
+            <span className="text-orange-500 font-medium">51,5%</span>
+          </div>
+        )}
         <div className="flex justify-between text-xs">
-          <span className="text-gray-400">Effektiv skattesats</span>
+          <span className="text-gray-400">Effektiv blandet skattesats</span>
           <span className="text-gray-500">{(s.effective_tax_rate * 100).toFixed(1)}%</span>
         </div>
       </div>
@@ -180,8 +198,10 @@ function MarginalRateTable({ rates, agaZone, crossoverNok }: {
   crossoverNok: number
 }) {
   const agaRate = rates[`aga_${agaZone}` as keyof DynamicTaxRates] as number
-  // Per kr company cost breakeven: (1-marginal)/(1+aga) = (1-corp)*(1-div_upscale*div_rate)
-  const dividendYield = (1 - rates.corporation_tax_rate) * (1 - rates.dividend_upscale * rates.dividend_tax_rate)
+  // Total dividend tax rate as % of pre-corporate-tax profit: ~51.5%
+  const dividendTotalRate = 1 - (1 - rates.corporation_tax_rate) * (1 - rates.dividend_upscale * rates.dividend_tax_rate)
+  // Legacy: kept for breakeven calculation
+  const dividendYield = 1 - dividendTotalRate  // 0.4848
   const breakEven = 1 - dividendYield * (1 + agaRate)
   const effDivRate = rates.dividend_upscale * rates.dividend_tax_rate // 37.84%
 
@@ -198,7 +218,7 @@ function MarginalRateTable({ rates, agaZone, crossoverNok }: {
     <div className="card p-5 mb-6">
       <h3 className="font-semibold text-gray-900 mb-1">Marginalskatt og kryssingspunkt</h3>
       <p className="text-xs text-gray-400 mb-4">
-        Lønn er bedre enn utbytte der marginalskatt &lt; {(breakEven * 100).toFixed(1)}% (beregnet for {agaZone}).
+        Lønn (inkl. AGA) er billigere enn utbytte (51,5%) så lenge marginalkolonnen viser under 51,5% — for {agaZone}.
         Effektiv utbytteskatt: <strong>{(effDivRate * 100).toFixed(2)}%</strong> (oppjustering 1,72 × 22%).
       </p>
       <div className="overflow-x-auto">
@@ -207,17 +227,23 @@ function MarginalRateTable({ rates, agaZone, crossoverNok }: {
             <tr className="text-xs text-gray-400 border-b border-gray-100">
               <th className="text-left pb-2 font-medium">Inntektsintervall</th>
               <th className="text-right pb-2 font-medium">Trinnskatt</th>
-              <th className="text-right pb-2 font-medium">+ Flat 22%</th>
-              <th className="text-right pb-2 font-medium">+ Trygde {(rates.trygdeavgift_rate * 100).toFixed(1)}%</th>
-              <th className="text-right pb-2 font-medium">= Marginal</th>
-              <th className="text-right pb-2 font-medium">Vinner</th>
+              <th className="text-right pb-2 font-medium">Marginal personskatt</th>
+              <th className="text-right pb-2 font-medium text-blue-600">Inkl. AGA — % av selskapskostnad</th>
+              <th className="text-right pb-2 font-medium">Vinner vs utbytte 51,5%</th>
             </tr>
           </thead>
           <tbody>
             {brackets.map((b, i) => {
-              const marginal = rates.flat_tax_rate + rates.trygdeavgift_rate + b.trinnskatt
-              const salaryWins = marginal < breakEven
-              const isCrossover = i > 0 && salaryWins !== (rates.flat_tax_rate + rates.trygdeavgift_rate + brackets[i - 1].trinnskatt < breakEven)
+              // Marginal personal tax rate
+              const marginalPersonal = rates.flat_tax_rate + rates.trygdeavgift_rate + b.trinnskatt
+              // Total marginal as % of company cost (incl. AGA):
+              // (AGA + personal_marginal) / (1 + AGA)
+              const marginalInclAga = (agaRate + marginalPersonal) / (1 + agaRate)
+              const salaryWins = marginalInclAga < dividendTotalRate
+              const prevMarginalInclAga = i > 0
+                ? (agaRate + rates.flat_tax_rate + rates.trygdeavgift_rate + brackets[i-1].trinnskatt) / (1 + agaRate)
+                : 0
+              const isCrossover = i > 0 && salaryWins !== (prevMarginalInclAga < dividendTotalRate)
               return (
                 <tr key={i} className={`border-b border-gray-50 ${!salaryWins ? 'bg-orange-50' : ''}`}>
                   <td className="py-2 text-gray-700 text-xs">
@@ -229,24 +255,37 @@ function MarginalRateTable({ rates, agaZone, crossoverNok }: {
                     )}
                   </td>
                   <td className="text-right py-2 text-gray-600">{(b.trinnskatt * 100).toFixed(1)}%</td>
-                  <td className="text-right py-2 text-gray-400">22,0%</td>
-                  <td className="text-right py-2 text-gray-400">{(rates.trygdeavgift_rate * 100).toFixed(1)}%</td>
-                  <td className={`text-right py-2 font-semibold ${salaryWins ? 'text-green-700' : 'text-orange-700'}`}>
-                    {(marginal * 100).toFixed(1)}%
+                  <td className="text-right py-2 text-gray-500">{(marginalPersonal * 100).toFixed(1)}%</td>
+                  <td className={`text-right py-2 font-semibold text-blue-700`}>
+                    {(marginalInclAga * 100).toFixed(1)}%
                   </td>
                   <td className={`text-right py-2 text-xs font-medium ${salaryWins ? 'text-green-600' : 'text-orange-600'}`}>
-                    {salaryWins ? '💼 Lønn' : '📈 Utbytte'}
+                    {salaryWins
+                      ? `💼 Lønn (sparer ${((dividendTotalRate - marginalInclAga) * 100).toFixed(1)}%)`
+                      : `📈 Utbytte (koster ${((marginalInclAga - dividendTotalRate) * 100).toFixed(1)}% mer)`
+                    }
                   </td>
                 </tr>
               )
             })}
+            {/* Dividend row for comparison */}
+            <tr className="bg-gray-50 border-t-2 border-gray-200">
+              <td className="py-2 text-gray-700 text-xs font-medium">Utbytte (alle nivå)</td>
+              <td className="text-right py-2 text-gray-400">—</td>
+              <td className="text-right py-2 text-gray-400">37,84% (etter 22% selskapsskatt)</td>
+              <td className="text-right py-2 font-bold text-orange-600">51,5%</td>
+              <td className="text-right py-2 text-xs text-gray-400">Referanse</td>
+            </tr>
           </tbody>
         </table>
       </div>
-      <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-        <Info size={12} className="shrink-0 mt-0.5" />
-        Sammenligningen inkluderer AGA ({(agaRate * 100).toFixed(1)}% for {agaZone}) som ekstra selskapskostnad.
-        Breakeven: (1 − marginal) ÷ (1 + AGA) = (1 − 22%) × (1 − 37,84%).
+      <div className="mt-3 flex items-start gap-2 text-xs text-gray-500 bg-blue-50 rounded-lg px-3 py-2 border border-blue-100">
+        <Info size={12} className="shrink-0 mt-0.5 text-blue-400" />
+        <span>
+          <strong className="text-blue-700">Slik leses tabellen:</strong> «Inkl. AGA» = (AGA + personskatt) ÷ (lønn + AGA).
+          Dette er direkte sammenlignbart med utbyttets 51,5%. Under kryssingspunktet koster lønn mindre enn 51,5% — ta lønn.
+          Over kryssingspunktet koster lønn mer enn 51,5% — ta utbytte.
+        </span>
       </div>
     </div>
   )

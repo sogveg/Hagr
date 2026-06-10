@@ -94,7 +94,14 @@ export interface SalaryDividendScenario {
   dividend_tax: number
   total_tax: number
   net_private: number
+  /** Blended rate: total taxes / profit_before_owner_salary */
   effective_tax_rate: number
+  /**
+   * Salary-only effective rate: (AGA + personskatt) / (lønn + AGA)
+   * Matches Skatteetaten's practical presentation — directly comparable to
+   * dividend's 51.5%. Null when salary = 0.
+   */
+  salary_effective_rate: number | null
   pension: PensionImpact
 }
 
@@ -118,6 +125,11 @@ function calcScenario(
   const netSalary = salary - personalTax
   const totalTax = agaCost + corpTax + personalTax + dividendTax
 
+  // Salary effective rate: (AGA + personskatt) / (lønn + AGA)
+  // This is comparable to the 51.5% dividend rate (both measured as % of company cost)
+  const salaryCost = salary + agaCost
+  const salaryEffectiveRate = salaryCost > 0 ? (agaCost + personalTax) / salaryCost : null
+
   return {
     salary,
     dividend: Math.round(availDividend),
@@ -128,6 +140,7 @@ function calcScenario(
     total_tax: Math.round(totalTax),
     net_private: Math.round(netSalary + netDividend),
     effective_tax_rate: profit > 0 ? totalTax / profit : 0,
+    salary_effective_rate: salaryEffectiveRate,
     pension: calcPensionImpact(salary, rates),
   }
 }
