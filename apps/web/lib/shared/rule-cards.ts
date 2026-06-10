@@ -29,9 +29,9 @@ export const RULE_CARDS: RuleCard[] = [
     limit_period: 'year',
     limit_unit: 'kr per person',
     base_risk: 'green',
-    summary: 'Gave til ansatt kan være skattefri inntil 5 000 kr per person per år, forutsatt at gaven ikke er kontanter eller gavekort som kan innløses i penger.',
+    summary: 'Gave til ansatt kan være skattefri inntil 5 000 kr per person per år. Kontanter og gavekort som KAN innløses i penger er alltid skattepliktig. Gavekort til en bestemt butikk/opplevelse som IKKE kan innløses i penger er skattefritt — på lik linje med en fysisk gave.',
     green_examples: [
-      'Gavekort på 4 900 kr som ikke kan innløses kontant',
+      'Gavekort til Thon Hotels, restaurant eller opplevelse (ikke innløsbart i penger) — 4 900 kr',
       'Flaske vin + sjokolade til jul, verdi 800 kr',
       'Konsertbilletter til to, verdi 2 400 kr',
     ],

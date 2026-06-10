@@ -218,8 +218,8 @@ export const TIPS: Tip[] = [
 
   {
     id: 'gift_5000_limit',
-    title: 'Gaver til ansatte: 5 000 kr er grensen — men ikke kontanter',
-    body: 'Gaver til ansatte er skattefri inntil 5 000 kr per person per år. Men kontanter, vipps-overføringer og gavekort som kan innløses i kontanter er alltid skattepliktig lønn — uansett beløp. Bruk gavekort som kun fungerer i spesifikke butikker eller opplevelseskort.',
+    title: 'Gaver til ansatte: 5 000 kr er grensen — og gavekort ER skattefritt',
+    body: 'Gaver til ansatte er skattefrie inntil 5 000 kr per person per år. Kontanter og Vipps er alltid skattepliktig. Gavekort som KAN løses inn i penger (saldo-gavekort) er alltid skattepliktig. Men gavekort som IKKE kan løses inn i penger — f.eks. gavekort til en bestemt butikk, hotell, opplevelse eller restaurant — er skattefritt på lik linje med en fysisk gave, innenfor 5 000 kr-grensen.',
     category: 'gaver',
     tags: ['gave', '5000-kr', 'kontanter', 'gavekort'],
     type: 'rule',

@@ -45,11 +45,12 @@ function TipBox({ tips }: { tips: string[] }) {
 
 const GIFT_TIPS = [
   '<strong>Grensen er 5 000 kr per person per år (2026)</strong> — regn med hele kalenderåret, ikke per hendelse.',
-  'Kontantgaver og gavekort er <strong>alltid skattepliktige</strong> — uansett beløp. Gi heller en fysisk gave.',
-  'Gaver i naturalier (vin, opplevelse, elektronikk) er skattefrie under grensen — husk kvittering.',
-  'Juletips: gi gave verdt 4 900 kr + ta vare på kvittering. Gjenværende 100 kr kan brukes resten av året.',
-  'Bedriftsjubileer (25, 50, 75 år) og personlige merkedager (runde fødselsdager, 10 år i jobben) har egne, <strong>utvidede regler</strong> — forhør deg med regnskapsfører.',
-  'Registrér alltid mottaker og dato — Skatteetaten kan be om full liste per ansatt.',
+  '<strong>Kontanter og Vipps er alltid skattepliktige</strong> — uansett beløp. Det samme gjelder gavekort som kan løses inn i penger (f.eks. saldo-gavekort).',
+  '<strong>Gavekort som ikke kan løses inn i penger er skattefritt</strong> under 5 000 kr — f.eks. gavekort til en spesifikk butikk, hotell eller opplevelse fungerer på lik linje med en fysisk gave.',
+  'Gaver i naturalier (vin, opplevelse, elektronikk, gavekort) er skattefrie under grensen — husk kvittering og at gavekortet ikke kan innløses kontant.',
+  'Juletips: gi et gavekort til en spesifikk butikk verdt 4 900 kr + ta vare på kvittering. Gjenværende 100 kr kan brukes resten av året.',
+  '<strong>Jubileumsgave ekstra:</strong> ved personlig jubileum (rund bursdag, 10/20/25 år i jobben) eller bedriftsjubileum (25, 50 år) kan det gis <strong>opptil 8 000 kr ekstra</strong> skattefritt utover de ordinære 5 000 kr.',
+  'Registrér alltid mottaker, dato og type gave — Skatteetaten kan be om full liste per ansatt.',
 ]
 
 const DISCOUNT_TIPS = [
