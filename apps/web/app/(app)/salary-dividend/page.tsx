@@ -9,7 +9,7 @@ import {
   type PensionImpact,
 } from '@/lib/shared'
 import { DEFAULT_TAX_RATES, TAX_RATES_2025, type DynamicTaxRates } from '@/lib/shared/tax-rates'
-import TipBox from '@/components/TipBox'
+import GlobalTipBox from '@/components/TipBox'
 import {
   TrendingUp, Lightbulb, ChevronDown, ChevronUp,
   Info, ShieldCheck, AlertTriangle, Heart, Baby,
@@ -333,7 +333,7 @@ export default function SalaryDividendPage() {
       </div>
 
       <div className="mb-5">
-        <TipBox toolHref="/salary-dividend" title="Tips for lønn og utbytte-optimalisering" maxTips={3} />
+        <GlobalTipBox toolHref="/salary-dividend" title="Tips for lønn og utbytte-optimalisering" maxTips={3} />
       </div>
 
       {/* Year selector */}

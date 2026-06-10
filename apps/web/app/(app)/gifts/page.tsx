@@ -10,7 +10,7 @@ import {
   PERSONAL_DISCOUNT_TAX_FREE_LIMIT_NOK,
 } from '@/lib/shared'
 import { Gift, Tag, Lightbulb, AlertTriangle, ChevronDown, ChevronUp, Plus } from 'lucide-react'
-import TipBox from '@/components/TipBox'
+import GlobalTipBox from '@/components/TipBox'
 
 // ─── Tip box ──────────────────────────────────────────────────────────────────
 function TipBox({ tips }: { tips: string[] }) {
@@ -194,7 +194,7 @@ export default function GiftsPage() {
       </div>
 
       <div className="mb-5">
-        <TipBox toolHref="/gifts" title="Tips og regler for gaver og rabatter" maxTips={3} />
+        <GlobalTipBox toolHref="/gifts" title="Tips og regler for gaver og rabatter" maxTips={3} />
       </div>
 
       {/* Filters */}

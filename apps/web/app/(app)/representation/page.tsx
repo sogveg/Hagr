@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { evaluateRepresentation, REPRESENTATION_LIMIT_PER_PERSON_NOK } from '@/lib/shared'
 import { UtensilsCrossed, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, CheckCircle } from 'lucide-react'
-import TipBox from '@/components/TipBox'
+import GlobalTipBox from '@/components/TipBox'
 
 function TipBox({ tips }: { tips: string[] }) {
   const [open, setOpen] = useState(false)
@@ -161,7 +161,7 @@ export default function RepresentationPage() {
       </div>
 
       <div className="mb-5">
-        <TipBox toolHref="/representation" title="Regler og tips for representasjon" />
+        <GlobalTipBox toolHref="/representation" title="Regler og tips for representasjon" />
       </div>
 
       <div className="flex gap-3 mb-5">
