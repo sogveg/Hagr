@@ -1,5 +1,5 @@
 {
-  "installCommand": "npx --yes pnpm@latest install",
+  "installCommand": "npx --yes pnpm@latest install --ignore-scripts",
   "buildCommand": "pnpm --filter web build",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
