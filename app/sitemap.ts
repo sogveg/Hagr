@@ -35,8 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       supabase.from('locations').select('slug').eq('active', true),
       supabase.from('categories').select('id, slug').eq('active', true),
       // Join products + product_locations so we only include real location/product combos
-      supabase
-        .from('product_locations')
+      (supabase.from as any)('product_locations')
         .select('location_id, product_id, products(slug, category_id, published), locations(slug)'),
       (supabase.from as any)('articles')
         .select('slug, published_at, updated_at')
