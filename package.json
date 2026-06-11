@@ -10,6 +10,9 @@
     "type-check": "turbo type-check",
     "db:migrate": "pnpm --filter @skattsmart/db migrate"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
+  },
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
