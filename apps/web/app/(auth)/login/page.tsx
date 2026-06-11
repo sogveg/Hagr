@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,35 +29,59 @@ export default function LoginPage() {
     router.refresh()
   }
 
+  async function handleReset() {
+    if (!email) {
+      setError('Skriv inn e-postadressen din først')
+      return
+    }
+    setResetLoading(true)
+    const supabase = createClient()
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    })
+    setResetSent(true)
+    setResetLoading(false)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-brand-700">SkatteSmart</Link>
+          <Link href="/" className="text-2xl font-bold text-violet-700">Hagr</Link>
           <p className="mt-2 text-gray-600">Logg inn på kontoen din</p>
         </div>
-        <div className="card p-8">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="label">E-post</label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">E-post</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="input"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 required
                 autoComplete="email"
               />
             </div>
             <div>
-              <label htmlFor="password" className="label">Passord</label>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Passord</label>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  disabled={resetLoading}
+                  className="text-xs text-violet-600 hover:underline disabled:opacity-50"
+                >
+                  {resetLoading ? 'Sender…' : 'Glemt passord?'}
+                </button>
+              </div>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="input"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                 required
                 autoComplete="current-password"
               />
@@ -63,13 +89,22 @@ export default function LoginPage() {
             {error && (
               <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
             )}
-            <button type="submit" disabled={loading} className="btn-primary w-full">
+            {resetSent && (
+              <p className="text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                Vi har sendt en lenke til {email}. Sjekk innboksen din.
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 px-4 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
               {loading ? 'Logger inn…' : 'Logg inn'}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-gray-600">
             Ingen konto?{' '}
-            <Link href="/signup" className="text-brand-600 font-medium hover:underline">
+            <Link href="/signup" className="text-violet-600 font-medium hover:underline">
               Registrer deg
             </Link>
           </p>
