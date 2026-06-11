@@ -10,6 +10,10 @@
     "type-check": "turbo type-check",
     "db:migrate": "pnpm --filter @skattsmart/db migrate"
   },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
   "devDependencies": {
     "turbo": "^2.0.0",
     "typescript": "^5.5.0"
