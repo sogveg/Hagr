@@ -303,7 +303,8 @@ async function fetchAGA(): Promise<FetchResult> {
 }
 
 // ─── Upsert to Supabase ───────────────────────────────────────────────────────
-async function upsertRates(rates: FetchedRate[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function upsertRates(rates: FetchedRate[], supabase: any) {
   if (!rates.length) return
   const { error } = await supabase
     .from('tax_rates')
@@ -346,7 +347,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    await upsertRates(allRates)
+    await upsertRates(allRates, supabase)
   } catch (e) {
     return NextResponse.json({
       success: false,
