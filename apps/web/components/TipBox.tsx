@@ -64,8 +64,21 @@ function SingleTip({ tip, currentPath, mode }: { tip: Tip; currentPath: string; 
       </div>
       <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{getTipTitle(tip, mode)}</p>
       <p className="text-sm text-gray-700 leading-relaxed">{getTipBody(tip, mode)}</p>
-      {tip.law_ref && (
-        <p className="text-xs text-gray-400 mt-1.5">📌 {tip.law_ref}</p>
+      {(tip.law_ref || tip.source_url) && (
+        <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5 flex-wrap">
+          {tip.law_ref && <span>{tip.law_ref}</span>}
+          {tip.law_ref && tip.source_url && <span>·</span>}
+          {tip.source_url && (
+            <a
+              href={tip.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-gray-600 transition-colors"
+            >
+              Kilde: {new URL(tip.source_url).hostname.replace('www.', '')}
+            </a>
+          )}
+        </p>
       )}
       {tip.tool_href && tip.tool_href !== currentPath && (
         <Link

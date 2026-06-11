@@ -82,7 +82,7 @@ function JulebordGuide() {
               {[
                 { icon: '✅', text: '<strong>Alle ansatte MÅ inviteres</strong> — eller alle i en hel avdeling/gruppe. Selektiv invitasjon = skattepliktig fordel for de som er med.' },
                 { icon: '✅', text: '<strong>Faktisk ansettelsesforhold kreves</strong> — eier alene (uten ansatte) kan ikke holde skattefritt julebord for seg selv. Det blir utbytte + AGA.' },
-                { icon: '✅', text: '<strong>Rimelig kostnad</strong> — Skatteetaten bruker ~5 000 kr/ansatt/år som veiledende grense for all velferd samlet.' },
+                { icon: '✅', text: '<strong>Rimelig kostnad</strong> — det finnes ingen lovfestet kronergrense. Testen er om kostnaden er rimelig sett opp mot bedriftens størrelse og bransjenorm (FSFIN § 5-15-6).' },
                 { icon: '✅', text: '<strong>Dokumentasjon er obligatorisk</strong> — deltakerliste, dato, formål og kvitteringer. To linjer i et regneark kan redde deg i en bokettersyn.' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
@@ -93,92 +93,94 @@ function JulebordGuide() {
             </div>
           </div>
 
-          {/* 560 kr-grensen */}
+          {/* Rimelighet — riktig regel for velferdstiltak */}
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
             <h3 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
               <span className="w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-xs font-bold text-amber-800">2</span>
-              560 kr-grensen — den viktigste regelen
+              Ingen fast kronergrense — testen er «rimelighet»
             </h3>
-            <p className="text-sm text-amber-800 mb-3">
-              <strong>Mat og drikke over 560 kr per person</strong> (eks. mva) kan Skatteetaten omklassifisere fra «velferdstiltak» til «representasjon».
-              Representasjon har egne, strengere regler.
+            <p className="text-sm text-amber-800 mb-1">
+              Representasjonsgrensen på <strong>592 kr per person</strong> (2026) gjelder kun servering for <em>kunder og forretningsforbindelser</em> — ikke ansattjulebord.
+              For velferdstiltak er testen om kostnaden er <strong>rimelig</strong>.
+            </p>
+            <p className="text-sm text-amber-700 mb-3">
+              Det finnes ingen konkret kronergrense i loven. Vurderingstemaet er om kostnaden er rimelig for bedriften din (FSFIN § 5-15-6). Svært kostbare eller luksuriøse arrangement kan trekke vurderingen i feil retning.
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-xs font-bold text-green-700 mb-1.5">✅ Trygt — under 560 kr/person (mat+drikke)</p>
+                <p className="text-xs font-bold text-green-700 mb-1.5">✅ Normalt akseptert</p>
                 <ul className="text-xs text-green-800 space-y-1">
-                  <li>• 3-retters middag med vin: 450 kr/person</li>
-                  <li>• Buffet + øl/vin: 400 kr/person</li>
-                  <li>• Lokale, underholdning etc. er i tillegg</li>
-                  <li>• Ingen begrensning på alkohol-mengde (kun type)</li>
+                  <li>• Julebord 1 200 kr/person inkl. lokale</li>
+                  <li>• Julebord 1 800 kr/person — vurder rimelighet</li>
+                  <li>• Sommerfest 800 kr/person</li>
+                  <li>• Teambuilding 1 000 kr/person</li>
                 </ul>
               </div>
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-xs font-bold text-red-700 mb-1.5">⚠️ Risiko — over 560 kr/person</p>
+                <p className="text-xs font-bold text-red-700 mb-1.5">⚠️ Økt risiko</p>
                 <ul className="text-xs text-red-800 space-y-1">
-                  <li>• 4-retters + champagne + drikke: 800 kr/person</li>
-                  <li>• Kan omklassifiseres til representasjon</li>
-                  <li>• Representasjon: kun 560 kr/person er fradragsberettiget</li>
-                  <li>• Med sprit: fradraget faller helt bort</li>
+                  <li>• Svært luksuspreget arrangement</li>
+                  <li>• Kunder/leverandører dominerer deltakerlisten</li>
+                  <li>• Feriepreg (cruise, resort, utland)</li>
+                  <li>• Kun eierfamilien deltar</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Sprit-regelen */}
+          {/* Brennevin — riktig regel */}
           <div className="bg-red-50 border border-red-200 rounded-xl p-4">
             <h3 className="font-semibold text-red-900 mb-2 flex items-center gap-2">
               <Wine size={14} className="text-red-600" />
               <span className="w-6 h-6 bg-red-200 rounded-full flex items-center justify-center text-xs font-bold text-red-800">3</span>
-              Brennevin/sprit dreper fradraget
+              Brennevin: rødt flagg — ikke automatisk nullfradrag for ansattjulebord
             </h3>
             <p className="text-sm text-red-800 mb-2">
-              <strong>Skatteloven § 6-21</strong> er klar: Representasjonskostnader som inkluderer brennevin er <strong>aldri fradragsberettiget</strong> — uansett beløp.
+              Regelen om at brennevin nuller ut <em>hele</em> fradraget (skatteloven § 6-21) gjelder <strong>representasjon</strong> — altså servering for kunder og forretningsforbindelser. For et rent ansattjulebord er ikke brennevin automatisk diskvalifiserende.
             </p>
             <p className="text-sm text-red-700 mb-3">
-              Dersom julebordet omklassifiseres til representasjon (f.eks. fordi mat+drikke overstige 560 kr/person),
-              og det ble servert sprit, mister selskapet <strong>hele fradraget</strong> — ikke bare sprit-delen.
+              Brennevin øker likevel risikoen: dersom Skatteetaten vurderer arrangementet som representasjon (f.eks. fordi kunder deltar, det er svært kostbart eller luksuspreget), faller <strong>hele fradraget</strong> bort — ikke bare spritdelen. Ren ansattfest uten kunder: langt lavere risiko.
             </p>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center">
                 <p className="font-bold text-green-700">Øl</p>
-                <p className="text-green-600">✅ OK</p>
+                <p className="text-green-600">✅ Trygt</p>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center">
                 <p className="font-bold text-green-700">Vin</p>
-                <p className="text-green-600">✅ OK</p>
+                <p className="text-green-600">✅ Trygt</p>
               </div>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-center">
-                <p className="font-bold text-red-700">Sprit/brennevin</p>
-                <p className="text-red-600">❌ Unngå</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-center">
+                <p className="font-bold text-amber-700">Sprit/brennevin</p>
+                <p className="text-amber-600">⚠️ Rødt flagg</p>
               </div>
             </div>
           </div>
 
-          {/* Dyrt julebord er OK */}
+          {/* Velferd vs. representasjon — skillet */}
           <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <h3 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
               <span className="w-6 h-6 bg-green-200 rounded-full flex items-center justify-center text-xs font-bold text-green-800">4</span>
-              Tips: Dyrt julebord er mulig — med riktig struktur
+              Skillet: velferdstiltak vs. representasjon
             </h3>
             <p className="text-sm text-green-800 mb-3">
-              Holder du mat+drikke under 560 kr/person, kan resten av budsjettet (lokale, underholdning, transport, aktiviteter)
-              legges til uten at 560 kr-grensen trigges.
+              Hvilke regler som gjelder avhenger av hvem som er med. Blanding av ansatte og kunder kan flytte arrangementet fra gunstig velferd til strengere representasjonsregler.
             </p>
-            <div className="bg-white rounded-lg border border-green-200 p-3">
-              <p className="text-xs font-bold text-gray-700 mb-2">Eksempel — julebord for 10 ansatte:</p>
-              <div className="space-y-1 text-xs text-gray-600">
-                <div className="flex justify-between"><span>Mat + drikke (øl/vin): 500 kr/person</span><span className="text-green-600 font-medium">✅ Under 560 kr</span></div>
-                <div className="flex justify-between"><span>Leie av restaurant/lokale: 200 kr/person</span><span className="text-gray-500">OK</span></div>
-                <div className="flex justify-between"><span>Underholdning/aktivitet: 300 kr/person</span><span className="text-gray-500">OK</span></div>
-                <div className="flex justify-between"><span>Transport: 150 kr/person</span><span className="text-gray-500">OK</span></div>
-                <div className="flex justify-between border-t border-gray-100 pt-1 font-bold"><span>Totalt per person:</span><span className="text-green-700">1 150 kr/person</span></div>
-                <div className="flex justify-between"><span>Totalt for 10 ansatte:</span><span className="font-bold text-green-700">11 500 kr — fullt fradragsberettiget</span></div>
-              </div>
+            <div className="bg-white rounded-lg border border-green-200 p-3 text-xs space-y-1.5">
+              {[
+                { scenario: 'Julebord for alle ansatte, 1 200 kr/person, øl/vin', verdict: 'Velferdstiltak ✅', color: 'text-green-700' },
+                { scenario: 'Julebord for alle ansatte + ledsagere, normal kostnad', verdict: 'Kan være velferd ✅', color: 'text-green-700' },
+                { scenario: 'Julebord for alle ansatte, 1 800 kr/person, noe avec', verdict: 'Velferd — vurder rimelighet ⚠️', color: 'text-amber-700' },
+                { scenario: 'Julemiddag med 2 ansatte og 8 kunder', verdict: 'Trolig representasjon ⚠️', color: 'text-amber-700' },
+                { scenario: 'Kundemiddag i desember, 700 kr/person + sprit', verdict: 'Representasjon + brennevin → nullfradrag ❌', color: 'text-red-700' },
+                { scenario: 'Eier + ektefelle uten ansatte, dyr middag', verdict: 'Uttak/utbytte ❌', color: 'text-red-700' },
+              ].map((row, i) => (
+                <div key={i} className="flex justify-between gap-3 py-1 border-b border-gray-100 last:border-0">
+                  <span className="text-gray-600">{row.scenario}</span>
+                  <span className={`font-medium shrink-0 ${row.color}`}>{row.verdict}</span>
+                </div>
+              ))}
             </div>
-            <p className="text-xs text-green-700 mt-2">
-              💡 Husk: 1 150 kr per ansatt er under Skatteetatens veiledende grense på 5 000 kr/år. Du kan altså ha et ganske generøst julebord og fremdeles være trygg.
-            </p>
           </div>
 
           {/* Deltakerliste */}
@@ -219,9 +221,9 @@ const POPULAR_MEASURES = [
   {
     name: 'Julebord',
     emoji: '🎄',
-    limit: 'Mat+drikke under 560 kr/person er trygt. Total 1 000–2 000 kr/person er normalt akseptert.',
+    limit: 'Ingen fast kronergrense — testen er rimelighet. 1 000–2 000 kr/person totalt er normalt akseptert.',
     safe: true,
-    tips: ['Unngå brennevin/sprit — det kan nulle ut fradraget', 'Alle ansatte MÅ inviteres', 'Ta vare på kvitteringer og deltakerliste'],
+    tips: ['Alle ansatte MÅ inviteres — selektiv invitasjon gir skattepliktig fordel', 'Brennevin er et rødt flagg dersom kunder deltar eller arrangementet kan bli klassifisert som representasjon', 'Ta vare på kvitteringer og deltakerliste'],
   },
   {
     name: 'Sommerfest',
@@ -486,7 +488,7 @@ export default function WelfarePage() {
             <div>
               <label className="label flex items-center gap-1.5">
                 Mat + drikke per person (kr)
-                <span className="text-xs text-amber-600 font-normal">— Kritisk for 560 kr-regelen</span>
+                <span className="text-xs text-gray-400 font-normal">— brukes i rimelighetsvurderingen</span>
               </label>
               <input className="input" placeholder="F.eks. 450" value={foodCostPerPerson} onChange={e => setFoodCostPerPerson(e.target.value)} />
               <p className="text-xs text-gray-400 mt-1">
@@ -519,7 +521,7 @@ export default function WelfarePage() {
               {alcohol === 'spirits' && (
                 <div className="mt-2 flex items-start gap-2 text-sm text-red-800 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
                   <AlertTriangle size={13} className="shrink-0 mt-0.5 text-red-500" />
-                  Brennevin kan gjøre hele arrangementet ikke-fradragsberettiget hvis det omklassifiseres til representasjon. Sterkt anbefalt: bytt til øl/vin.
+                  Brennevin er et rødt flagg — særlig dersom kunder deltar eller arrangementet kan klassifiseres som representasjon. Da kan hele fradraget falle bort (skatteloven § 6-21). Ren ansattfest: lavere risiko, men anbefal øl/vin.
                 </div>
               )}
             </div>

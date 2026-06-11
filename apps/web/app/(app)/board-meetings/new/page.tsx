@@ -7,8 +7,8 @@ import RiskCard from '@/components/risk/RiskCard'
 import { assessRisk, type RiskResult } from '@/lib/shared'
 import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react'
 
-function TipBox({ tips }: { tips: string[] }) {
-  const [open, setOpen] = useState(false)
+function TipBox({ tips, defaultOpen = false }: { tips: string[]; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
     <div className="bg-amber-50 border border-amber-100 rounded-lg overflow-hidden">
       <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left">
@@ -65,6 +65,68 @@ interface FormState {
   missing_documentation: boolean
 }
 
+// Standard agenda templates per meeting type
+type MeetingTemplate = 'ordinary' | 'annual' | 'agm' | 'strategy' | 'extraordinary'
+
+const MEETING_TEMPLATES: Record<MeetingTemplate, { label: string; description: string; agenda: AgendaItem[] }> = {
+  ordinary: {
+    label: 'Ordinært styremøte',
+    description: 'Kvartalsmessig eller halvårlig styremøte',
+    agenda: [
+      { title: 'Godkjenning av innkalling og dagsorden', description: 'Styret godkjenner at møtet er lovlig innkalt og at dagsorden godtas.', presenter: '', duration_minutes: 5 },
+      { title: 'Gjennomgang av økonomi og likviditet', description: 'Resultat, balanse og likviditetsoversikt for perioden. Avvik mot budsjett kommenteres.', presenter: '', duration_minutes: 20 },
+      { title: 'Status drift og operasjonelle saker', description: 'Orientering om status i selskapet, pågående prosjekter og eventuelle utfordringer.', presenter: '', duration_minutes: 20 },
+      { title: 'Fastsettelse av lønn/honorar til daglig leder', description: 'Styret fastsetter lønn til daglig leder for kommende periode. Vedtas med konkret beløp og stemmetall.', presenter: '', duration_minutes: 10 },
+      { title: 'Eventuelt', description: '', presenter: '', duration_minutes: 10 },
+    ],
+  },
+  annual: {
+    label: 'Årsavslutning / styrebehandling av regnskap',
+    description: 'Styrets behandling av årsregnskap og årsberetning (senest 30. juni)',
+    agenda: [
+      { title: 'Godkjenning av innkalling og dagsorden', description: '', presenter: '', duration_minutes: 5 },
+      { title: 'Styrets behandling av årsregnskap', description: 'Styret gjennomgår og godkjenner årsregnskapet. Revisjonsberetning gjennomgås. Styret avgir erklæring om at regnskapet er avlagt i samsvar med god regnskapsskikk.', presenter: '', duration_minutes: 30 },
+      { title: 'Styrets årsberetning', description: 'Styret godkjenner årsberetningen, herunder omtale av virksomheten, fremtidsutsikter og forutsetningen om fortsatt drift.', presenter: '', duration_minutes: 15 },
+      { title: 'Forslag til disponering av årsresultat', description: 'Styret fremmer forslag til generalforsamlingen om disponering av årets resultat (utbytte, overføring til egenkapital e.l.).', presenter: '', duration_minutes: 15 },
+      { title: 'Fastsettelse av lønn til daglig leder for kommende år', description: 'Styret fastsetter lønn til daglig leder. Vedtas med konkret beløp og stemmetall.', presenter: '', duration_minutes: 10 },
+      { title: 'Eventuelt', description: '', presenter: '', duration_minutes: 5 },
+    ],
+  },
+  agm: {
+    label: 'Generalforsamling (ordinær)',
+    description: 'Ordinær generalforsamling — behandling av årsregnskap og utbytte',
+    agenda: [
+      { title: 'Åpning og valg av møteleder', description: 'Møteleder velges av generalforsamlingen. Innkalling godkjennes.', presenter: '', duration_minutes: 5 },
+      { title: 'Godkjenning av årsregnskap og årsberetning', description: 'Generalforsamlingen godkjenner styrets fremlagte årsregnskap og årsberetning.', presenter: '', duration_minutes: 20 },
+      { title: 'Disponering av årsresultat / utbyttebeslutning', description: 'Generalforsamlingen beslutter disponering av årsresultatet, herunder eventuell utbytteutbetaling. Vedtas med konkret beløp per aksje.', presenter: '', duration_minutes: 15 },
+      { title: 'Valg av styre', description: 'Generalforsamlingen velger styremedlemmer og fastsetter styrehonorarer.', presenter: '', duration_minutes: 10 },
+      { title: 'Valg av revisor', description: 'Generalforsamlingen velger revisor og fastsetter revisors honorar (dersom aktuelt).', presenter: '', duration_minutes: 5 },
+      { title: 'Eventuelt', description: '', presenter: '', duration_minutes: 5 },
+    ],
+  },
+  strategy: {
+    label: 'Styremøte — strategigjennomgang',
+    description: 'Styrets behandling av strategi, budsjett eller større beslutninger',
+    agenda: [
+      { title: 'Godkjenning av innkalling og dagsorden', description: '', presenter: '', duration_minutes: 5 },
+      { title: 'Gjennomgang av strategiplan', description: 'Styret gjennomgår og diskuterer selskapets strategiplan og målsetninger.', presenter: '', duration_minutes: 30 },
+      { title: 'Budsjett og handlingsplan', description: 'Styret behandler og godkjenner budsjett for kommende periode.', presenter: '', duration_minutes: 20 },
+      { title: 'Risikovurdering', description: 'Styret gjennomgår vesentlige risikoer knyttet til selskapets virksomhet.', presenter: '', duration_minutes: 15 },
+      { title: 'Fastsettelse av lønn til daglig leder', description: 'Styret fastsetter lønn til daglig leder. Vedtas med konkret beløp og stemmetall.', presenter: '', duration_minutes: 10 },
+      { title: 'Eventuelt', description: '', presenter: '', duration_minutes: 5 },
+    ],
+  },
+  extraordinary: {
+    label: 'Ekstraordinært styremøte',
+    description: 'Enkeltvedtak som krever styrebehandling',
+    agenda: [
+      { title: 'Godkjenning av innkalling og dagsorden', description: '', presenter: '', duration_minutes: 5 },
+      { title: 'Sak til behandling', description: 'Beskriv den konkrete saken som krever styrebehandling.', presenter: '', duration_minutes: 30 },
+      { title: 'Vedtak', description: 'Styret fatter vedtak i saken.', presenter: '', duration_minutes: 10 },
+    ],
+  },
+}
+
 export default function NewBoardMeetingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -72,6 +134,8 @@ export default function NewBoardMeetingPage() {
 
   const [step, setStep] = useState(1)
   const [companies, setCompanies] = useState<any[]>([])
+  const [people, setPeople] = useState<any[]>([])
+  const [selectedTemplate, setSelectedTemplate] = useState<MeetingTemplate | ''>('')
   const [form, setForm] = useState<FormState>({
     company_id: preselectedCompany,
     date: new Date().toISOString().split('T')[0],
@@ -97,14 +161,67 @@ export default function NewBoardMeetingPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return
       supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
-        const ids = (data ?? []).map(r => r.company_id)
-        if (ids.length) supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => setCompanies(c ?? []))
+        const ids = (data ?? []).map((r: any) => r.company_id)
+        if (!ids.length) return
+        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
+          const list = c ?? []
+          setCompanies(list)
+          // Auto-select if only one company
+          const companyId = preselectedCompany || (list.length === 1 ? list[0].id : '')
+          if (companyId) {
+            setForm(prev => ({ ...prev, company_id: companyId }))
+            loadPeople(companyId, list, supabase)
+          }
+        })
       })
     })
   }, [])
 
+  function loadPeople(companyId: string, companyList: any[], supabase: any) {
+    supabase
+      .from('people')
+      .select('*')
+      .eq('company_id', companyId)
+      .then(({ data: p }: any) => {
+        const persons = p ?? []
+        setPeople(persons)
+        // Auto-fill roles from people data
+        const chair = persons.find((x: any) => x.role === 'BOARD_CHAIR')
+        const ceo   = persons.find((x: any) => x.role === 'CEO')
+        const owner = persons.find((x: any) => x.is_owner)
+        const company = companyList.find(c => c.id === companyId)
+        setForm(prev => ({
+          ...prev,
+          company_id: companyId,
+          chairperson:  prev.chairperson  || chair?.name || owner?.name || '',
+          called_by:    prev.called_by    || chair?.name || owner?.name || '',
+          minute_taker: prev.minute_taker || ceo?.name   || owner?.name || '',
+          location:     prev.location     || company?.address || '',
+        }))
+      })
+  }
+
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  function onCompanyChange(companyId: string) {
+    set('company_id', companyId)
+    if (companyId) {
+      const supabase = createClient()
+      loadPeople(companyId, companies, supabase)
+    }
+  }
+
+  function applyTemplate(templateKey: MeetingTemplate) {
+    setSelectedTemplate(templateKey)
+    const tpl = MEETING_TEMPLATES[templateKey]
+    // Pre-fill presenter with chairperson name where relevant
+    const items = tpl.agenda.map(item => ({
+      ...item,
+      presenter: item.presenter || form.chairperson || '',
+    }))
+    set('agenda_items', items)
   }
 
   function computeRisk() {
@@ -134,7 +251,6 @@ export default function NewBoardMeetingPage() {
     setError(null)
     const supabase = createClient()
 
-    // Get next meeting number
     const { count } = await supabase
       .from('board_meetings')
       .select('id', { count: 'exact', head: true })
@@ -158,13 +274,8 @@ export default function NewBoardMeetingPage() {
       .select()
       .single()
 
-    if (err || !meeting) {
-      setError(err?.message ?? 'Feil ved lagring')
-      setLoading(false)
-      return
-    }
+    if (err || !meeting) { setError(err?.message ?? 'Feil ved lagring'); setLoading(false); return }
 
-    // Insert agenda items
     const validItems = form.agenda_items.filter(a => a.title.trim())
     if (validItems.length) {
       await supabase.from('agenda_items').insert(
@@ -179,7 +290,6 @@ export default function NewBoardMeetingPage() {
       )
     }
 
-    // Save risk assessment
     if (risk) {
       await supabase.from('risk_assessments').insert({
         company_id: form.company_id,
@@ -196,6 +306,8 @@ export default function NewBoardMeetingPage() {
     router.push('/board-meetings')
   }
 
+  const selectedCompany = companies.find(c => c.id === form.company_id)
+  const boardMembers = people.filter(p => ['BOARD_CHAIR', 'BOARD_MEMBER', 'CEO', 'OWNER'].includes(p.role))
   const STEPS = ['Detaljer', 'Dagsorden', 'Kostnader', 'Risikovurdering']
 
   return (
@@ -205,7 +317,6 @@ export default function NewBoardMeetingPage() {
         <h1 className="text-2xl font-bold text-gray-900">Nytt styremøte</h1>
       </div>
 
-      {/* Progress */}
       <div className="flex gap-2 mb-8">
         {STEPS.map((s, i) => (
           <div key={s} className="flex-1">
@@ -219,19 +330,54 @@ export default function NewBoardMeetingPage() {
         {step === 1 && (
           <>
             <h2 className="font-semibold mb-4">Møteinformasjon</h2>
-            <TipBox tips={[
+            <TipBox defaultOpen tips={[
               'Styreprotokoll er <strong>lovpålagt for AS</strong> (aksjeloven § 6-29) — manglende protokoll kan gi styremedlemmer personlig ansvar.',
-              '<strong>Digitalt møte</strong>: lagre deltakerliste fra Zoom/Teams + skjermbilder som bevis på at møtet faktisk ble holdt.',
-              'Årsregnskap skal behandles av styret <strong>innen 6 måneder etter regnskapsårets slutt</strong> (senest 30. juni for kalenderårsselskaper).',
-              'Møt med minst en gang per halvår selv om loven ikke krever det — det viser aktiv styreforvaltning.',
+              '<strong>Lønnsvedtak for daglig leder MÅ protokolleres</strong> med konkret beløp og stemmetall — ellers kan Skatteetaten avvise fradrag.',
+              '<strong>Digitalt møte</strong>: lagre deltakerliste fra Zoom/Teams + skjermbilder som dokumentasjon.',
+              'Årsregnskap skal behandles av styret <strong>innen 30. juni</strong> for kalenderårsselskaper.',
             ]} />
+
+            {/* Selskap */}
             <div>
               <label className="label">Selskap *</label>
-              <select className="input" value={form.company_id} onChange={e => set('company_id', e.target.value)}>
+              <select className="input" value={form.company_id} onChange={e => onCompanyChange(e.target.value)}>
                 <option value="">Velg selskap…</option>
                 {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
+
+            {/* Møtetype — velger standard dagsorden i neste steg */}
+            <div>
+              <label className="label">Type møte</label>
+              <p className="text-xs text-gray-400 mb-1">Bestemmer foreslått standarddagsorden i neste steg.</p>
+              <div className="grid grid-cols-1 gap-2">
+                {(Object.entries(MEETING_TEMPLATES) as [MeetingTemplate, typeof MEETING_TEMPLATES[MeetingTemplate]][]).map(([key, tpl]) => (
+                  <label
+                    key={key}
+                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedTemplate === key
+                        ? 'border-brand-500 bg-brand-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="meeting_template"
+                      value={key}
+                      checked={selectedTemplate === key}
+                      onChange={() => applyTemplate(key)}
+                      className="mt-0.5 shrink-0"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">{tpl.label}</p>
+                      <p className="text-xs text-gray-400">{tpl.description}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Dato og møteform */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">Dato *</label>
@@ -241,7 +387,7 @@ export default function NewBoardMeetingPage() {
                 <label className="label">Møteform</label>
                 <select className="input" value={form.meeting_format} onChange={e => set('meeting_format', e.target.value as any)}>
                   <option value="physical">Fysisk</option>
-                  <option value="digital">Digitalt</option>
+                  <option value="digital">Digitalt (Zoom/Teams)</option>
                   <option value="hybrid">Hybrid</option>
                 </select>
               </div>
@@ -256,26 +402,84 @@ export default function NewBoardMeetingPage() {
                 <input type="time" className="input" value={form.end_time} onChange={e => set('end_time', e.target.value)} />
               </div>
             </div>
+
+            {/* Sted */}
             <div>
-              <label className="label">Sted/URL</label>
-              <input type="text" className="input" value={form.location} onChange={e => set('location', e.target.value)} placeholder="Møterom A / Zoom" />
+              <label className="label">Sted / URL</label>
+              <input
+                type="text" className="input"
+                value={form.location}
+                onChange={e => set('location', e.target.value)}
+                placeholder={form.meeting_format === 'digital' ? 'Zoom-lenke eller møte-ID' : selectedCompany?.address || 'Møterom, adresse…'}
+              />
+              {form.meeting_format === 'physical' && selectedCompany?.address && !form.location && (
+                <button
+                  type="button"
+                  onClick={() => set('location', selectedCompany.address)}
+                  className="mt-1 text-xs text-blue-600 hover:text-blue-800"
+                >
+                  Bruk selskapets adresse: {selectedCompany.address}
+                </button>
+              )}
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="label">Innkalt av</label>
-                <input type="text" className="input" value={form.called_by} onChange={e => set('called_by', e.target.value)} />
+
+            {/* Roller — auto-utfylt fra people */}
+            <div>
+              <label className="label">Innkalt av / Møteleder / Referent</label>
+              {boardMembers.length > 0 && (
+                <p className="text-xs text-gray-400 mb-2">
+                  Hentet fra <strong>Ansatte og aksjonærer</strong>: {boardMembers.map(p => p.name).join(', ')}
+                </p>
+              )}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="label text-xs">Innkalt av</label>
+                  <input
+                    type="text" className="input"
+                    value={form.called_by}
+                    onChange={e => set('called_by', e.target.value)}
+                    list="people-list"
+                    placeholder="Navn"
+                  />
+                </div>
+                <div>
+                  <label className="label text-xs">Møteleder</label>
+                  <input
+                    type="text" className="input"
+                    value={form.chairperson}
+                    onChange={e => set('chairperson', e.target.value)}
+                    list="people-list"
+                    placeholder="Navn"
+                  />
+                </div>
+                <div>
+                  <label className="label text-xs">Referent</label>
+                  <input
+                    type="text" className="input"
+                    value={form.minute_taker}
+                    onChange={e => set('minute_taker', e.target.value)}
+                    list="people-list"
+                    placeholder="Navn"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="label">Møteleder</label>
-                <input type="text" className="input" value={form.chairperson} onChange={e => set('chairperson', e.target.value)} />
-              </div>
-              <div>
-                <label className="label">Referent</label>
-                <input type="text" className="input" value={form.minute_taker} onChange={e => set('minute_taker', e.target.value)} />
-              </div>
+              {/* Datalist for autocomplete */}
+              <datalist id="people-list">
+                {boardMembers.map(p => <option key={p.id} value={p.name} />)}
+              </datalist>
+              {boardMembers.length === 0 && form.company_id && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Ingen personer registrert — <a href="/people" className="text-blue-600 hover:underline">legg til i Ansatte og aksjonærer</a> for å auto-utfylle.
+                </p>
+              )}
             </div>
+
             <button
-              onClick={() => { if (!form.company_id || !form.date) { setError('Selskap og dato er påkrevd'); return }; setError(null); setStep(2) }}
+              onClick={() => {
+                if (!form.company_id || !form.date) { setError('Selskap og dato er påkrevd'); return }
+                setError(null)
+                setStep(2)
+              }}
               className="btn-primary w-full"
             >
               Neste: Dagsorden
@@ -285,12 +489,16 @@ export default function NewBoardMeetingPage() {
 
         {step === 2 && (
           <>
-            <h2 className="font-semibold mb-4">Dagsorden</h2>
+            <h2 className="font-semibold mb-1">Dagsorden</h2>
+            {selectedTemplate && (
+              <p className="text-xs text-brand-600 bg-brand-50 border border-brand-100 rounded-lg px-3 py-2 mb-3">
+                Standarddagsorden for <strong>{MEETING_TEMPLATES[selectedTemplate].label}</strong> er forhåndsutfylt — juster etter behov.
+              </p>
+            )}
             <TipBox tips={[
               '<strong>Lønnsvedtak for daglig leder MÅ protokolleres</strong> med konkret beløp og stemmetall — ellers kan Skatteetaten avvise fradrag.',
-              'Typiske faste saker: økonomi/regnskap, strategiske beslutninger, fullmakter, HMS, og lønns-/honorarvedtak.',
-              'Daglig leder har <strong>ikke stemmerett</strong> i styret med mindre de også er styremedlem.',
               'Skriv vedtaksteksten eksplisitt: «Styret vedtar enstemmig at…» — ikke bare «saken ble diskutert».',
+              'Daglig leder har <strong>ikke stemmerett</strong> i styret med mindre de også er styremedlem.',
               'Protokollen bør signeres av <strong>alle styremedlemmer</strong> for å ha full rettskraft.',
             ]} />
             <div className="space-y-4">
@@ -299,64 +507,43 @@ export default function NewBoardMeetingPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600">Sak {i + 1}</span>
                     {form.agenda_items.length > 1 && (
-                      <button
-                        onClick={() => set('agenda_items', form.agenda_items.filter((_, j) => j !== i))}
-                        className="text-xs text-red-500 hover:text-red-700"
-                      >
-                        Fjern
-                      </button>
+                      <button onClick={() => set('agenda_items', form.agenda_items.filter((_, j) => j !== i))} className="text-xs text-red-500 hover:text-red-700">Fjern</button>
                     )}
                   </div>
                   <input
-                    type="text"
-                    className="input"
+                    type="text" className="input"
                     placeholder="Tittel på saken *"
                     value={item.title}
-                    onChange={e => {
-                      const updated = [...form.agenda_items]
-                      updated[i] = { ...updated[i], title: e.target.value }
-                      set('agenda_items', updated)
-                    }}
+                    onChange={e => { const u = [...form.agenda_items]; u[i] = { ...u[i], title: e.target.value }; set('agenda_items', u) }}
                   />
                   <textarea
-                    className="input resize-none"
-                    rows={2}
-                    placeholder="Beskrivelse (valgfritt)"
+                    className="input resize-none" rows={2}
+                    placeholder="Beskrivelse / vedtakstekst"
                     value={item.description}
-                    onChange={e => {
-                      const updated = [...form.agenda_items]
-                      updated[i] = { ...updated[i], description: e.target.value }
-                      set('agenda_items', updated)
-                    }}
+                    onChange={e => { const u = [...form.agenda_items]; u[i] = { ...u[i], description: e.target.value }; set('agenda_items', u) }}
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <input
-                      type="text"
-                      className="input"
+                      type="text" className="input"
                       placeholder="Ansvarlig"
+                      list="people-list"
                       value={item.presenter}
-                      onChange={e => {
-                        const updated = [...form.agenda_items]
-                        updated[i] = { ...updated[i], presenter: e.target.value }
-                        set('agenda_items', updated)
-                      }}
+                      onChange={e => { const u = [...form.agenda_items]; u[i] = { ...u[i], presenter: e.target.value }; set('agenda_items', u) }}
                     />
                     <input
-                      type="number"
-                      className="input"
+                      type="number" className="input"
                       placeholder="Min."
                       value={item.duration_minutes}
-                      onChange={e => {
-                        const updated = [...form.agenda_items]
-                        updated[i] = { ...updated[i], duration_minutes: parseInt(e.target.value) || 0 }
-                        set('agenda_items', updated)
-                      }}
+                      onChange={e => { const u = [...form.agenda_items]; u[i] = { ...u[i], duration_minutes: parseInt(e.target.value) || 0 }; set('agenda_items', u) }}
                     />
                   </div>
                 </div>
               ))}
+              <datalist id="people-list">
+                {boardMembers.map(p => <option key={p.id} value={p.name} />)}
+              </datalist>
               <button
-                onClick={() => set('agenda_items', [...form.agenda_items, { title: '', description: '', presenter: '', duration_minutes: 30 }])}
+                onClick={() => set('agenda_items', [...form.agenda_items, { title: '', description: '', presenter: form.chairperson, duration_minutes: 30 }])}
                 className="btn-secondary w-full text-sm"
               >
                 + Legg til sak
@@ -374,20 +561,13 @@ export default function NewBoardMeetingPage() {
             <h2 className="font-semibold mb-4">Kostnader og risikomarkering</h2>
             <TipBox tips={[
               'Styrehonorar er <strong>fradragsberettiget for selskapet</strong> og skattepliktig som lønn for mottakeren — husk å innberette på a-meldingen.',
-              '<strong>Kaffe, lunsj og enkel servering</strong> under møtet: 100% fradragsberettiget som driftsutgift — ta vare på kvitteringen som vedlegg til protokollen.',
+              '<strong>Kaffe, lunsj og enkel servering</strong> under møtet: 100% fradragsberettiget — ta vare på kvitteringen.',
+              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2026).',
               'Leie av møterom: 100% fradragsberettiget — bruk faktura som bilag.',
-              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2026-satsen).',
             ]} />
             <div>
               <label className="label">Totale møtekostnader (NOK)</label>
-              <input
-                type="number"
-                min="0"
-                className="input"
-                value={form.costs_total}
-                onChange={e => set('costs_total', parseFloat(e.target.value) || 0)}
-                placeholder="0"
-              />
+              <input type="number" min="0" className="input" value={form.costs_total} onChange={e => set('costs_total', parseFloat(e.target.value) || 0)} placeholder="0" />
             </div>
             <div className="space-y-3">
               <label className="label">Risikomarkering</label>
@@ -396,12 +576,7 @@ export default function NewBoardMeetingPage() {
                 { key: 'missing_documentation' as const, label: 'Manglende dokumentasjon' },
               ].map(item => (
                 <label key={item.key} className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form[item.key]}
-                    onChange={e => set(item.key, e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-brand-600"
-                  />
+                  <input type="checkbox" checked={form[item.key]} onChange={e => set(item.key, e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-brand-600" />
                   <span className="text-sm text-gray-700">{item.label}</span>
                 </label>
               ))}
@@ -420,9 +595,7 @@ export default function NewBoardMeetingPage() {
             {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
             <div className="flex gap-3">
               <button onClick={() => setStep(3)} className="btn-secondary flex-1">Tilbake</button>
-              <button onClick={() => save('draft')} disabled={loading} className="btn-secondary flex-1">
-                Lagre utkast
-              </button>
+              <button onClick={() => save('draft')} disabled={loading} className="btn-secondary flex-1">Lagre utkast</button>
               <button onClick={() => save('finalized')} disabled={loading} className="btn-primary flex-1">
                 {loading ? 'Lagrer…' : 'Ferdigstill'}
               </button>

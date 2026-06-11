@@ -85,6 +85,33 @@ function calcPersonalIncomeTax(salary: number, rates: DynamicTaxRates): number {
 }
 
 // ─── Scenario ─────────────────────────────────────────────────────────────────
+/**
+ * Split of salary tax cost into two zones around the crossover point.
+ * Below crossover: salary is cheaper than dividend → green
+ * Above crossover: salary is more expensive than dividend → red
+ */
+export interface SalaryCrossoverSplit {
+  crossover_nok: number
+  /** Salary (kr) falling below the crossover */
+  below_salary_nok: number
+  /** AGA on the below portion */
+  below_aga_nok: number
+  /** Company cost (salary + AGA) for below portion */
+  below_company_cost_nok: number
+  /** Effective rate for below portion: (AGA + personskatt_below) / company_cost_below */
+  below_rate: number
+  /** Salary (kr) falling above the crossover */
+  above_salary_nok: number
+  /** AGA on the above portion */
+  above_aga_nok: number
+  /** Company cost (salary + AGA) for above portion */
+  above_company_cost_nok: number
+  /** Effective rate for above portion — compared directly to dividend 51.5% */
+  above_rate: number | null
+  /** % of total company cost that is in the expensive above-crossover zone */
+  above_cost_pct: number
+}
+
 export interface SalaryDividendScenario {
   salary: number
   dividend: number
@@ -97,11 +124,18 @@ export interface SalaryDividendScenario {
   /** Blended rate: total taxes / profit_before_owner_salary */
   effective_tax_rate: number
   /**
-   * Salary-only effective rate: (AGA + personskatt) / (lønn + AGA)
-   * Matches Skatteetaten's practical presentation — directly comparable to
-   * dividend's 51.5%. Null when salary = 0.
+   * Average salary cost as % of company cost: (AGA + personskatt) / (lønn + AGA).
+   * Mathematically correct but can be misleading for high salaries — use
+   * crossover_split for the decision-relevant breakdown.
    */
   salary_effective_rate: number | null
+  /**
+   * Splits salary into below-crossover (cheap) and above-crossover (expensive) zones.
+   * This is the correct way to visualise whether "maks lønn" is better or worse
+   * than dividend: the above-crossover rate will be ~53-54% vs dividend's 51.5%.
+   * Null when salary = 0.
+   */
+  crossover_split: SalaryCrossoverSplit | null
   pension: PensionImpact
 }
 
@@ -125,10 +159,50 @@ function calcScenario(
   const netSalary = salary - personalTax
   const totalTax = agaCost + corpTax + personalTax + dividendTax
 
-  // Salary effective rate: (AGA + personskatt) / (lønn + AGA)
-  // This is comparable to the 51.5% dividend rate (both measured as % of company cost)
+  // Average salary cost: (AGA + personskatt) / (lønn + AGA)
   const salaryCost = salary + agaCost
   const salaryEffectiveRate = salaryCost > 0 ? (agaCost + personalTax) / salaryCost : null
+
+  // ── Crossover split ──────────────────────────────────────────────────────────
+  // Split salary at the crossover (bracket_4_from = 980,100 kr) into two zones:
+  //   BELOW: salary is cheaper than dividend → attractive
+  //   ABOVE: salary is more expensive than dividend → avoid
+  // We compute actual tax paid in each zone using calcPersonalIncomeTax, so the
+  // result correctly accounts for minstefradrag, personfradrag and all brackets.
+  let crossoverSplit: SalaryCrossoverSplit | null = null
+  if (salary > 0) {
+    const crossoverNok = rates.bracket_4_from  // 980,100 kr for sone I
+    const belowSalary = Math.min(salary, crossoverNok)
+    const aboveSalary = Math.max(0, salary - crossoverNok)
+
+    // Tax on the below-crossover portion (standalone)
+    const belowPersonalTax = calcPersonalIncomeTax(belowSalary, rates)
+    const belowAgaCost = belowSalary * agaRate
+    const belowCompanyCost = belowSalary + belowAgaCost
+    const belowTotalTax = belowAgaCost + belowPersonalTax
+    const belowRate = belowCompanyCost > 0 ? belowTotalTax / belowCompanyCost : 0
+
+    // Tax on above-crossover portion = total minus below
+    // (avoids re-computing progression; correctly captures full bracket stack)
+    const aboveAgaCost = aboveSalary * agaRate
+    const aboveCompanyCost = aboveSalary + aboveAgaCost
+    const abovePersonalTax = personalTax - belowPersonalTax
+    const aboveTotalTax = aboveAgaCost + abovePersonalTax
+    const aboveRate = aboveCompanyCost > 0 ? aboveTotalTax / aboveCompanyCost : null
+
+    crossoverSplit = {
+      crossover_nok:          crossoverNok,
+      below_salary_nok:       Math.round(belowSalary),
+      below_aga_nok:          Math.round(belowAgaCost),
+      below_company_cost_nok: Math.round(belowCompanyCost),
+      below_rate:             belowRate,
+      above_salary_nok:       Math.round(aboveSalary),
+      above_aga_nok:          Math.round(aboveAgaCost),
+      above_company_cost_nok: Math.round(aboveCompanyCost),
+      above_rate:             aboveRate,
+      above_cost_pct:         salaryCost > 0 ? aboveCompanyCost / salaryCost : 0,
+    }
+  }
 
   return {
     salary,
@@ -141,6 +215,7 @@ function calcScenario(
     net_private: Math.round(netSalary + netDividend),
     effective_tax_rate: profit > 0 ? totalTax / profit : 0,
     salary_effective_rate: salaryEffectiveRate,
+    crossover_split: crossoverSplit,
     pension: calcPensionImpact(salary, rates),
   }
 }
@@ -266,19 +341,28 @@ export function calculateSalaryDividend(
   notes.push('Beregningen er en forenkling. Kontakt regnskapsfører for endelig beslutning.')
   notes.push('Skjermingsfradrag, holding-AS og IPS er ikke hensyntatt.')
 
-  // Recommendation
+  // Recommendation — always point to tax-optimal salary as the primary advice
+  const fmtAga = (salary: number) => {
+    const aga = salary * agaRate
+    return `${salary.toLocaleString('nb-NO')} kr lønn + ${Math.round(aga).toLocaleString('nb-NO')} kr AGA = ${Math.round(salary + aga).toLocaleString('nb-NO')} kr selskapskostnad`
+  }
   let recommendation = ''
   if (profit < rates.min_benefits_nok) {
+    // Very low profit: push to at least get sick-pay rights
     recommendation = `Lavt overskudd — ta ut det du kan som lønn for å oppnå trygderettigheter. Minstegrense for sykepenger: ${rates.min_benefits_nok.toLocaleString('nb-NO')} kr.`
   } else if (profit < rates.pension_max_nok) {
-    recommendation = `Overskuddet er under 7,1 G — ta ut maks lønn (${Math.round(maxSalaryFromProfit).toLocaleString('nb-NO')} kr) for å bygge pensjonsrettigheter.`
+    // Profit below 7.1G: take all as salary to maximise pension accrual
+    const maxSal = Math.round(maxSalaryFromProfit)
+    recommendation = `Overskuddet er under 7,1 G — ta ut maks lønn (${fmtAga(maxSal)}) for å bygge pensjonsrettigheter. Ta resten (${sTaxOpt.dividend.toLocaleString('nb-NO')} kr) som utbytte.`
   } else {
-    const gapNote = taxOptimalSalary > salary71G
-      ? ` Du kan øke til skattemessig optimalt (${taxOptimalSalary.toLocaleString('nb-NO')} kr) for ${(sTaxOpt.net_private - s71G.net_private).toLocaleString('nb-NO')} kr mer netto — men uten ytterligere pensjonsopptjening over 7,1 G.`
-      : ''
+    // Primary: tax-optimal salary
+    // Pension note: mention 7.1G if it's below the optimal and meaningfully close
+    const pensionNote = salary71G < taxOptimalSalary
+      ? ` (7,1 G = ${fmtAga(rates.pension_max_nok)} gir full pensjon og sykepenger — ${(sTaxOpt.net_private - s71G.net_private).toLocaleString('nb-NO')} kr mindre netto, men med pensjonsopptjening på +${Math.round(rates.pension_max_nok * 0.181).toLocaleString('nb-NO')} kr/år)`
+      : ` — gir samtidig full pensjonsopptjening og syke-/foreldrepengedekning`
     recommendation =
-      `Anbefalt: 7,1 G = ${rates.pension_max_nok.toLocaleString('nb-NO')} kr lønn gir full pensjon (+${Math.round(rates.pension_max_nok * 0.181).toLocaleString('nb-NO')} kr/år) og full syke-/foreldrepengedekning. ` +
-      `Ta resten (${s71G.dividend.toLocaleString('nb-NO')} kr) som utbytte.` + gapNote
+      `Skattemessig optimalt: ${fmtAga(taxOptimalSalary)} + ${sTaxOpt.dividend.toLocaleString('nb-NO')} kr utbytte. ` +
+      `Dette gir høyest netto privat (${sTaxOpt.net_private.toLocaleString('nb-NO')} kr)` + pensionNote + `.`
   }
 
   return {
@@ -287,7 +371,7 @@ export function calculateSalaryDividend(
     scenario_7_1g:       s71G,
     scenario_tax_optimal: sTaxOpt,
     scenario_max_salary: sMax,
-    recommended_salary_nok: salary71G,
+    recommended_salary_nok: taxOptimalSalary,
     tax_crossover_nok: taxCrossoverNok,
     effective_dividend_rate: effectiveDivRate,
     g_value: rates.g_value,

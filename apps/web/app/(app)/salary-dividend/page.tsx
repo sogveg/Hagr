@@ -147,18 +147,48 @@ function ScenarioCard({
           <span className="text-gray-900">Netto privat</span>
           <span className="text-green-600">{s.net_private.toLocaleString('nb-NO')} kr</span>
         </div>
-        {/* Salary-only effective rate — directly comparable to dividend's 51.5% */}
-        {s.salary_effective_rate !== null && s.salary > 0 && (
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400">
-              Lønn-kostnad inkl. AGA
-              <span className="ml-1 text-gray-300" title="(AGA + personskatt) / (lønn + AGA) — sammenlignbart med utbyttets 51,5%">ⓘ</span>
-            </span>
-            <span className={`font-medium ${s.salary_effective_rate > 0.515 ? 'text-orange-500' : 'text-green-600'}`}>
-              {(s.salary_effective_rate * 100).toFixed(1)}%
-            </span>
-          </div>
-        )}
+        {/* Crossover split — the correct decision-relevant view */}
+        {s.crossover_split !== null && s.salary > 0 && (() => {
+          const sp = s.crossover_split!
+          const hasAbove = sp.above_salary_nok > 0
+          return (
+            <div className="mt-2 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <p className="text-gray-500 font-medium">Lønnkostnad vs. utbytte</p>
+                <p className="text-gray-400 text-[10px]">% av selskapskostnad inkl. AGA</p>
+              </div>
+              {/* Below-crossover zone */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-gray-400">
+                  <span className="block">Under {sp.crossover_nok.toLocaleString('nb-NO')} kr</span>
+                  <span className="text-gray-300">
+                    {sp.below_salary_nok.toLocaleString('nb-NO')} lønn + {sp.below_aga_nok.toLocaleString('nb-NO')} AGA = {sp.below_company_cost_nok.toLocaleString('nb-NO')} kr
+                  </span>
+                </span>
+                <span className="font-semibold text-green-600 shrink-0 mt-0.5">
+                  {(sp.below_rate * 100).toFixed(1)}% ✓
+                </span>
+              </div>
+              {/* Above-crossover zone */}
+              {hasAbove && sp.above_rate !== null && (
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-gray-400">
+                    <span className="block">Over {sp.crossover_nok.toLocaleString('nb-NO')} kr <span className="text-gray-300">({(sp.above_cost_pct * 100).toFixed(0)}% av total kostnad)</span></span>
+                    <span className="text-gray-300">
+                      {sp.above_salary_nok.toLocaleString('nb-NO')} lønn + {sp.above_aga_nok.toLocaleString('nb-NO')} AGA = {sp.above_company_cost_nok.toLocaleString('nb-NO')} kr
+                    </span>
+                  </span>
+                  <span className={`font-semibold shrink-0 mt-0.5 ${sp.above_rate > 0.515 ? 'text-orange-500' : 'text-green-600'}`}>
+                    {(sp.above_rate * 100).toFixed(1)}% {sp.above_rate > 0.515 ? '✗' : '✓'}
+                  </span>
+                </div>
+              )}
+              {!hasAbove && (
+                <p className="text-green-600">All lønn under krysningspunkt — billigere enn utbytte (51,5%) ✓</p>
+              )}
+            </div>
+          )
+        })()}
         {s.salary === 0 && (
           <div className="flex justify-between text-xs">
             <span className="text-gray-400">Utbytteskostnad totalt</span>
@@ -605,17 +635,17 @@ export default function SalaryDividendPage() {
               s={result.scenario_current}
             />
             <ScenarioCard
-              label={`7,1 G — ${result.scenario_7_1g.salary.toLocaleString('nb-NO')} kr`}
-              sublabel="Full pensjonsopptjening + sykepenger"
-              s={result.scenario_7_1g}
+              label={`Skattemessig optimal — ${result.scenario_tax_optimal.salary.toLocaleString('nb-NO')} kr`}
+              sublabel="Maks netto privat"
+              s={result.scenario_tax_optimal}
               highlight
               badge={{ text: 'Anbefalt', color: 'blue' }}
             />
             <ScenarioCard
-              label={`Skattemessig optimal — ${result.scenario_tax_optimal.salary.toLocaleString('nb-NO')} kr`}
-              sublabel="Maks netto privat (uten pensjonshensyn)"
-              s={result.scenario_tax_optimal}
-              badge={{ text: 'Alternativ', color: 'purple' }}
+              label={`7,1 G — ${result.scenario_7_1g.salary.toLocaleString('nb-NO')} kr`}
+              sublabel="Full pensjonsopptjening + sykepenger"
+              s={result.scenario_7_1g}
+              badge={{ text: 'Pensjon', color: 'purple' }}
             />
             <ScenarioCard label="Maks lønn" sublabel="Alt ut som lønn, ingen utbytte" s={result.scenario_max_salary} />
           </div>

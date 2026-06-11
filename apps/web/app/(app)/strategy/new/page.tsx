@@ -7,8 +7,8 @@ import RiskCard from '@/components/risk/RiskCard'
 import { assessRisk, type RiskResult } from '@/lib/shared'
 import { Lightbulb, ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
 
-function TipBox({ tips }: { tips: string[] }) {
-  const [open, setOpen] = useState(false)
+function TipBox({ tips, defaultOpen = true }: { tips: string[]; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
     <div className="bg-amber-50 border border-amber-100 rounded-lg overflow-hidden">
       <button onClick={() => setOpen(v => !v)} className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left">
@@ -28,6 +28,24 @@ function TipBox({ tips }: { tips: string[] }) {
           ))}
         </ul>
       )}
+    </div>
+  )
+}
+
+/** Klikkbare forslag — klikk fyller feltet */
+function SuggestionChips({ suggestions, onSelect }: { suggestions: string[]; onSelect: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-2">
+      {suggestions.map(s => (
+        <button
+          key={s}
+          type="button"
+          onClick={() => onSelect(s)}
+          className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-full px-2.5 py-1 transition-colors text-left"
+        >
+          {s}
+        </button>
+      ))}
     </div>
   )
 }
@@ -72,6 +90,7 @@ export default function NewStrategyPage() {
 
   const [step, setStep] = useState(1)
   const [companies, setCompanies] = useState<any[]>([])
+  const [existingThisYear, setExistingThisYear] = useState<any[]>([])
   const [form, setForm] = useState<FormState>({
     company_id: preselectedCompany,
     title: '',
@@ -103,14 +122,71 @@ export default function NewStrategyPage() {
       if (!user) return
       supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
         const ids = (data ?? []).map(r => r.company_id)
-        if (ids.length) supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => setCompanies(c ?? []))
+        if (!ids.length) return
+        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
+          const list = c ?? []
+          setCompanies(list)
+          // Auto-select if only one company and none pre-selected
+          if (list.length === 1 && !preselectedCompany) {
+            setForm(prev => ({ ...prev, company_id: list[0].id }))
+          }
+        })
       })
     })
   }, [])
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
+    // When company changes, check existing gatherings this year
+    if (key === 'company_id' && value) {
+      const supabase = createClient()
+      const year = new Date().getFullYear()
+      supabase
+        .from('strategy_gatherings')
+        .select('id, title, date_from')
+        .eq('company_id', value)
+        .gte('date_from', `${year}-01-01`)
+        .lte('date_from', `${year}-12-31`)
+        .then(({ data }) => setExistingThisYear(data ?? []))
+    }
   }
+
+  // Suggest a title based on the selected company name + current quarter
+  function suggestTitle(companyName: string): string[] {
+    const now = new Date()
+    const q = Math.ceil((now.getMonth() + 1) / 3)
+    const y = now.getFullYear()
+    return [
+      `${companyName} — Strategisamling Q${q} ${y}`,
+      `${companyName} — Årsplanlegging ${y}`,
+      `${companyName} — Budsjett og strategi ${y}`,
+      `${companyName} — Ledersamling Q${q} ${y}`,
+    ]
+  }
+
+  const selectedCompany = companies.find(c => c.id === form.company_id)
+
+  const PURPOSE_SUGGESTIONS = [
+    'Gjennomgang av budsjett og prognose for neste år, med vurdering av investeringsbehov og kapitalbehov.',
+    'Strategisk planlegging for ekspansjon til nye markeder — analyse av konkurrenter, muligheter og risikoer.',
+    'Evaluering av selskapets produktportefølje og utvikling av ny forretningsmodell for digital distribusjon.',
+    'Kompetanseheving og intern fagdag: gjennomgang av nye lover, bransjenyheter og beste praksis.',
+    'Organisasjonsgjennomgang: gjennomgang av roller, ansvar og strukturer for kommende periode.',
+  ]
+
+  const RELEVANCE_SUGGESTIONS = [
+    'Beslutningene som tas på samlingen vil direkte påvirke selskapets strategi og økonomi de neste 12 månedene.',
+    'Innholdet er nødvendig for å oppdatere forretningsplanen og forberede styremøte for kommende kvartal.',
+    'Samlingen erstatter ordinære arbeidsdager og er nødvendig for å løfte strategiske spørsmål ut av daglig drift.',
+  ]
+
+  const LOCATION_RATIONALE_SUGGESTIONS = [
+    'Hotellet har egnede konferansefasiliteter (møterom, projektor, grupperom) og god kollektivtilknytning for alle deltakere.',
+    'Beliggenheten er valgt for å minimere reisetid for deltakere fra ulike byer — sentralt mellom Oslo og Bergen.',
+    'Stedet er valgt basert på pris og tilgjengelighet i den aktuelle perioden. Konferanselokaler er booket separat.',
+    'Hotellet har egnet infrastruktur for flerdagerssamlinger (stabil internett, stille rom, catering). Ingen fritidsfasiliteter er benyttet.',
+    'Valgt pga. nærhet til en av selskapets nøkkelkunder som deltar i deler av programmet.',
+  ]
 
   function computeRisk() {
     const company = companies.find(c => c.id === form.company_id)
@@ -226,13 +302,15 @@ export default function NewStrategyPage() {
         {step === 1 && (
           <>
             <h2 className="font-semibold mb-4">Formål og detaljer</h2>
-            <TipBox tips={[
+            <TipBox defaultOpen tips={[
               '<strong>Skriv konkret formål</strong> — ikke «planleggingssamling», men f.eks. «Gjennomgang av budsjett 2026 og strategi for ekspansjon til nye markeder».',
               '<strong>Velg sted med konferanselokale</strong> — hotell med møterom ser langt bedre ut enn et feriested eller hytte.',
               '<strong>Unngå fellesferie og helligdager</strong> — samling i uke 28 er et rødt flagg hos Skatteetaten.',
               'Varighet 1–3 dager er normalt. Over 4 dager krever ekstra sterk faglig begrunnelse.',
-              'Fyll inn «Begrunnelse for valg av sted» — det er ett av de første feltene en revisor ser på.',
+              '<strong>Begrunnelse for valg av sted er kritisk</strong> — det er ett av de første feltene en revisor ser på. Bruk eksemplene under feltet.',
             ]} />
+
+            {/* Selskap */}
             <div>
               <label className="label">Selskap *</label>
               <select className="input" value={form.company_id} onChange={e => set('company_id', e.target.value)}>
@@ -240,18 +318,77 @@ export default function NewStrategyPage() {
                 {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
+
+            {/* Warning: already has a gathering this year */}
+            {existingThisYear.length > 0 && (
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-lg px-3 py-3 text-sm text-amber-800">
+                <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" strokeWidth={2} />
+                <div>
+                  <p className="font-medium">
+                    {selectedCompany?.name ?? 'Selskapet'} har allerede {existingThisYear.length === 1 ? 'én strategisamling' : `${existingThisYear.length} strategisamlinger`} registrert i {new Date().getFullYear()}
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {existingThisYear.map(g => (
+                      <li key={g.id} className="text-xs text-amber-700">
+                        • {g.title} ({new Date(g.date_from).toLocaleDateString('nb-NO')})
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-amber-700 mt-1.5">
+                    Skatteetaten aksepterer normalt kun <strong>én faglig samling per år</strong> per selskap. En ekstra samling øker risikoen for at begge avvises.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Tittel */}
             <div>
               <label className="label">Tittel på samlingen *</label>
-              <input type="text" className="input" value={form.title} onChange={e => set('title', e.target.value)} placeholder="Strategisamling Q1 2026" />
+              <input
+                type="text" className="input"
+                value={form.title}
+                onChange={e => set('title', e.target.value)}
+                placeholder={selectedCompany ? `${selectedCompany.name} — Strategisamling Q${Math.ceil((new Date().getMonth()+1)/3)} ${new Date().getFullYear()}` : 'Strategisamling Q3 2026'}
+              />
+              {selectedCompany && !form.title && (
+                <SuggestionChips
+                  suggestions={suggestTitle(selectedCompany.name)}
+                  onSelect={v => set('title', v)}
+                />
+              )}
             </div>
+
+            {/* Forretningsmessig formål */}
             <div>
               <label className="label">Forretningsmessig formål *</label>
-              <textarea className="input resize-none" rows={3} value={form.purpose} onChange={e => set('purpose', e.target.value)} placeholder="Beskriv det konkrete forretningsmessige formålet med samlingen…" />
+              <p className="text-xs text-gray-400 mb-1">
+                Beskriv <strong>hva dere skal beslutte eller gjennomgå</strong> — ikke bare «planlegging». Skatteetaten leser dette nøye.
+              </p>
+              <textarea
+                className="input resize-none" rows={3}
+                value={form.purpose}
+                onChange={e => set('purpose', e.target.value)}
+                placeholder="Gjennomgang av budsjett og prognose for neste år, med vurdering av investeringsbehov og markedsstrategi…"
+              />
+              <SuggestionChips suggestions={PURPOSE_SUGGESTIONS} onSelect={v => set('purpose', v)} />
             </div>
+
+            {/* Forretningsrelevans */}
             <div>
               <label className="label">Forretningsrelevans</label>
-              <textarea className="input resize-none" rows={2} value={form.business_relevance} onChange={e => set('business_relevance', e.target.value)} />
+              <p className="text-xs text-gray-400 mb-1">
+                Hvorfor er det nødvendig å gjennomføre dette <em>utenfor kontoret</em>? Hva gir denne samlingen som ordinære arbeidsdager ikke gir?
+              </p>
+              <textarea
+                className="input resize-none" rows={2}
+                value={form.business_relevance}
+                onChange={e => set('business_relevance', e.target.value)}
+                placeholder="Samlingen er nødvendig for å løfte strategiske spørsmål ut av daglig drift…"
+              />
+              <SuggestionChips suggestions={RELEVANCE_SUGGESTIONS} onSelect={v => set('business_relevance', v)} />
             </div>
+
+            {/* Datoer */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="label">Fra dato *</label>
@@ -262,15 +399,52 @@ export default function NewStrategyPage() {
                 <input type="date" className="input" value={form.date_to} onChange={e => set('date_to', e.target.value)} />
               </div>
             </div>
+            {form.date_from && (() => {
+              const d = new Date(form.date_from)
+              const week = Math.ceil(((d.getTime() - new Date(d.getFullYear(), 0, 1).getTime()) / 86400000 + 1) / 7)
+              const isRisky = (week >= 27 && week <= 32) || d.getDay() === 0 || d.getDay() === 6
+              return isRisky ? (
+                <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  <AlertTriangle size={13} className="shrink-0 mt-0.5 text-amber-500" />
+                  Uke {week} er i perioden for fellesferie eller helg — dette er et rødt flagg hos Skatteetaten. Vurder å flytte samlingen.
+                </div>
+              ) : null
+            })()}
+
+            {/* Sted */}
             <div>
               <label className="label">Sted *</label>
-              <input type="text" className="input" value={form.location} onChange={e => set('location', e.target.value)} />
+              <input
+                type="text" className="input"
+                value={form.location}
+                onChange={e => set('location', e.target.value)}
+                placeholder="F.eks. Clarion Hotel Oslo, Soria Moria Konferansehotell…"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Hotell med konferansefasiliteter er langt sterkere dokumentasjonsmessig enn hytte, privatbolig eller feriested.
+              </p>
             </div>
+
+            {/* Begrunnelse for sted — kritisk felt */}
             <div>
-              <label className="label">Begrunnelse for valg av sted</label>
-              <input type="text" className="input" value={form.location_rationale} onChange={e => set('location_rationale', e.target.value)} placeholder="F.eks. nærhet til kunder, pris, fasiliteter…" />
+              <label className="label">
+                Begrunnelse for valg av sted
+                <span className="ml-2 text-xs font-normal text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5">Viktig for bokettersyn</span>
+              </label>
+              <p className="text-xs text-gray-400 mb-1">
+                Dette er ett av de første feltene en revisor ser på. En god begrunnelse nevner <strong>faglige fasiliteter</strong>, <strong>tilgjengelighet</strong> og/eller <strong>pris</strong> — ikke at det «var et fint sted».
+              </p>
+              <textarea
+                className="input resize-none" rows={2}
+                value={form.location_rationale}
+                onChange={e => set('location_rationale', e.target.value)}
+                placeholder="Hotellet har egnede konferansefasiliteter og god tilgjengelighet for alle deltakere…"
+              />
+              <SuggestionChips suggestions={LOCATION_RATIONALE_SUGGESTIONS} onSelect={v => set('location_rationale', v)} />
             </div>
-            <div className="flex gap-4">
+
+            {/* Checkboxes */}
+            <div className="flex gap-4 flex-wrap">
               {[
                 { key: 'travel_included' as const, label: 'Reise inkludert' },
                 { key: 'overnight_stay' as const, label: 'Overnatting' },
@@ -282,7 +456,18 @@ export default function NewStrategyPage() {
                 </label>
               ))}
             </div>
-            <button onClick={() => { if (!form.company_id || !form.title || !form.purpose || !form.date_from) { setError('Fyll inn påkrevde felt'); return }; setError(null); setStep(2) }} className="btn-primary w-full">
+
+            <button
+              onClick={() => {
+                if (!form.company_id || !form.title || !form.purpose || !form.date_from) {
+                  setError('Fyll inn påkrevde felt (selskap, tittel, formål og dato)')
+                  return
+                }
+                setError(null)
+                setStep(2)
+              }}
+              className="btn-primary w-full"
+            >
               Neste: Deltakere
             </button>
           </>

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils'
-import { Plus, Target, CheckCircle, Clock } from 'lucide-react'
+import { Plus, Target, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 
 export default async function StrategyPage() {
   const supabase = await createClient()
@@ -11,6 +11,8 @@ export default async function StrategyPage() {
     .from('company_access').select('company_id').eq('user_id', user!.id)
   const companyIds = (access ?? []).map(r => r.company_id)
 
+  const currentYear = new Date().getFullYear()
+
   const { data: gatherings } = companyIds.length
     ? await supabase
         .from('strategy_gatherings')
@@ -18,6 +20,14 @@ export default async function StrategyPage() {
         .in('company_id', companyIds)
         .order('date_from', { ascending: false })
     : { data: [] }
+
+  // Count gatherings this year per company — warn if > 1
+  const thisYearByCompany: Record<string, number> = {}
+  for (const g of gatherings ?? []) {
+    if (new Date(g.date_from).getFullYear() === currentYear) {
+      thisYearByCompany[g.company_id] = (thisYearByCompany[g.company_id] ?? 0) + 1
+    }
+  }
 
   return (
     <div className="max-w-4xl">
@@ -30,6 +40,19 @@ export default async function StrategyPage() {
           <Plus size={16} /> Ny samling
         </Link>
       </div>
+
+      {/* Warning banner if any company has > 1 gathering this year */}
+      {Object.entries(thisYearByCompany).some(([, count]) => count > 1) && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-5 text-sm text-amber-800">
+          <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" strokeWidth={2} />
+          <div>
+            <p className="font-medium">Mer enn én strategisamling i {currentYear}</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Skatteetaten aksepterer normalt kun én faglig samling per selskap per år. Flere samlinger øker risikoen for at begge avvises ved bokettersyn.
+            </p>
+          </div>
+        </div>
+      )}
 
       {gatherings && gatherings.length > 0 ? (
         <div className="space-y-2">
@@ -52,7 +75,13 @@ export default async function StrategyPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {new Date(g.date_from).getFullYear() === currentYear && (thisYearByCompany[g.company_id] ?? 0) > 1 && (
+                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                    <AlertTriangle size={11} strokeWidth={2.5} />
+                    Nr. {thisYearByCompany[g.company_id]} i år
+                  </span>
+                )}
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   g.status === 'finalized' ? 'bg-violet-50 text-violet-700' : 'bg-gray-100 text-gray-500'
                 }`}>

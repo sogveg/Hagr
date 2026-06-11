@@ -33,6 +33,7 @@ export interface Tip {
   type: TipType
   impact?: string       // "Spar inntil 11 000 kr"
   law_ref?: string
+  source_url?: string   // Kilde-URL (Skatteetaten, Lovdata el.)
   tool_href?: string    // lenke til relevant verktøy
 }
 
@@ -51,23 +52,24 @@ export const TIPS: Tip[] = [
 
   {
     id: 'welfare_food_limit',
-    title: '560 kr-grensen er for mat og drikke — ikke for hele julebordet',
-    body: 'Mange tror at julebordet må koste under 560 kr per person totalt. Feil! 560 kr-grensen gjelder kun mat og drikke (eks. mva). Lokale, underholdning, aktiviteter og transport er på toppen. Et julebord kan godt koste 1 500 kr per person — og fremdeles være fullt fradragsberettiget.',
+    title: 'Ansattjulebord har ingen fast kronergrense — bare rimelighet',
+    body: 'Det finnes ingen lovfestet makspris per person for ansattjulebord. Skatteetaten vurderer om kostnaden er rimelig sett opp mot bedriftens størrelse og bransjenorm. Et julebord til 1 500 kr per person er normalt greit, men svært kostbare eller luksuriøse arrangement kan trekke vurderingen i feil retning. Sørg for at alle ansatte er invitert og at du har deltakerliste og kvittering.',
+    body_enkel: 'Julebordet har ingen fast makspris. Testen er om kostnaden er rimelig for bedriften din. Alle må inviteres, og du bør ta vare på kvittering og deltakerliste.',
     category: 'velferd',
-    tags: ['julebord', 'julebord-guide', '560-kr', 'velferd'],
+    tags: ['julebord', 'julebord-guide', 'velferd', 'rimelighet'],
     type: 'saving',
-    impact: 'Frigjør hele budsjettrommet for julebordet',
+    impact: 'Ingen fast kronergrense for ansattjulebord',
     tool_href: '/welfare',
   },
   {
     id: 'welfare_no_spirits',
-    title: 'Brennevin på julebordet kan nulle ut hele fradraget',
-    body: 'Skatteloven § 6-21 sier at representasjon med brennevin ikke er fradragsberettiget. Hvis julebordet omklassifiseres til representasjon (f.eks. fordi mat+drikke overstiger 560 kr/person), og det ble servert sprit, mister du fradraget på hele arrangementet — ikke bare spritdelen. Stick to øl og vin.',
-    body_enkel: 'Serverer dere sprit (whisky, vodka, akevitt osv.) på julebordet, kan selskapet miste retten til å trekke utgiften fra på skatten — ikke bare spritdelen, men hele julebordet. Øl og vin er trygt. Sprit er risikabelt. Hold deg til vin og øl.',
+    title: 'Brennevin på julebord: rødt flagg, men ikke automatisk nullfradrag',
+    body: 'For et rent ansattjulebord (velferdstiltak) gjelder ikke representasjonsregelen om at brennevin nuller ut hele fradraget. Den regelen (skatteloven § 6-21) gjelder kun representasjon — altså enkel servering for kunder og forretningsforbindelser. Men brennevin øker risikoen dersom arrangementet er i grenseland: hvis kunder/leverandører deltar, eller arrangementet er kostbart og luksuspreget, kan Skatteetaten omklassifisere det til representasjon — og da faller hele fradraget bort.',
+    body_enkel: 'Brennevin på ansattjulebordet er ikke automatisk forbudt, men øker risikoen. Hvis julebordet kan minne om et kundearrangement (kunder er med, svært dyrt, luksuspreget) kan myndighetene omklassifisere det — og da nuller brennevinet ut hele fradraget. Ren ansattfest med rimelig kostnad: ok. Halvpart kunder og sprit: høy risiko.',
     category: 'velferd',
-    tags: ['julebord', 'sprit', 'brennevin', 'fradrag'],
+    tags: ['julebord', 'sprit', 'brennevin', 'fradrag', 'representasjon'],
     type: 'gotcha',
-    law_ref: 'Skatteloven § 6-21',
+    law_ref: 'Skatteloven § 6-21 (gjelder representasjon, ikke velferdstiltak)',
     tool_href: '/welfare',
   },
   {
@@ -82,9 +84,9 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'welfare_5000_guideline',
-    title: 'Skatteetaten bruker 5 000 kr/ansatt/år som veiledende grense',
-    body: '5 000 kr per ansatt per år er ikke en lovfestet grense — det er en retningslinje Skatteetaten bruker i rimelighetsvurderingen. Går du over, er det ikke automatisk skattepliktig, men du bør ha god dokumentasjon og forklaring. Eks.: julebord (1 500 kr) + sommerfest (1 000 kr) + teambuilding (1 000 kr) = 3 500 kr — trygt innenfor.',
-    body_enkel: 'Det finnes ingen fast lovgrense for hva julebordet kan koste. Skatteetaten bruker "rimelig" som test. Tommelfingerregelen er at samlet velferd (julebord + sommerfest + teambuilding) ikke bør overstige ca. 5 000 kr per ansatt per år uten god grunn — men dette er ikke en lov, bare en rettesnor.',
+    title: 'Ingen lovfestet beløpsgrense for velferdstiltak — rimelighet er testen',
+    body: 'Skatteloven har ingen konkret kronergrense for hva velferdstiltak kan koste. Vurderingstemaet er om kostnaden er "rimelig" sett opp mot bedriftens størrelse og bransjenorm (FSFIN § 5-15-6). Dokumentér formål, deltakere og kvitteringer — det er det sterkeste vernet ved en eventuell kontroll.',
+    body_enkel: 'Det finnes ingen fast lovgrense for hva julebordet eller sommerfesten kan koste. Testen er om det er rimelig for en bedrift som din. God dokumentasjon (deltakerliste + kvitteringer) er det viktigste du kan ha.',
     category: 'velferd',
     tags: ['velferd', '5000-kr', 'rimelighet'],
     type: 'rule',
@@ -122,28 +124,20 @@ export const TIPS: Tip[] = [
 
   {
     id: 'rep_560_middag',
-    title: 'Middag med kunder: 560 kr per person er grensen for fradrag',
-    body: 'Du kan trekke fra inntil 560 kr per person (eks. mva) for representasjonsmiddag med kunder og forretningsforbindelser. Overskyter du grensen, er det bare de første 560 kr per person som er fradragsberettiget — resten er ikke-fradragsberettiget kostnad.',
-    body_enkel: 'Tar du med en kunde på middag, kan selskapet trekke fra inntil 560 kr per person på skatten. Koster middagen mer, er det bare de første 560 kr per person som teller. Kvitteringen må ha navn på alle som var med og hva dere møttes for.',
+    source_url: 'https://www.skatteetaten.no/satser/representasjonskostnader/',
+    title: 'Servering med kunder: maks 592 kr per tilfelle i fradrag (2026)',
+    body: 'Ved representasjon — servering for kunder og forretningsforbindelser — kan selskapet trekke fra inntil 592 kr per person eks. mva. Koster det mer, er det kun de første 592 kr per person som er fradragsberettiget. Grensen gjelder uansett om det er lunsj eller middag.',
+    body_enkel: 'Tar du med en kunde på mat, kan selskapet trekke fra inntil 592 kr per person på skatten (2026). Koster det mer, er det bare de første 592 kr som teller. Husk å notere hvem som var med og hva dere møttes for.',
     category: 'representasjon',
-    tags: ['representasjon', '560-kr', 'middag', 'kunder'],
+    tags: ['representasjon', '592-kr', 'kunder'],
     type: 'rule',
     impact: 'Unngå å miste fradrag du har krav på',
     law_ref: 'FSFIN § 6-21-1',
     tool_href: '/representation',
   },
   {
-    id: 'rep_lunch_no_limit',
-    title: 'Lunsj i arbeidstid med kunder er fullt fradragsberettiget',
-    body: '560 kr-grensen gjelder middag, ikke lunsj. Lunsj med kunder i arbeidstid er fullt fradragsberettiget uansett beløp — så lenge formålet er forretningsmessig og du dokumenterer hvem som var med og hva møtet handlet om. Lunsj i stedet for middag er altså gunstigere skattemessig.',
-    body_enkel: 'Lunsj med kunder i arbeidstiden = fullt skattefradrag, uansett beløp. Middag = maks 560 kr per person i fradrag. Lunsj er altså skattemessig bedre enn middag! Husk å notere hvem som var med og hva dere snakket om.',
-    category: 'representasjon',
-    tags: ['representasjon', 'lunsj', 'fradrag'],
-    type: 'saving',
-    tool_href: '/representation',
-  },
-  {
     id: 'rep_no_spirits',
+    source_url: 'https://lovdata.no/lov/1999-03-26-14/§6-21',
     title: 'Brennevin på kundemiddag: alt fradraget faller bort',
     body: 'Bestilles det brennevin/sprit på en representasjonsmiddag, mister du fradragsretten på hele utgiften — inkludert mat. Ikke bare spritdelen, men alt. Dette er en absolutt regel i skatteloven § 6-21. Holder du deg til øl, vin og mat er du trygg innenfor 560 kr-grensen.',
     body_enkel: 'Bestiller noen sprit (whisky, akevitt, vodka o.l.) på kundemiddagen, mister selskapet fradraget på HELE regningen — ikke bare spritglasset. Bestill øl og vin, spar fradraget.',
@@ -178,8 +172,10 @@ export const TIPS: Tip[] = [
 
   {
     id: 'salary_optimal_2026',
-    title: '2026: Optimal lønn for AS-eier er ca. 700 000–750 000 kr',
-    body: 'Totalskatten (inntektsskatt + trygdeavgift + selskapsskatt + utbytteskatt) er lavest når du tar lønn i et bestemt intervall og resten som utbytte. I 2026 er dette typisk rundt 700 000–750 000 kr i lønn — men det varierer med overskudd og AGAzone. Bruk kalkulatoren for å finne ditt optimum.',
+    title: '2026: Optimal lønn for AS-eier er opp til ca. 980 100 kr (sone I)',
+    body: 'Skattemessig krysningspunkt i 2026 er 980 100 kr for sone I (14,1% AGA). Under dette er lønn billigere enn utbytte — marginalraten er 50,3% mot utbyttets 51,5%. Over krysningspunktet er lønn dyrere (53,0–53,9%). Vil du også ha full pensjonsopptjening, er 7,1 G (927 900 kr) det anbefalte nivået. Bruk kalkulatoren for å finne ditt eksakte optimum.',
+    title_enkel: '2026: Ta lønn opp til ca. 980 000 kr — resten som utbytte',
+    body_enkel: 'Tar du lønn under 980 100 kr, er det billigere enn utbytte. Over dette nivået er utbytte gunstigere. Vil du i tillegg sikre sykepenger og pensjon, bør du ta minst 927 900 kr (7,1 G) i lønn. Kalkulatoren finner ditt eksakte optimum.',
     category: 'lønn-utbytte',
     tags: ['lønn', 'utbytte', 'optimalisering', '2026'],
     type: 'planning',
@@ -199,7 +195,7 @@ export const TIPS: Tip[] = [
   {
     id: 'salary_aga_cost',
     title: 'AGA koster selskapet 14,1% ekstra — ta det med i regnestykket',
-    body: 'Arbeidsgiveravgift (AGA) er 14,1% av lønn i sone I (Oslo/sørøst). En lønn på 700 000 kr koster selskapet 798 700 kr (700 000 + 98 700 kr AGA). AGA er fradragsberettiget for selskapet, men det øker selskapskostnaden betydelig. Kalkulatoren viser alltid total selskapskostnad.',
+    body: 'Arbeidsgiveravgift (AGA) er 14,1% av lønn i sone I (Oslo/sørøst). En lønn på 980 100 kr koster selskapet 1 118 294 kr (980 100 + 138 194 kr AGA). AGA er fradragsberettiget for selskapet, men øker selskapskostnaden betydelig. Kalkulatoren viser alltid total selskapskostnad inkl. AGA.',
     category: 'lønn-utbytte',
     tags: ['AGA', 'lønn', 'selskapskostnad'],
     type: 'rule',
@@ -238,7 +234,7 @@ export const TIPS: Tip[] = [
   {
     id: 'gift_5000_limit',
     title: 'Gaver til ansatte: 5 000 kr er grensen — og gavekort ER skattefritt',
-    body: 'Gaver til ansatte er skattefrie inntil 5 000 kr per person per år. Kontanter og Vipps er alltid skattepliktig. Gavekort som KAN løses inn i penger (saldo-gavekort) er alltid skattepliktig. Men gavekort som IKKE kan løses inn i penger — f.eks. gavekort til en bestemt butikk, hotell, opplevelse eller restaurant — er skattefritt på lik linje med en fysisk gave, innenfor 5 000 kr-grensen.',
+    body: 'Gaver til ansatte er skattefrie inntil 5 000 kr per person per år. Kontanter og Vipps er alltid skattepliktig. Gavekort som KAN løses inn i penger (saldo-gavekort) er alltid skattepliktig. Men gavekort som IKKE kan løses inn i penger — f.eks. gavekort til én butikk, hotell eller opplevelse, eller flerbruksgavekort som Glede.no — er skattefritt på lik linje med en fysisk gave, innenfor 5 000 kr-grensen.',
     category: 'gaver',
     tags: ['gave', '5000-kr', 'kontanter', 'gavekort'],
     type: 'rule',
@@ -246,8 +242,9 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'gift_jubilee',
-    title: 'Jubileumsgave på 25/40/50 år kan gis ekstra skattefritt',
-    body: 'Ved ansattjubileum (25, 40 eller 50 år i selskapet) eller selskapets jubileum (25, 50, 75, 100 år) kan det gis en ekstra skattefri gave utover de ordinære 5 000 kr. Grensen er 8 000 kr ekstra per jubileum. Dette er en fin mulighet til å belønne lojale ansatte skatteeffektivt.',
+    source_url: 'https://www.skatteetaten.no/bedrift-og-organisasjon/skatt/skattemelding-naringsdrivende/fradrag/representasjon-velferdstiltak-reklame-og-gaver/gaver-til-ansatte/',
+    title: 'Jubileumsgave ved 20 år (deretter hvert 10. år) kan gis ekstra skattefritt',
+    body: 'Ved ansattjubileum etter 20 år i selskapet — og deretter hvert 10. år (30, 40, 50 år) — kan det gis en ekstra skattefri gave på inntil 8 000 kr utover de ordinære 5 000 kr. Kilde: Skatteetaten. Dette er en fin mulighet til å belønne lojale ansatte skatteeffektivt.',
     category: 'gaver',
     tags: ['gave', 'jubileum', '8000-kr', 'ansatte'],
     type: 'saving',
@@ -256,12 +253,14 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'gift_customer_limit',
-    title: 'Gaver til kunder: kun 100 kr er skattemessig fradragsberettiget',
-    body: 'Gaver til forretningsforbindelser og kunder er strengt begrenset: kun 100 kr per mottaker per år er fradragsberettiget. Reklamegjenstander med firmalogo (verdi under 100 kr) er fullt fradragsberettiget. Over 100 kr er det en representasjonskostnad underlagt 560 kr-reglene.',
+    source_url: 'https://www.skatteetaten.no/satser/representasjonskostnader/',
+    title: 'Kundegaver 2026: 324 kr for reklamegjenstander og oppmerksomheter',
+    body: 'Skatteetaten opererer i 2026 med ulike grenser avhengig av type kundegave: (1) Reklamegjenstander med fast firmamerke/firmanavn — fradrag inntil 324 kr per gjenstand, forutsatt at de deles ut i større antall og er laget med reklameformål. (2) Oppmerksomhet overfor forretningsforbindelse (f.eks. blomster, vinflaske) — fradrag inntil 324 kr per tilfelle. (3) Servering/uteservering — følger representasjonsgrensen på 592 kr per person. Over disse grensene er utgiften ikke fradragsberettiget. Mva-fradrag må vurderes separat.',
+    body_enkel: 'Gaver til kunder og forretningsforbindelser er strengt begrenset. I 2026 gjelder: reklamegjenstander med logo inntil 324 kr per stk., oppmerksomheter (blomster, vin) inntil 324 kr per tilfelle, servering inntil 592 kr per person. Over grensene får du ikke fradrag.',
     category: 'gaver',
-    tags: ['gave', 'kunder', '100-kr', 'reklame'],
+    tags: ['gave', 'kunder', 'reklame', 'representasjon', '2026'],
     type: 'rule',
-    law_ref: 'FSFIN § 6-21-2',
+    law_ref: 'FSFIN § 6-21-2 og § 6-21-1',
     tool_href: '/gifts',
   },
 
@@ -310,7 +309,7 @@ export const TIPS: Tip[] = [
   {
     id: 'car_private_use_taxation',
     title: 'Firmabildelen beskattes fra første kilometer privat kjøring',
-    body: 'Har du firmabil og bruker den privat (inkl. hjem-jobb), beskattes du av en sjablongfordel basert på bilens listepris. I 2026 er sjablongen 30% av listepris inntil 351 700 kr + 20% av overskytende. For en bil til 500 000 kr = ca. 134 000 kr skattepliktig fordel per år. El-biler har redusert sjablong.',
+    body: 'Har du firmabil som står til disposisjon for privat bruk — inkludert kjøring mellom hjem og fast arbeidssted — beskattes du av en sjablongfordel basert på bilens listepris som ny. I 2026 er sjablongen 30% av listepris inntil 370 300 kr + 20% av overskytende. For en bil til 500 000 kr blir skattepliktig fordel ca. 137 030 kr per år. Bilen er eldre enn 3 år per 1. januar, eller yrkeskjøring over 40 000 km? Da settes grunnlaget til 75% av listepris.',
     category: 'bil',
     tags: ['firmabil', 'sjablong', 'privatkjøring', 'skattepliktig'],
     type: 'rule',
@@ -362,6 +361,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'shareholder_loan_taxed',
+    source_url: 'https://lovdata.no/lov/1999-03-26-14/§10-11',
     title: 'Lån fra AS til eier beskattes som utbytte — umiddelbart',
     body: 'Siden 2022 er lån fra AS til aksjonær (deg som eier) skattepliktig som utbytte i det år lånet tas opp — uavhengig av om du betaler det tilbake. Dette er en av de vanligste og dyreste fallgruvene for AS-eiere. Mellomregning som vokser = skattesmell. Hold mellomregningen på null.',
     category: 'aksjonærlån',
@@ -383,8 +383,9 @@ export const TIPS: Tip[] = [
 
   {
     id: 'pension_obligation',
+    source_url: 'https://lovdata.no/lov/2005-12-21-124/§4',
     title: 'AS med ansatte: obligatorisk tjenestepensjon fra ansatte dag 1',
-    body: 'Alle AS med ansatte plikter å ha tjenestepensjonsordning (OTP). Minimum er 2% av lønn mellom 1 G og 12 G. Manglende OTP er brudd på lov om obligatorisk tjenestepensjon og kan gi bøter. Ansetter du noen — sett opp pensjon med en gang.',
+    body: 'Alle AS med ansatte plikter å ha tjenestepensjonsordning (OTP). Minimum er 2% av lønn opp til 12 G. Retten til OTP inntrer ved lønn over 2 000 kr (ikke ved 1 G). Manglende OTP er brudd på lov om obligatorisk tjenestepensjon og kan gi bøter. Ansetter du noen — sett opp pensjon med en gang.',
     category: 'pensjon',
     tags: ['pensjon', 'OTP', 'obligatorisk', 'ansatte'],
     type: 'rule',
@@ -392,12 +393,14 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'pension_owner_ips',
-    title: 'IPS: Spar 15 480 kr i skatt om du setter av til pensjon selv',
-    body: 'Individuell pensjonssparing (IPS) lar deg sette av inntil 15 000 kr per år med 22% skattefradrag = 3 300 kr spart per år. Er du lønnstaker i eget AS kan du i tillegg ta innskuddspensjon gjennom selskapet på inntil 7% av lønn mellom 1–12 G. Kombinasjonen gir god trygdedekning og pensjonssparing.',
+    source_url: 'https://lovdata.no/lov/1999-03-26-14/§6-47',
+    title: 'IPS 2026: sett av inntil 25 000 kr med skattefradrag',
+    body: 'Individuell pensjonssparing (IPS) lar deg sette av inntil 25 000 kr per år i 2026 (økt fra 15 000 kr i 2025) og få fradrag i alminnelig inntekt. Kilde: Skatteetaten og Skatteloven § 6-47. Er du lønnstaker i eget AS kan du i tillegg ha innskuddspensjon gjennom selskapet. Kombinasjonen gir god trygdedekning og pensjonssparing.',
     category: 'pensjon',
     tags: ['pensjon', 'IPS', 'fradrag', 'sparing'],
     type: 'saving',
-    impact: 'Inntil 3 300 kr spart i skatt per år med IPS',
+    impact: 'Inntil 25 000 kr i IPS-sparing med skattefradrag (2026)',
+    law_ref: 'Skatteloven § 6-47',
   },
 
   // ── FIRMAKORT ────────────────────────────────────────────────────────────
@@ -512,6 +515,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'family_employee_frikort',
+    source_url: 'https://www.skatteetaten.no/person/skatt/skattekort/',
     title: 'Barn i selskapet: tjener under 100 000 kr = betaler ingen skatt (frikort 2025/2026)',
     body: 'Frikortgrensen er 100 000 kr per år (Skatteetaten, 2025/2026). Tjener barnet ditt under dette i selskapet, betaler de ingen skatt. For selskapet er lønnen fullt fradragsberettiget og reduserer selskapsskatten (22%). En win-win: du overfører verdier skatteeffektivt, og barnet tjener penger skattefritt. Husk at selskapet betaler AGA (14,1%) på toppen.',
     category: 'familieansatte',
@@ -595,10 +599,12 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'tax_5year_rule',
-    title: 'Bilag skal oppbevares i 5 år — digital er like bra som papir',
-    body: 'Bokføringsloven krever at bilag oppbevares i 5 år etter regnskapsårets slutt. Digital lagring (PDF, foto) er fullt godkjent. Bruk en bilagsapp (Fiken, Tripletex, Unimicro) eller en strukturert mappestruktur i OneDrive/Google Drive. Mister du bilag, mister du fradraget.',
+    source_url: 'https://lovdata.no/lov/2004-11-19-73/§13',
+    title: 'Bilag oppbevares i 3,5 år — årsregnskap og protokoller i 5 år',
+    body: 'Bokføringsloven § 13 skiller mellom to grupper: (1) Støttedokumenter/bilag, kontrakter og korrespondanse: 3 år og 6 måneder etter regnskapsårets slutt. (2) Årsregnskap, pliktig regnskapsrapportering og revisorkorrespondanse: 5 år. Digital lagring (PDF, foto) er fullt godkjent for begge. Mister du bilag, mister du fradraget.',
     category: 'generelt',
-    tags: ['bilag', '5-år', 'dokumentasjon', 'digital'],
+    tags: ['bilag', 'dokumentasjon', 'digital', 'oppbevaring'],
+    law_ref: 'Bokføringsloven § 13',
     type: 'rule',
   },
   {
