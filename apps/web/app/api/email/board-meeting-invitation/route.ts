@@ -123,10 +123,11 @@ export async function POST(req: Request) {
       .order('order_number')
 
     // Fetch participants
-    const { data: participants = [] } = await supabase
+    const { data: participantsData } = await supabase
       .from('meeting_participants')
       .select('*, company_people(name, role)')
       .eq('meeting_id', meeting_id)
+    const participants = participantsData ?? []
 
     const companyName = (meeting.companies as { name: string })?.name ?? 'Selskapet'
     const calledBy = user.email ?? 'Styremedlem'

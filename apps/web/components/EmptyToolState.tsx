@@ -1,4 +1,5 @@
-import { type ReactNode } from 'react'
+import type React from 'react'
+type ReactNode = React.ReactNode
 import { CheckCircle } from 'lucide-react'
 
 interface EmptyToolStateProps {

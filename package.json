@@ -11,7 +11,11 @@
     "db:migrate": "pnpm --filter @skattsmart/db migrate"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": ["sharp"],
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0"
+    }
   },
   "devDependencies": {
     "turbo": "^2.0.0",

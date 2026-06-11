@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+type ReactNode = React.ReactNode
 
 export type LangMode = 'enkel' | 'pro'
 
