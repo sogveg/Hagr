@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
   RULE_CARDS, RULE_CATEGORIES, type RuleCard, type RuleCardRiskLevel,
-  TIPS, TIP_TYPE_LABELS, TIP_CATEGORY_LABELS, type Tip, type TipCategory,
+  TIPS, TIP_TYPE_LABELS, TIP_CATEGORY_LABELS, type Tip, type TipCategory, type TipType,
 } from '@/lib/shared'
 import {
   ShieldCheck, ShieldAlert, ShieldX, ChevronDown, ChevronUp, BookOpen,
@@ -174,7 +174,7 @@ export default function RulesPage() {
         tip.body.toLowerCase().includes(search.toLowerCase()) ||
         tip.tags.some(t => t.includes(search.toLowerCase()))
       const matchCat = selectedCategory === 'Alle' || TIP_CATEGORY_LABELS[tip.category as TipCategory] === selectedCategory
-      const matchType = selectedTipType === 'Alle' || TIP_TYPE_LABELS[tip.type as any] === selectedTipType
+      const matchType = selectedTipType === 'Alle' || TIP_TYPE_LABELS[tip.type as TipType] === selectedTipType
       return matchSearch && matchCat && matchType
     })
   }, [search, selectedCategory, selectedTipType])
