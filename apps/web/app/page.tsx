@@ -26,7 +26,7 @@ const tools = [
 
 const testimonials = [
   {
-    quote: 'Jeg visste ikke at jeg hadde satt lønnen feil i årevis. Hagr viste meg på to minutter at jeg burde justere.',
+    quote: 'Jeg visste ikke at jeg hadde satt lønnen feil i årevis. Hagr viste meg på to minutter hva jeg burde gjøre annerledes.',
     name: 'Thomas K.',
     role: 'Daglig leder, konsulentselskap',
     img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=face&q=80',
@@ -38,10 +38,10 @@ const testimonials = [
     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=face&q=80',
   },
   {
-    quote: 'Endelig forstår jeg hva som faktisk er fradragsberettiget. Alt samlet med oppdaterte 2026-regler.',
-    name: 'Anders B.',
-    role: 'Eier, eiendomsselskap',
-    img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face&q=80',
+    quote: 'Drev ENK i flere år uten å vite hva jeg hadde lov til å trekke fra. Hagr ryddet opp i det på en kveld.',
+    name: 'Silje R.',
+    role: 'Frilanser, kommunikasjon',
+    img: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&fit=crop&crop=face&q=80',
   },
 ]
 
@@ -94,7 +94,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-gray-500 dark:text-white/50">
-            Hagr viser deg nøyaktig hva du har krav på som AS-eier og gir deg dokumentasjonen som holder når revisor spør.
+            Hagr viser deg nøyaktig hva du har krav på som AS-eier eller ENK og gir deg dokumentasjonen som holder når revisor spør.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
@@ -169,15 +169,15 @@ export default function HomePage() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Hvem er det for?</p>
             <h2 className="text-4xl font-extrabold leading-tight mb-5 text-gray-900 dark:text-white">
-              Bygget for deg som eier ditt eget AS
+              For deg som driver for deg selv
             </h2>
             <p className="text-lg leading-relaxed mb-8 text-gray-500 dark:text-white/50">
-              Enten du driver konsulentvirksomhet, eiendom, byrå eller noe helt annet, er skattereglene de samme. Hagr passer på at du bruker dem riktig.
+              Enten du har AS eller ENK, driver konsulentvirksomhet, eiendom, byrå eller noe helt annet, er skattereglene de samme. Hagr passer på at du bruker dem riktig.
             </p>
             <div className="space-y-3">
               {[
-                { title: 'Eneeiere med AS',           desc: 'Optimaliser lønn, fradrag og dokumentasjon på egenhånd.' },
-                { title: 'Partnere og medeiere',      desc: 'Fordel riktig mellom eiere med dokumentasjon som holder.' },
+                { title: 'AS-eiere',                  desc: 'Optimaliser lønn mot utbytte, dokumenter styremøter og ta ut fradrag riktig.' },
+                { title: 'ENK-drivere',               desc: 'Finn fradragene du har krav på og hold styr på hva som er privat og næring.' },
                 { title: 'Konsulenter og frilansere', desc: 'Ta ut firmabilfordelen riktig og ha alt klart for revisor.' },
                 { title: 'Gründere i vekst',          desc: 'Sett gode rutiner fra dag én. Det er mye billigere enn å rydde opp.' },
               ].map((f) => (
@@ -294,7 +294,7 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Hva brukerne sier</p>
-            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">AS-eiere som har tatt kontrollen</h2>
+            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">Selvstendig næringsdrivende som har tatt kontrollen</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {testimonials.map((t) => (
@@ -333,7 +333,7 @@ export default function HomePage() {
             </span>
           </h2>
           <p className="text-lg mb-8 leading-relaxed max-w-lg mx-auto text-gray-500 dark:text-white/50">
-            Bli med norske AS-eiere som har tatt kontroll over skatten sin. Gratis å starte.
+            Bli med norske AS-eiere og ENK-drivere som har tatt kontroll over skatten sin. Gratis å starte.
           </p>
           <Link href="/signup" className="group inline-flex items-center gap-2 font-bold px-10 py-4 rounded-xl hover:opacity-90 transition-opacity text-sm shadow-xl
             bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-gray-900/10">
