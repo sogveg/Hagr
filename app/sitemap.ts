@@ -6,13 +6,14 @@ export const dynamic = 'force-dynamic'
 
 const BASE = 'https://www.tinyrent.no'
 
+// Static pages with stable dates (only update when content genuinely changes)
 const staticPages: MetadataRoute.Sitemap = [
-  { url: BASE,                    lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
-  { url: `${BASE}/artikler`,      lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.7 },
-  { url: `${BASE}/kontakt`,       lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
-  { url: `${BASE}/om-oss`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-  { url: `${BASE}/vilkar`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-  { url: `${BASE}/personvern`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+  { url: BASE,                    lastModified: new Date('2025-01-01'), changeFrequency: 'weekly',  priority: 1.0 },
+  { url: `${BASE}/artikler`,      lastModified: new Date('2025-01-01'), changeFrequency: 'weekly',  priority: 0.7 },
+  { url: `${BASE}/kontakt`,       lastModified: new Date('2025-01-01'), changeFrequency: 'monthly', priority: 0.6 },
+  { url: `${BASE}/om-oss`,        lastModified: new Date('2025-01-01'), changeFrequency: 'monthly', priority: 0.5 },
+  { url: `${BASE}/vilkar`,        lastModified: new Date('2025-01-01'), changeFrequency: 'monthly', priority: 0.3 },
+  { url: `${BASE}/personvern`,    lastModified: new Date('2025-01-01'), changeFrequency: 'monthly', priority: 0.3 },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -28,12 +29,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [
       { data: locations },
       { data: categories },
-      { data: products },
+      { data: productLocations },
       articlesResult,
     ] = await Promise.all([
       supabase.from('locations').select('slug').eq('active', true),
       supabase.from('categories').select('id, slug').eq('active', true),
-      supabase.from('products').select('slug, category_id').eq('published', true),
+      // Join products + product_locations so we only include real location/product combos
+      supabase
+        .from('product_locations')
+        .select('location_id, product_id, products(slug, category_id, published), locations(slug)'),
       (supabase.from as any)('articles')
         .select('slug, published_at, updated_at')
         .eq('published', true),
@@ -41,40 +45,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const articles = articlesResult.data ?? []
 
     const categorySlugMap = new Map((categories ?? []).map(c => [c.id, c.slug]))
-    const now = new Date()
 
-    const locationPages: MetadataRoute.Sitemap = (locations ?? []).map(loc => ({
-      url: `${BASE}/${loc.slug}`,
-      lastModified: now,
+    // Deduplicate location pages
+    const locationSlugs = new Set((locations ?? []).map(loc => loc.slug))
+    const locationPages: MetadataRoute.Sitemap = Array.from(locationSlugs).map(slug => ({
+      url: `${BASE}/${slug}`,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     }))
 
-    const categoryPages: MetadataRoute.Sitemap = (locations ?? []).flatMap(loc =>
-      (categories ?? []).map(cat => ({
-        url: `${BASE}/${loc.slug}/${cat.slug}`,
-        lastModified: now,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }))
-    )
+    // Deduplicate location+category combos from actual product_locations data
+    const locCatSet = new Set<string>()
+    const productPages: MetadataRoute.Sitemap = []
 
-    const productPages: MetadataRoute.Sitemap = (locations ?? []).flatMap(loc =>
-      (products ?? []).flatMap(product => {
-        const catSlug = product.category_id ? categorySlugMap.get(product.category_id) : null
-        if (!catSlug) return []
-        return [{
-          url: `${BASE}/${loc.slug}/${catSlug}/${product.slug}`,
-          lastModified: now,
-          changeFrequency: 'weekly' as const,
-          priority: 0.7,
-        }]
+    for (const pl of productLocations ?? []) {
+      const locObj  = pl.locations as { slug: string } | null
+      const prodObj = pl.products  as { slug: string; category_id: string | null; published: boolean } | null
+      if (!locObj || !prodObj || !prodObj.published) continue
+
+      const locSlug  = locObj.slug
+      const catSlug  = prodObj.category_id ? categorySlugMap.get(prodObj.category_id) : null
+      if (!catSlug) continue
+
+      // Collect unique location+category pages
+      locCatSet.add(`${locSlug}/${catSlug}`)
+
+      // Product page
+      productPages.push({
+        url: `${BASE}/${locSlug}/${catSlug}/${prodObj.slug}`,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
       })
-    )
+    }
+
+    const categoryPages: MetadataRoute.Sitemap = Array.from(locCatSet).map(combo => ({
+      url: `${BASE}/${combo}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
 
     const articlePages: MetadataRoute.Sitemap = articles.map((a: any) => ({
       url: `${BASE}/artikler/${a.slug}`,
-      lastModified: a.updated_at ?? a.published_at ?? now,
+      lastModified: a.updated_at ?? a.published_at ?? undefined,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     }))
