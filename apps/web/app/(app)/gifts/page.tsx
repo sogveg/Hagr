@@ -11,6 +11,18 @@ import {
 } from '@/lib/shared'
 import { Gift, Tag, AlertTriangle, Plus } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
+
+function TipBox({ tips }: { tips: string[] }) {
+  return (
+    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+      <ul className="space-y-2">
+        {tips.map((tip, i) => (
+          <li key={i} className="text-sm text-amber-900" dangerouslySetInnerHTML={{ __html: `• ${tip}` }} />
+        ))}
+      </ul>
+    </div>
+  )
+}
 import EmptyToolState from '@/components/EmptyToolState'
 
 const GIFT_TIPS = [
