@@ -50,6 +50,7 @@ export function OrganizationSchema() {
             height: 60,
           },
           image: `${BASE}/images/hero.jpg`,
+          telephone: '+4791135991',
           email: 'hei@tinyrent.no',
           address: {
             '@type': 'PostalAddress',
