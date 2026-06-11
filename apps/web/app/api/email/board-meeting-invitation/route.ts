@@ -2,8 +2,7 @@ import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.EMAIL_FROM ?? 'noreply@skattesmart.no'
+const FROM_EMAIL = process.env.EMAIL_FROM ?? 'noreply@hagr.io'
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('nb-NO', {
@@ -144,6 +143,7 @@ export async function POST(req: Request) {
       calledBy,
     })
 
+    const resend = new Resend(process.env.RESEND_API_KEY)
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: recipient_emails,
