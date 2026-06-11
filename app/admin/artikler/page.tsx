@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase-server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { toggleArticlePublished } from '@/app/actions/articles'
 
 function readingTime(content: string) {
@@ -72,12 +73,14 @@ export default async function AdminArtikler() {
                 className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden flex hover:border-black/10 transition-colors group"
               >
                 {/* Thumbnail */}
-                <div className="w-28 h-24 shrink-0 bg-[#F0EAE0] overflow-hidden">
+                <div className="relative w-28 h-24 shrink-0 bg-[#F0EAE0] overflow-hidden">
                   {article.cover_image ? (
-                    <img
+                    <Image
                       src={article.cover_image}
                       alt={article.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="112px"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl text-gray-200">

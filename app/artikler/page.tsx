@@ -5,6 +5,7 @@ import { getServerT } from '@/lib/get-locale'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -79,11 +80,13 @@ export default async function ArticlesPage() {
                   className="group bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden hover:shadow-md transition-shadow"
                 >
                   {article.cover_image && (
-                    <div className="aspect-[16/9] overflow-hidden bg-[var(--color-sand)]">
-                      <img
+                    <div className="relative aspect-[16/9] overflow-hidden bg-[var(--color-sand)]">
+                      <Image
                         src={article.cover_image}
                         alt={displayTitle}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   )}

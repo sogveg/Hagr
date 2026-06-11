@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 
 interface ImageCarouselProps {
   images: string[]
@@ -14,8 +15,8 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
 
   if (images.length === 1) {
     return (
-      <div className="rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)]">
-        <img src={images[0]} alt={alt} className="w-full h-full object-cover" />
+      <div className="relative rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)]">
+        <Image src={images[0]} alt={alt} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
       </div>
     )
   }
@@ -27,10 +28,13 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
     <div className="flex flex-col gap-3">
       {/* Main image */}
       <div className="relative rounded-[var(--radius-xl)] aspect-square overflow-hidden bg-[var(--color-sand)] group">
-        <img
+        <Image
           src={images[current]}
           alt={`${alt}, bilde ${current + 1} av ${images.length}`}
-          className="w-full h-full object-cover transition-opacity duration-200"
+          fill
+          className="object-cover transition-opacity duration-200"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
         />
 
         {/* Nav arrows */}
@@ -70,13 +74,13 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+            className={`relative shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
               i === current
                 ? 'border-[#8FA68B] opacity-100'
                 : 'border-transparent opacity-60 hover:opacity-90'
             }`}
           >
-            <img src={url} alt={`${alt}, miniatyrbilde ${i + 1}`} className="w-full h-full object-cover" />
+            <Image src={url} alt={`${alt}, miniatyrbilde ${i + 1}`} fill className="object-cover" sizes="64px" />
           </button>
         ))}
       </div>

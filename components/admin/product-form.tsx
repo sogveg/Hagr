@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import type { ProductInput } from '@/app/actions/admin'
 import { uploadProductImage, deleteProduct } from '@/app/actions/admin'
 
@@ -280,8 +281,7 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
         <div className="flex flex-wrap gap-3 mb-4">
           {images.map((url, i) => (
             <div key={url + i} className="relative w-24 h-24 rounded-xl overflow-hidden bg-[#F8F7F4] group border border-black/[0.06]">
-              <img src={url} alt={`Bilde ${i + 1}`} className="w-full h-full object-cover"
-                onError={e => { (e.target as HTMLImageElement).src = '' }} />
+              <Image src={url} alt={`Bilde ${i + 1}`} fill className="object-cover" sizes="96px" />
 
               {/* Primary badge */}
               {i === 0 && (

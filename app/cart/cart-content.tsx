@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart, calcRentalPrice } from '@/context/cart-context'
 import { checkoutCart, type DeliveryOption, type PaymentMethod } from '@/app/actions/checkout'
@@ -201,9 +202,9 @@ export function CartContent() {
                 return (
                   <div key={rental.cartId} className="p-5 flex gap-4">
                     {/* Image */}
-                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#F0EAE0] shrink-0">
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#F0EAE0] shrink-0">
                       {rental.imageUrl ? (
-                        <img src={rental.imageUrl} alt={rental.productName} className="w-full h-full object-cover" />
+                        <Image src={rental.imageUrl} alt={rental.productName} fill className="object-cover" sizes="80px" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
                       )}

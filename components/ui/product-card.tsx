@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card } from './card'
 import { getServerT } from '@/lib/get-locale'
 
@@ -41,11 +42,13 @@ export async function ProductCard({ product, locationSlug, categorySlug }: Produ
     >
       <Card hover padding="sm" className="overflow-hidden p-0">
         {/* Image */}
-        <div className="h-56 overflow-hidden">
-          <img
+        <div className="relative h-56 overflow-hidden">
+          <Image
             src={imageSrc}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>
 

@@ -11,13 +11,13 @@ export const metadata = {
     title: 'Om oss | TinyRent',
     description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr.',
     url: 'https://www.tinyrent.no/om-oss',
-    images: [{ url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent om oss' }],
+    images: [{ url: '/images/og-hero.jpg', width: 1200, height: 630, alt: 'TinyRent om oss' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Om oss | TinyRent',
     description: 'TinyRent ble startet av foreldre som kjente på alt stresset rundt babyutstyr.',
-    images: ['/images/hero.jpg'],
+    images: ['/images/og-hero.jpg'],
   },
 }
 

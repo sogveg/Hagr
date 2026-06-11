@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: 'TinyRent',
     images: [
       {
-        url: '/images/hero.jpg',
+        url: '/images/og-hero.jpg',
         width: 1200,
         height: 630,
         alt: 'TinyRent – Babyutstyr til leie i Bergen',

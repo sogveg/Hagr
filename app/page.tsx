@@ -12,6 +12,7 @@ import { CategoryCard } from '@/components/ui/category-card'
 import { ProductCard } from '@/components/ui/product-card'
 import { OrganizationSchema } from '@/components/seo/json-ld'
 import { Testimonials } from '@/components/ui/testimonials'
+import Image from 'next/image'
 
 export default async function HomePage() {
   const supabase = createServiceClient()
@@ -46,19 +47,15 @@ export default async function HomePage() {
       {/* Hero */}
       <section style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#18160F', minHeight: '580px' }}>
         {/* Background image */}
-        <img
+        <Image
           src="/images/hero.jpg"
           alt=""
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center',
-            zIndex: 0,
-          }}
+          aria-hidden={true}
+          fill
+          priority
+          className="object-cover object-center"
+          style={{ zIndex: 0 }}
+          sizes="100vw"
         />
         {/* Dark overlay */}
         <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(24,22,15,0.70)', zIndex: 1 }} />
@@ -265,12 +262,14 @@ export default async function HomePage() {
                     href={`/artikler/${article.slug}`}
                     className="group bg-white rounded-2xl border border-black/[0.06] overflow-hidden hover:border-black/10 hover:shadow-md transition-all"
                   >
-                    <div className="aspect-[16/9] bg-[#F0EAE0] overflow-hidden">
+                    <div className="relative aspect-[16/9] bg-[#F0EAE0] overflow-hidden">
                       {article.cover_image ? (
-                        <img
+                        <Image
                           src={article.cover_image}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 33vw"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl text-gray-200">

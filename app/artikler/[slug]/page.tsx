@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { marked } from 'marked'
+import Image from 'next/image'
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
 
 const BASE = 'https://www.tinyrent.no'
@@ -140,11 +141,14 @@ export default async function ArticlePage({
 
         {/* Cover image */}
         {article.cover_image && (
-          <div className="rounded-2xl overflow-hidden aspect-[16/9] bg-[var(--color-sand)] mb-12">
-            <img
+          <div className="relative rounded-2xl overflow-hidden aspect-[16/9] bg-[var(--color-sand)] mb-12">
+            <Image
               src={article.cover_image}
               alt={article.title}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 720px"
+              priority
             />
           </div>
         )}

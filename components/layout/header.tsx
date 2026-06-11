@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { HeaderAuthNav } from './header-auth-nav'
 
 interface HeaderProps {
@@ -18,10 +19,12 @@ export function Header({ variant = 'default' }: HeaderProps) {
     >
       <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center shrink-0">
-          <img
+          <Image
             src="/images/logo.png"
             alt="TinyRent - Lei babyutstyr enkelt"
-            style={{ height: '42px', width: 'auto' }}
+            width={146}
+            height={42}
+            priority
           />
         </Link>
 

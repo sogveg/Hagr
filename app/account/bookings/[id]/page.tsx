@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
@@ -133,8 +134,8 @@ export default async function CustomerBookingPage({
               {bookingItems.map((item: any) => (
                 <div key={item.id} className="px-5 py-4 flex items-center gap-4">
                   {item.products?.image_url && (
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-[var(--color-sand)] shrink-0">
-                      <img src={item.products.image_url} alt="" className="w-full h-full object-cover" />
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-[var(--color-sand)] shrink-0">
+                      <Image src={item.products.image_url} alt={item.products.name ?? ''} fill className="object-cover" sizes="48px" />
                     </div>
                   )}
                   <div>
