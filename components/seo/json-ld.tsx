@@ -83,7 +83,7 @@ export function OrganizationSchema() {
           },
           priceRange: '$$',
           currenciesAccepted: 'NOK',
-          paymentAccepted: 'Credit Card, Debit Card, Visa, Mastercard',
+          paymentAccepted: 'Vipps, Cash',
           openingHoursSpecification: [
             {
               '@type': 'OpeningHoursSpecification',

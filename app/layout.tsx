@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   authors: [{ name: 'TinyRent', url: BASE_URL }],
   creator: 'TinyRent',
   publisher: 'TinyRent',
+  verification: {
+    // Paste your Google Search Console verification code here:
+    // google: 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+  },
   robots: {
     index: true,
     follow: true,
