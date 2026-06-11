@@ -7,38 +7,38 @@ import {
 import ThemeToggle from '@/components/ThemeToggle'
 
 export const metadata: Metadata = {
-  title: 'SkatteSmart — Lovlig skattegrep for AS-eiere',
-  description: 'Spar tid og penger med lovlige skattestrategier. Dokumenter styremøter, strategisamlinger, gaver og firmabil — med innebygget risikovurdering og revisjonsklar dokumentasjon.',
+  title: 'Hagr — Skatt for AS-eiere som vil gjøre det riktig',
+  description: 'Finn ut hva du faktisk har lov til å trekke fra. Dokumenter styremøter, firmabil, gaver og strategisamlinger på minutter, med riktige 2026-regler innebygd.',
   openGraph: {
-    title: 'SkatteSmart — Lovlig skattegrep for AS-eiere',
-    description: 'Spar tid og penger med lovlige skattestrategier. Dokumenter styremøter, strategisamlinger, gaver og firmabil — med innebygget risikovurdering og revisjonsklar dokumentasjon.',
+    title: 'Hagr — Skatt for AS-eiere som vil gjøre det riktig',
+    description: 'Finn ut hva du faktisk har lov til å trekke fra. Dokumenter styremøter, firmabil, gaver og strategisamlinger på minutter, med riktige 2026-regler innebygd.',
   },
 }
 
 const tools = [
-  { Icon: TrendingUp, title: 'Lønn vs. utbytte',   desc: 'Finn skattemessig optimalt split — med AGA inkludert i regnestykket.' },
-  { Icon: FileText,   title: 'Styremøter',          desc: 'Komplette møtepakker med agenda og protokoll på sekunder.' },
-  { Icon: Target,     title: 'Strategisamlinger',   desc: 'Dokumentasjon som holder ved bokettersyn.' },
-  { Icon: Gift,       title: 'Gaver & velferd',     desc: 'Hold deg innenfor reglene for ansattgaver og julebord.' },
-  { Icon: Car,        title: 'Firmabil',            desc: 'Sjablongfordel, el-bil-rabatt og riktig dokumentasjon.' },
-  { Icon: Smartphone, title: 'Telefon & internett', desc: 'Ta ut dekningsgraden riktig og unngå overskattlegging.' },
+  { Icon: TrendingUp, title: 'Lønn vs. utbytte',   desc: 'Se hva som lønner seg for deg, med AGA regnet inn.' },
+  { Icon: FileText,   title: 'Styremøter',          desc: 'Agenda og protokoll klar på noen minutter.' },
+  { Icon: Target,     title: 'Strategisamlinger',   desc: 'Dokumentasjon som tåler bokettersyn.' },
+  { Icon: Gift,       title: 'Gaver og velferd',    desc: 'Hold deg innenfor grensene for ansattgaver og julebord.' },
+  { Icon: Car,        title: 'Firmabil',            desc: 'Sjablongfordel, elbilrabatt og riktig dokumentasjon.' },
+  { Icon: Smartphone, title: 'Telefon og internett', desc: 'Ta ut dekningsgraden riktig uten å overbeskatte deg selv.' },
 ]
 
 const testimonials = [
   {
-    quote: 'Visste ikke at jeg hadde lagt lønnen feil i årevis. SkatteSmart viste meg på 2 minutter at jeg burde justere lønnen betraktelig.',
+    quote: 'Jeg visste ikke at jeg hadde satt lønnen feil i årevis. Hagr viste meg på to minutter at jeg burde justere.',
     name: 'Thomas K.',
     role: 'Daglig leder, konsulentselskap',
     img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=face&q=80',
   },
   {
-    quote: 'Styremøtedokumentasjonen alene er verdt det. Det som tok en halvtime tar nå 3 minutter — og revisor er fornøyd.',
+    quote: 'Styremøtedokumentasjonen alene er verdt det. Det som tok en halvtime tar nå tre minutter, og revisor er fornøyd.',
     name: 'Marte L.',
     role: 'Gründer, designbyrå',
     img: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=face&q=80',
   },
   {
-    quote: 'Endelig forstår jeg hva som faktisk er fradragsberettiget. Alt på ett sted med riktige 2026-regler.',
+    quote: 'Endelig forstår jeg hva som faktisk er fradragsberettiget. Alt samlet med oppdaterte 2026-regler.',
     name: 'Anders B.',
     role: 'Eier, eiendomsselskap',
     img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face&q=80',
@@ -49,14 +49,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white transition-colors duration-300">
 
-      {/* ── NAV ── */}
+      {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl transition-colors duration-300
         bg-white/95 dark:bg-[#0a0a0f]/90
         border-b border-gray-200 dark:border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">S</div>
-            <span className="font-semibold tracking-tight text-gray-900 dark:text-white">SkatteSmart</span>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white shadow-sm">H</div>
+            <span className="font-semibold tracking-tight text-gray-900 dark:text-white">Hagr</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
@@ -64,17 +64,16 @@ export default function HomePage() {
               Logg inn
             </Link>
             <Link href="/signup" className="text-sm font-semibold px-5 py-2 rounded-lg hover:opacity-90 transition-opacity shadow-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900">
-              Kom i gang
+              Prøv gratis
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <section className="relative pt-40 pb-28 px-6 overflow-hidden
         bg-gradient-to-b from-violet-50 via-white to-white
         dark:from-transparent dark:via-transparent dark:to-transparent">
-        {/* Dark mode glow only */}
         <div className="absolute inset-0 pointer-events-none dark:block hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-violet-600/20 rounded-full blur-[120px]" />
         </div>
@@ -95,7 +94,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl leading-relaxed mb-10 max-w-2xl mx-auto text-gray-500 dark:text-white/50">
-            SkatteSmart viser deg nøyaktig hva du har krav på som AS-eier — og gir deg dokumentasjonen som holder ved bokettersyn.
+            Hagr viser deg nøyaktig hva du har krav på som AS-eier og gir deg dokumentasjonen som holder når revisor spør.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
@@ -131,29 +130,29 @@ export default function HomePage() {
               <p className="text-xs mb-1 text-gray-400 dark:text-white/40">Lovlige skattebesparelser</p>
               <p className="text-base font-bold text-gray-900 dark:text-white">Lønn · Utbytte · Fradrag</p>
               <p className="text-xs mt-1 flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                <TrendingUp size={11} strokeWidth={2.5} /> Optimalisert for AS-eiere
+                <TrendingUp size={11} strokeWidth={2.5} /> Tilpasset AS-eiere
               </p>
             </div>
             <div className="absolute bottom-8 right-8 z-20 rounded-2xl px-5 py-4 shadow-xl backdrop-blur-xl
               bg-white dark:bg-[#111118]/95 border border-gray-100 dark:border-white/10">
-              <p className="text-xs mb-1 text-gray-400 dark:text-white/40">Revisjonsklar dokumentasjon</p>
+              <p className="text-xs mb-1 text-gray-400 dark:text-white/40">Klar for bokettersyn</p>
               <p className="text-base font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-                <Shield size={14} strokeWidth={2} className="text-violet-500" /> Klar til bokettersyn
+                <Shield size={14} strokeWidth={2} className="text-violet-500" /> Revisjonsklar dokumentasjon
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── VALUE PROPS ── */}
+      {/* VALUE PROPS */}
       <section className="py-14 px-6 border-y transition-colors
         border-gray-100 dark:border-white/[0.06]
         bg-gray-50 dark:bg-white/[0.02]">
         <div className="max-w-5xl mx-auto grid sm:grid-cols-3 gap-8 text-center">
           {[
-            { Icon: BarChart3, title: 'Skatteoptimalisering', label: 'Finn de lovlige grepene som er riktige for din situasjon' },
-            { Icon: Shield,    title: 'Revisjonsklar',        label: 'Dokumentasjon som holder ved bokettersyn fra Skatteetaten' },
-            { Icon: Zap,       title: 'Spar tid',             label: 'Generer styremøtepakker, protokoller og dokumenter på sekunder' },
+            { Icon: BarChart3, title: 'Riktig skatt', label: 'Finn de lovlige grepene som passer din situasjon' },
+            { Icon: Shield,    title: 'Trygg dokumentasjon', label: 'Papirene er klare om Skatteetaten skulle spørre' },
+            { Icon: Zap,       title: 'Spar tid',   label: 'Styremøtepakker og dokumenter ferdig på et par minutter' },
           ].map((s) => (
             <div key={s.title}>
               <s.Icon size={20} strokeWidth={1.5} className="mx-auto mb-3 text-violet-600 dark:text-violet-400" />
@@ -164,7 +163,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FOR WHO ── */}
+      {/* FOR WHO */}
       <section className="py-28 px-6 bg-white dark:bg-transparent">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -173,14 +172,14 @@ export default function HomePage() {
               Bygget for deg som eier ditt eget AS
             </h2>
             <p className="text-lg leading-relaxed mb-8 text-gray-500 dark:text-white/50">
-              Enten du driver konsulentvirksomhet, eiendom, byrå eller tech-startup — skattetriksene er de samme. SkatteSmart sørger for at du bruker dem riktig.
+              Enten du driver konsulentvirksomhet, eiendom, byrå eller noe helt annet, er skattereglene de samme. Hagr passer på at du bruker dem riktig.
             </p>
             <div className="space-y-3">
               {[
                 { title: 'Eneeiere med AS',           desc: 'Optimaliser lønn, fradrag og dokumentasjon på egenhånd.' },
                 { title: 'Partnere og medeiere',      desc: 'Fordel riktig mellom eiere med dokumentasjon som holder.' },
-                { title: 'Konsulenter og frilansere', desc: 'Ta ut firmabilfordelen riktig og dokumenter alt for revisor.' },
-                { title: 'Gründere i vekst',          desc: 'Sett gode rutiner fra dag én — billigere enn å rydde opp.' },
+                { title: 'Konsulenter og frilansere', desc: 'Ta ut firmabilfordelen riktig og ha alt klart for revisor.' },
+                { title: 'Gründere i vekst',          desc: 'Sett gode rutiner fra dag én. Det er mye billigere enn å rydde opp.' },
               ].map((f) => (
                 <div key={f.title} className="flex items-start gap-3 p-4 rounded-xl transition-all
                   border border-gray-100 dark:border-white/[0.06]
@@ -189,7 +188,7 @@ export default function HomePage() {
                   hover:bg-violet-50 dark:hover:bg-violet-600/5">
                   <CheckCircle size={17} strokeWidth={2} className="text-violet-500 mt-0.5 shrink-0" />
                   <div>
-                    <span className="font-semibold text-sm text-gray-900 dark:text-white">{f.title} — </span>
+                    <span className="font-semibold text-sm text-gray-900 dark:text-white">{f.title}: </span>
                     <span className="text-sm text-gray-500 dark:text-white/40">{f.desc}</span>
                   </div>
                 </div>
@@ -211,8 +210,8 @@ export default function HomePage() {
                   <Shield size={15} strokeWidth={2} className="text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm text-gray-900 dark:text-white">Revisjonsklar dokumentasjon</p>
-                  <p className="text-xs text-gray-400 dark:text-white/40">Klar til å levere revisor</p>
+                  <p className="font-semibold text-sm text-gray-900 dark:text-white">Klar til revisor</p>
+                  <p className="text-xs text-gray-400 dark:text-white/40">Last ned og send videre</p>
                 </div>
               </div>
             </div>
@@ -220,14 +219,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TOOLS ── */}
+      {/* TOOLS */}
       <section className="py-28 px-6 border-t transition-colors
         border-gray-100 dark:border-white/[0.06]
         bg-gray-50 dark:bg-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Verktøy</p>
-            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">Alt du trenger — på ett sted</h2>
+            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">Alt du trenger på ett sted</h2>
             <p className="text-lg max-w-xl mx-auto text-gray-500 dark:text-white/40">Hvert verktøy er bygget rundt gjeldende norske skatteregler for 2026.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -253,7 +252,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
+      {/* HOW IT WORKS */}
       <section className="py-28 px-6 border-t bg-white dark:bg-transparent border-gray-100 dark:border-white/[0.06]">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
@@ -267,11 +266,11 @@ export default function HomePage() {
           </div>
           <div>
             <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Slik fungerer det</p>
-            <h2 className="text-4xl font-extrabold leading-tight mb-10 text-gray-900 dark:text-white">Fra null til skatteoptimalisert på 10 minutter</h2>
+            <h2 className="text-4xl font-extrabold leading-tight mb-10 text-gray-900 dark:text-white">I gang på ti minutter</h2>
             <div className="space-y-8">
               {[
-                { n: '01', title: 'Legg inn selskapet ditt',  desc: 'Navn, org.nr og hvem som er med. Tar 2 minutter.' },
-                { n: '02', title: 'Utforsk verktøyene',       desc: 'Kalkulatorer og veivisere guider deg gjennom lønn, fradrag og dokumentasjon.' },
+                { n: '01', title: 'Legg inn selskapet ditt',  desc: 'Navn, org.nr og hvem som er med. Tar to minutter.' },
+                { n: '02', title: 'Utforsk verktøyene',       desc: 'Kalkulatorer og veivisere tar deg gjennom lønn, fradrag og dokumentasjon.' },
                 { n: '03', title: 'Last ned og arkiver',      desc: 'Revisjonsklar dokumentasjon klar til å sende revisor eller legge i permen.' },
               ].map((s) => (
                 <div key={s.n} className="flex items-start gap-5">
@@ -288,14 +287,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
+      {/* TESTIMONIALS */}
       <section className="py-28 px-6 border-t transition-colors
         border-gray-100 dark:border-white/[0.06]
         bg-gray-50 dark:bg-transparent">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Kundeuttalelser</p>
-            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">Norske AS-eiere som har tatt kontrollen</h2>
+            <p className="text-sm font-semibold uppercase tracking-widest mb-4 text-violet-600 dark:text-violet-400">Hva brukerne sier</p>
+            <h2 className="text-4xl font-extrabold mb-3 text-gray-900 dark:text-white">AS-eiere som har tatt kontrollen</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {testimonials.map((t) => (
@@ -324,7 +323,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section className="py-28 px-6 border-t bg-white dark:bg-transparent border-gray-100 dark:border-white/[0.06]">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-5xl font-extrabold mb-5 leading-tight text-gray-900 dark:text-white">
@@ -344,15 +343,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* FOOTER */}
       <footer className="py-8 px-6 border-t transition-colors border-gray-100 dark:border-white/[0.06] bg-gray-50 dark:bg-transparent">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">S</div>
-            <span className="text-sm font-medium text-gray-500 dark:text-white/40">SkatteSmart</span>
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-xs font-bold text-white">H</div>
+            <span className="text-sm font-medium text-gray-500 dark:text-white/40">Hagr</span>
           </div>
           <p className="text-xs text-center max-w-sm text-gray-400 dark:text-white/20">
-            Vurderingene er generell beslutningsstøtte og erstatter ikke bindende skatterådgivning.
+            Hagr er et beslutningsstøtteverktøy og erstatter ikke personlig skatterådgivning.
           </p>
           <div className="flex gap-5 text-xs text-gray-400 dark:text-white/30">
             <Link href="/login" className="hover:text-gray-700 dark:hover:text-white/60 transition-colors">Logg inn</Link>

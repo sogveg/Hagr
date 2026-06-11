@@ -2,26 +2,26 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://skattesmart.no'),
+  metadataBase: new URL('https://hagr.io'),
   title: {
-    default: 'SkatteSmart — Lovlig skattegrep for AS-eiere',
-    template: '%s | SkatteSmart',
+    default: 'Hagr — Lovlig skattegrep for AS-eiere',
+    template: '%s | Hagr',
   },
   description: 'Dokumenter styremøter, strategisamlinger, gaver og firmabil med innebygget risikovurdering. Optimalisert for norske AS-eiere og gründere.',
   keywords: ['skatt', 'AS', 'aksjeselskap', 'firmabil', 'styremøte', 'lønn', 'utbytte', 'skatteoptimalisering', 'gründer', 'Norge'],
-  authors: [{ name: 'SkatteSmart' }],
-  creator: 'SkatteSmart',
+  authors: [{ name: 'Hagr' }],
+  creator: 'Hagr',
   openGraph: {
     type: 'website',
     locale: 'nb_NO',
     url: 'https://skattesmart.no',
-    siteName: 'SkatteSmart',
-    title: 'SkatteSmart — Lovlig skattegrep for AS-eiere',
+    siteName: 'Hagr',
+    title: 'Hagr — Lovlig skattegrep for AS-eiere',
     description: 'Dokumenter styremøter, strategisamlinger, gaver og firmabil med innebygget risikovurdering. Optimalisert for norske AS-eiere og gründere.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkatteSmart — Lovlig skattegrep for AS-eiere',
+    title: 'Hagr — Lovlig skattegrep for AS-eiere',
     description: 'Dokumenter styremøter, strategisamlinger, gaver og firmabil med innebygget risikovurdering.',
   },
   robots: {
