@@ -1,7 +1,13 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Siden finnes ikke',
+  robots: { index: false, follow: true },
+}
 
 export default function NotFound() {
   return (

@@ -76,7 +76,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
                 : 'border-transparent opacity-60 hover:opacity-90'
             }`}
           >
-            <img src={url} alt={`Miniatyrbilde ${i + 1}`} className="w-full h-full object-cover" />
+            <img src={url} alt={`${alt}, miniatyrbilde ${i + 1}`} className="w-full h-full object-cover" />
           </button>
         ))}
       </div>

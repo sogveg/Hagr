@@ -28,6 +28,8 @@ export async function generateMetadata(
   ])
   const locName  = location?.name  ?? locationSlug
   const prodName = product?.name   ?? productSlug
+  const rawDesc  = product?.short_description ?? null
+  const truncDesc = rawDesc && rawDesc.length > 155 ? rawDesc.slice(0, 152) + '...' : rawDesc
   const categoryImages: Record<string, string> = {
     vogner:     '/images/products/vogner.jpg',
     soving:     '/images/products/soving.jpg',
@@ -40,11 +42,11 @@ export async function generateMetadata(
 
   return {
     title: `Lei ${prodName} i ${locName}`,
-    description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket og desinfisert. Hent selv eller få levert hjem.`,
+    description: truncDesc ?? `Lei ${prodName} i ${locName}. Grundig vasket og desinfisert. Hent selv eller få levert hjem.`,
     alternates: { canonical: url },
     openGraph: {
       title: `Lei ${prodName} i ${locName} | TinyRent`,
-      description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
+      description: truncDesc ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
       url,
       images: [{ url: ogImage, width: 1200, height: 630, alt: `${prodName} hos TinyRent` }],
       type: 'website',
@@ -52,7 +54,7 @@ export async function generateMetadata(
     twitter: {
       card: 'summary_large_image',
       title: `Lei ${prodName} i ${locName} | TinyRent`,
-      description: product?.short_description ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
+      description: truncDesc ?? `Lei ${prodName} i ${locName}. Grundig vasket, hent selv eller få levert.`,
       images: [ogImage],
     },
   }

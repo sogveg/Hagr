@@ -29,11 +29,7 @@ export function OrganizationSchema() {
           url: BASE,
           description: 'Lei premium babyutstyr trygt og enkelt i Bergen.',
           inLanguage: ['nb-NO', 'en'],
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/bergen?q={search_term_string}` },
-            'query-input': 'required name=search_term_string',
-          },
+          // potentialAction (SearchAction) removed until site search is implemented
         }}
       />
 
@@ -299,7 +295,7 @@ export function ProductSchema({
         image: imageUrl ? [imageUrl] : [fallbackImage],
         url,
         brand: brand ? { '@type': 'Brand', name: brand } : undefined,
-        itemCondition: 'https://schema.org/UsedCondition',
+        itemCondition: 'https://schema.org/RefurbishedCondition', // rental items are cleaned/checked between uses
         offers: offers.length === 1 ? offers[0] : offers.length > 1 ? offers : undefined,
         additionalProperty: depositAmount && depositAmount > 0 ? [
           { '@type': 'PropertyValue', name: 'Depositum', value: `${depositAmount} NOK` },

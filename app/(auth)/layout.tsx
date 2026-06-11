@@ -1,5 +1,10 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getServerT } from '@/lib/get-locale'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const { t } = await getServerT()

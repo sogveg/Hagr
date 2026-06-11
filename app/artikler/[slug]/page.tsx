@@ -8,7 +8,9 @@ import { Footer } from '@/components/layout/footer'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { marked } from 'marked'
-import { ArticleSchema } from '@/components/seo/json-ld'
+import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/json-ld'
+
+const BASE = 'https://www.tinyrent.no'
 
 export async function generateMetadata({
   params,
@@ -44,7 +46,7 @@ export async function generateMetadata({
     ? { url: toOgImageUrl(data.cover_image), width: 1200, height: 630, alt: data.title }
     : { url: '/images/hero.jpg', width: 1200, height: 630, alt: 'TinyRent – Babyutstyr til leie i Bergen' }
   return {
-    title: `${data.title} | TinyRent`,
+    title: data.title,
     description: data.excerpt ?? undefined,
     alternates: {
       canonical: `https://www.tinyrent.no/artikler/${slug}`,
@@ -92,6 +94,11 @@ export default async function ArticlePage({
 
   return (
     <main className="min-h-screen bg-[var(--color-background)]">
+      <BreadcrumbSchema items={[
+        { name: 'Hjem',     url: BASE },
+        { name: 'Artikler', url: `${BASE}/artikler` },
+        { name: article.title },
+      ]} />
       <ArticleSchema
         title={article.title}
         excerpt={article.excerpt}

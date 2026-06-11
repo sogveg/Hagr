@@ -2,9 +2,10 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 export const metadata = {
-  title: 'Leievilkår | TinyRent',
+  title: 'Leievilkår',
   description: 'Leievilkår for TinyRent. Les betingelsene for leie av babyutstyr i Bergen.',
   robots: { index: true, follow: true },
+  alternates: { canonical: 'https://www.tinyrent.no/vilkar' },
 }
 
 const sections = [
