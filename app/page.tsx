@@ -104,6 +104,80 @@ export default async function HomePage() {
 
       <TrustBadges />
 
+      {/* Hvem er TinyRent for? / Who is TinyRent for? */}
+      <section className="bg-[var(--color-background)] px-6 py-20">
+        <div className="max-w-[1200px] mx-auto">
+          <p className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-widest mb-4 text-center">
+            {locale === 'en' ? 'Perfect for you if you' : 'Perfekt for deg som'}
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-foreground)] tracking-tight mb-12 text-center max-w-xl mx-auto text-balance">
+            {locale === 'en'
+              ? 'Need baby gear without buying it'
+              : 'Trenger babyutstyr uten å kjøpe det'}
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {(locale === 'en' ? [
+              {
+                emoji: '✈️',
+                title: 'Visiting Bergen',
+                text: 'Skip packing the stroller on the plane. Rent everything you need in Bergen and have it ready when you arrive.',
+                cta: 'See strollers and car seats',
+                href: defaultLocation ? `/${defaultLocation.slug}/vogner` : '/bergen/vogner',
+              },
+              {
+                emoji: '👴',
+                title: 'Grandchildren visiting',
+                text: 'The grandkids are coming to stay? Rent the stroller, travel cot or baby hammock you need for exactly that visit.',
+                cta: 'See all equipment',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
+              {
+                emoji: '📦',
+                title: 'Waiting for your own gear',
+                text: 'Just arrived in Bergen or waiting for a delivery? Rent while you wait. No commitment, no stress.',
+                cta: 'Book now',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
+            ] : [
+              {
+                emoji: '✈️',
+                title: 'Reiser til Bergen',
+                text: 'Slipp å pakke vognen i flybagasjen. Lei alt du trenger i Bergen og ha det klart til du ankommer.',
+                cta: 'Se vogner og bilstoler',
+                href: defaultLocation ? `/${defaultLocation.slug}/vogner` : '/bergen/vogner',
+              },
+              {
+                emoji: '👴',
+                title: 'Får barnebarnsbesøk',
+                text: 'Barnebarna kommer på besøk? Lei inn den vognen, reisesengen eller hengekøyen du trenger for akkurat det besøket.',
+                cta: 'Se alt utstyr',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
+              {
+                emoji: '📦',
+                title: 'Venter på eget utstyr',
+                text: 'Nylig ankommet Bergen eller venter på levering? Lei mens du venter. Ingen binding, ingen stress.',
+                cta: 'Book nå',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
+            ]).map(seg => (
+              <div key={seg.title} className="bg-[var(--color-sand)] rounded-2xl p-8 flex flex-col">
+                <div className="text-4xl mb-5">{seg.emoji}</div>
+                <h3 className="text-xl font-bold text-[var(--color-foreground)] mb-3">{seg.title}</h3>
+                <p className="text-[var(--color-muted)] leading-relaxed text-sm flex-1">{seg.text}</p>
+                <a
+                  href={seg.href}
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--color-primary-dark)] hover:underline mt-6"
+                >
+                  {seg.cta} <span>&rarr;</span>
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Kategorier / Categories */}
       {categories && categories.length > 0 && (
         <section className="bg-[var(--color-background)] px-6 py-24">

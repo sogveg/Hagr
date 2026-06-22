@@ -62,7 +62,7 @@ const TRANSLATIONS = {
     home: {
       badge:               'Bergen, Norge',
       heroTitle:           'Mer tid med babyen. Mindre styr.',
-      heroSubtitle:        'Grundig vasket babyutstyr fra merker du kjenner. Hent selv eller få det levert hjem til deg i Bergen.',
+      heroSubtitle:        'Reiser du til Bergen med baby? Barnebarna kommer på besøk? Vi har det du trenger, grundig vasket og klart til henting.',
       heroCta:             'Se utstyr i Bergen',
       categoriesLabel:     'Hva trenger du?',
       categoriesTitle:     'Finn det du leter etter',
@@ -84,9 +84,9 @@ const TRANSLATIONS = {
       blogTitle:           'Tips og råd til småbarnsforeldre',
       seeAllArticles:      'Se alle artikler',
       lesMore:             'Les mer',
-      ctaTitle:            'Klar til å forenkle hverdagen?',
-      ctaSubtitle:         'Se hva vi har i Bergen og bestill direkte til deg.',
-      ctaCta:              'Utforsk utstyr i Bergen',
+      ctaTitle:            'Trenger du babyutstyr i Bergen?',
+      ctaSubtitle:         'Bestill enkelt på nett. Vi har det klart til deg innen 24 timer.',
+      ctaCta:              'Se tilgjengelig utstyr',
     },
     howItWorks: {
       label:      'Slik fungerer det',
@@ -312,7 +312,7 @@ const TRANSLATIONS = {
     home: {
       badge:               'Bergen, Norway',
       heroTitle:           'More time with the baby. Less hassle.',
-      heroSubtitle:        'Thoroughly cleaned baby equipment from brands you know. Pick up yourself or have it delivered in Bergen.',
+      heroSubtitle:        'Visiting Bergen with a baby? Grandchildren coming to stay? We have what you need, thoroughly cleaned and ready to pick up.',
       heroCta:             'See equipment in Bergen',
       categoriesLabel:     'What do you need?',
       categoriesTitle:     'Find what you\'re looking for',
@@ -334,9 +334,9 @@ const TRANSLATIONS = {
       blogTitle:           'Tips and advice for parents',
       seeAllArticles:      'See all articles',
       lesMore:             'Read more',
-      ctaTitle:            'Ready to make life easier?',
-      ctaSubtitle:         'See what we have in Bergen and order directly to you.',
-      ctaCta:              'Explore equipment in Bergen',
+      ctaTitle:            'Need baby equipment in Bergen?',
+      ctaSubtitle:         'Order online in minutes. We have it ready for you within 24 hours.',
+      ctaCta:              'See available equipment',
     },
     howItWorks: {
       label:      'How it works',
