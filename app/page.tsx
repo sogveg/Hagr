@@ -116,14 +116,21 @@ export default async function HomePage() {
               : 'Trenger babyutstyr uten å kjøpe det'}
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {(locale === 'en' ? [
               {
                 emoji: '✈️',
-                title: 'Visiting Bergen',
+                title: 'Travelling to Bergen',
                 text: 'Skip packing the stroller on the plane. Rent everything you need in Bergen and have it ready when you arrive.',
                 cta: 'See strollers and car seats',
                 href: defaultLocation ? `/${defaultLocation.slug}/vogner` : '/bergen/vogner',
+              },
+              {
+                emoji: '🏖️',
+                title: 'On holiday in Bergen',
+                text: 'Enjoying a family holiday in Bergen? Rent locally and focus on the city instead of lugging equipment around.',
+                cta: 'See available equipment',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
               },
               {
                 emoji: '👴',
@@ -139,6 +146,13 @@ export default async function HomePage() {
                 cta: 'Book now',
                 href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
               },
+              {
+                emoji: '💡',
+                title: 'Want to try before you buy',
+                text: 'Curious about the MoonBoon hammock or a new stroller? Rent it for a period and find out if it suits your baby before committing.',
+                cta: 'See popular products',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
             ] : [
               {
                 emoji: '✈️',
@@ -146,6 +160,13 @@ export default async function HomePage() {
                 text: 'Slipp å pakke vognen i flybagasjen. Lei alt du trenger i Bergen og ha det klart til du ankommer.',
                 cta: 'Se vogner og bilstoler',
                 href: defaultLocation ? `/${defaultLocation.slug}/vogner` : '/bergen/vogner',
+              },
+              {
+                emoji: '🏖️',
+                title: 'På ferie i Bergen',
+                text: 'Planlegger dere familieferie i Bergen? Lei babyutstyret lokalt og bruk energien på å nyte byen istedenfor stor bagasje.',
+                cta: 'Se tilgjengelig utstyr',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
               },
               {
                 emoji: '👴',
@@ -159,6 +180,13 @@ export default async function HomePage() {
                 title: 'Venter på eget utstyr',
                 text: 'Nylig ankommet Bergen eller venter på levering? Lei mens du venter. Ingen binding, ingen stress.',
                 cta: 'Book nå',
+                href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
+              },
+              {
+                emoji: '💡',
+                title: 'Vil prøve istedenfor å kjøpe',
+                text: 'Nysgjerrig på MoonBoon hengekøyen eller en ny vogn? Lei den for en periode og finn ut om den passer babyen din, uten å binde deg.',
+                cta: 'Se populære produkter',
                 href: defaultLocation ? `/${defaultLocation.slug}` : '/bergen',
               },
             ]).map(seg => (
