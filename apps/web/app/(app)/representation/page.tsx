@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { evaluateRepresentation, REPRESENTATION_LIMIT_PER_PERSON_NOK } from '@/lib/shared'
-import { UtensilsCrossed, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, CheckCircle } from 'lucide-react'
+import { UtensilsCrossed, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
 
 function TipBox({ tips }: { tips: string[] }) {
@@ -55,6 +55,7 @@ export default function RepresentationPage() {
   const [year, setYear] = useState(new Date().getFullYear())
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -305,6 +306,20 @@ export default function RepresentationPage() {
                 {Number(ev.non_deductible_amount) > 0 && (
                   <p className="text-xs text-red-600">{Number(ev.non_deductible_amount).toLocaleString('nb-NO')} kr ikke fradrag</p>
                 )}
+                <button
+                  onClick={async () => {
+                    if (!confirm('Slette denne hendelsen?')) return
+                    setDeleting(ev.id)
+                    const supabase = createClient()
+                    await supabase.from('representation_events').delete().eq('id', ev.id)
+                    setEvents(prev => prev.filter(e => e.id !== ev.id))
+                    setDeleting(null)
+                  }}
+                  disabled={deleting === ev.id}
+                  className="mt-1 text-gray-300 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={13} />
+                </button>
               </div>
             </div>
           ))}

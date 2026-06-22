@@ -11,7 +11,7 @@ import {
 import {
   Heart, Lightbulb, ChevronDown, ChevronUp, AlertTriangle, CheckCircle,
   ShieldCheck, ShieldAlert, ShieldX, Save, Users, Info,
-  Wine, BookOpen, Calculator, List, Plus, X, Building2,
+  Wine, BookOpen, Calculator, List, Plus, X, Building2, Trash2,
 } from 'lucide-react'
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -780,6 +780,17 @@ export default function WelfarePage() {
                     <div className="text-right shrink-0 ml-4">
                       <p className="font-bold text-gray-900">{Number(h.total_cost_nok).toLocaleString('nb-NO')} kr</p>
                       <p className="text-xs text-gray-500">{Number(h.cost_per_employee_nok).toLocaleString('nb-NO')} kr/person</p>
+                      <button
+                        onClick={async () => {
+                          if (!confirm('Slette dette tiltaket?')) return
+                          const supabase = createClient()
+                          await supabase.from('welfare_measures').delete().eq('id', h.id)
+                          setHistory(prev => prev.filter(x => x.id !== h.id))
+                        }}
+                        className="mt-1 text-gray-300 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   </div>
                   {h.participants && h.participants.length > 0 && (

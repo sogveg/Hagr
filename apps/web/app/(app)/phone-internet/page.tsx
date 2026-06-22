@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { PHONE_INTERNET_MAX_TAXABLE_NOK as PHONE_INTERNET_TAXABLE_BENEFIT_NOK } from '@/lib/shared'
-import { Smartphone, Wifi, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle } from 'lucide-react'
+import { Smartphone, Wifi, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, Trash2 } from 'lucide-react'
 
 function TipBox({ tips }: { tips: string[] }) {
   const [open, setOpen] = useState(false)
@@ -274,6 +274,17 @@ export default function PhoneInternetPage() {
               <div className="text-right">
                 <p className="font-semibold">{Number(b.annual_cost_nok).toLocaleString('nb-NO')} kr/år</p>
                 <p className="text-xs text-orange-600">Skattepliktig fordel: {Number(b.taxable_benefit_nok).toLocaleString('nb-NO')} kr</p>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Slette denne ytelsen?')) return
+                    const supabase = createClient()
+                    await supabase.from('phone_internet_benefits').delete().eq('id', b.id)
+                    setBenefits(prev => prev.filter(x => x.id !== b.id))
+                  }}
+                  className="mt-1 text-gray-300 hover:text-red-400 transition-colors"
+                >
+                  <Trash2 size={13} />
+                </button>
               </div>
             </div>
           ))}

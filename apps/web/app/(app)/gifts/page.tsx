@@ -9,7 +9,7 @@ import {
   evaluatePersonalDiscount,
   PERSONAL_DISCOUNT_TAX_FREE_LIMIT_NOK,
 } from '@/lib/shared'
-import { Gift, Tag, AlertTriangle, Plus } from 'lucide-react'
+import { Gift, Tag, AlertTriangle, Plus, Trash2 } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
 
 function TipBox({ tips }: { tips: string[] }) {
@@ -53,6 +53,7 @@ export default function GiftsPage() {
   const [year, setYear] = useState(new Date().getFullYear())
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   // ── Gift form ──
   const [giftForm, setGiftForm] = useState({
@@ -154,6 +155,24 @@ export default function GiftsPage() {
     setShowForm(false)
     setDiscountForm({ employee_name: '', description: '', market_value_nok: '', employee_paid_nok: '', relates_to_own_goods: true, date: new Date().toISOString().split('T')[0], notes: '' })
     setLoading(false)
+  }
+
+  async function deleteGift(id: string) {
+    if (!confirm('Slette denne gaven?')) return
+    setDeleting(id)
+    const supabase = createClient()
+    await supabase.from('gifts').delete().eq('id', id)
+    setGifts(prev => prev.filter(g => g.id !== id))
+    setDeleting(null)
+  }
+
+  async function deleteDiscount(id: string) {
+    if (!confirm('Slette denne rabatten?')) return
+    setDeleting(id)
+    const supabase = createClient()
+    await supabase.from('personal_discounts').delete().eq('id', id)
+    setDiscounts(prev => prev.filter(d => d.id !== id))
+    setDeleting(null)
   }
 
   const totalGiftTaxFree = gifts.reduce((s, g) => s + Number(g.tax_free_amount), 0)
@@ -352,6 +371,13 @@ export default function GiftsPage() {
                     {Number(gift.taxable_amount) > 0 && (
                       <p className="text-xs text-red-600">{Number(gift.taxable_amount).toLocaleString('nb-NO')} kr skattepliktig</p>
                     )}
+                    <button
+                      onClick={() => deleteGift(gift.id)}
+                      disabled={deleting === gift.id}
+                      className="mt-1 text-gray-300 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -494,6 +520,13 @@ export default function GiftsPage() {
                       {Number(d.taxable_amount) > 0 && (
                         <p className="text-xs text-red-600">{Number(d.taxable_amount).toLocaleString('nb-NO')} kr skattepliktig</p>
                       )}
+                      <button
+                        onClick={() => deleteDiscount(d.id)}
+                        disabled={deleting === d.id}
+                        className="mt-1 text-gray-300 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
                   </div>
                 )
