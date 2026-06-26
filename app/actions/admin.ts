@@ -22,6 +22,7 @@ async function requireAdmin() {
 
 // ─── Booking actions ──────────────────────────────────────────────────────────
 
+// Used as a form action (must return void)
 export async function updateBookingStatus(bookingId: string, status: string) {
   await requireAdmin()
   const supabase = createServiceClient()
@@ -29,6 +30,25 @@ export async function updateBookingStatus(bookingId: string, status: string) {
   await supabase.from('bookings').update({ status: status as any }).eq('id', bookingId)
   revalidatePath('/admin/bookings')
   revalidatePath(`/admin/bookings/${bookingId}`)
+}
+
+// Used by StatusDropdown (returns success/error for optimistic UI)
+export async function setBookingStatus(
+  bookingId: string,
+  status: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin()
+    const supabase = createServiceClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from('bookings').update({ status: status as any }).eq('id', bookingId)
+    if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/bookings')
+    revalidatePath(`/admin/bookings/${bookingId}`)
+    return { success: true }
+  } catch (e) {
+    return { success: false, error: (e as Error).message }
+  }
 }
 
 // ─── Product actions ──────────────────────────────────────────────────────────

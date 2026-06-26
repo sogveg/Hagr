@@ -2,19 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase-server'
 import Link from 'next/link'
-
-const statusMap: Record<string, { label: string; className: string }> = {
-  draft:           { label: 'Utkast',          className: 'bg-gray-100 text-gray-500' },
-  pending_payment: { label: 'Venter betaling',  className: 'bg-yellow-50 text-yellow-700' },
-  payment_failed:  { label: 'Betaling feilet',  className: 'bg-red-50 text-red-600' },
-  confirmed:       { label: 'Bekreftet',         className: 'bg-blue-50 text-blue-700' },
-  prepared:        { label: 'Klar',              className: 'bg-purple-50 text-purple-700' },
-  delivered:       { label: 'Levert',            className: 'bg-indigo-50 text-indigo-700' },
-  active_rental:   { label: 'Aktiv leie',        className: 'bg-green-50 text-green-700' },
-  returned:        { label: 'Returnert',          className: 'bg-gray-50 text-gray-600' },
-  completed:       { label: 'Fullført',           className: 'bg-gray-50 text-gray-500' },
-  cancelled:       { label: 'Kansellert',         className: 'bg-red-50 text-red-500' },
-}
+import { StatusDropdown } from '@/components/admin/status-dropdown'
 
 export default async function AdminBookings() {
   const supabase = createServiceClient()
@@ -65,7 +53,6 @@ export default async function AdminBookings() {
             <tbody className="divide-y divide-black/[0.04]">
               {bookings.map(booking => {
                 const customer = booking.customer_id ? customerMap.get(booking.customer_id) : null
-                const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
                 return (
                   <tr key={booking.id} className="hover:bg-[#F8F7F4] transition-colors">
                     <td className="px-6 py-4">
@@ -94,9 +81,10 @@ export default async function AdminBookings() {
                       {booking.start_date} → {booking.end_date}
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.className}`}>
-                        {s.label}
-                      </span>
+                      <StatusDropdown
+                        bookingId={booking.id}
+                        currentStatus={booking.status}
+                      />
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-3">
