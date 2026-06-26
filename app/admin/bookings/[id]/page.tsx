@@ -49,6 +49,7 @@ export default async function BookingDetailPage({
     { data: bookingItems },
     { data: location },
     damageReports,
+    messages,
   ] = await Promise.all([
     booking.customer_id
       ? supabase.from('customers').select('*').eq('id', booking.customer_id).single()
@@ -64,6 +65,11 @@ export default async function BookingDetailPage({
       .select('*')
       .eq('booking_id', id)
       .order('created_at', { ascending: false })
+      .then((r: any) => r.data ?? []),
+    (supabase.from as any)('booking_messages')
+      .select('*')
+      .eq('booking_id', id)
+      .order('created_at', { ascending: true })
       .then((r: any) => r.data ?? []),
   ])
 
@@ -273,14 +279,47 @@ export default async function BookingDetailPage({
         )}
       </div>
 
-      {/* Send melding */}
+      {/* Kommunikasjon */}
       {customer?.email && (
-        <div className="bg-white rounded-2xl border border-black/[0.06] p-5 mb-5 mt-5">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Kommunikasjon</p>
-          <SendMessageForm
-            bookingId={id}
-            customerName={`${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email}
-          />
+        <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden mb-5 mt-5">
+          <div className="px-5 pt-5 pb-4 border-b border-black/[0.04] flex items-center justify-between">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Kommunikasjon</p>
+            {(messages as any[]).length > 0 && (
+              <span className="text-xs text-gray-400">{(messages as any[]).length} melding{(messages as any[]).length !== 1 ? 'er' : ''}</span>
+            )}
+          </div>
+
+          {/* Meldingstråd */}
+          {(messages as any[]).length > 0 ? (
+            <div className="divide-y divide-black/[0.04] max-h-96 overflow-y-auto">
+              {(messages as any[]).map((msg: any) => (
+                <div key={msg.id} className={`px-5 py-4 ${msg.sender === 'admin' ? 'bg-white' : 'bg-[#F8F7F4]'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-xs font-semibold ${msg.sender === 'admin' ? 'text-[#8FA68B]' : 'text-gray-500'}`}>
+                      {msg.sender === 'admin' ? '🔧 TinyRent' : `👤 ${customer.first_name ?? 'Kunde'}`}
+                    </span>
+                    <span className="text-xs text-gray-400">
+                      {new Date(msg.created_at).toLocaleDateString('nb-NO', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[#2B2B2B] whitespace-pre-wrap leading-relaxed">{msg.body}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="px-5 py-4 text-sm text-gray-400">Ingen meldinger ennå</p>
+          )}
+
+          {/* Send ny melding */}
+          <div className="px-5 py-5 border-t border-black/[0.04] bg-[#F8F7F4]">
+            <SendMessageForm
+              bookingId={id}
+              customerName={`${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email}
+            />
+          </div>
         </div>
       )}
 

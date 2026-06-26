@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { sendMessageToCustomer } from '@/app/actions/customer'
 
 export function SendMessageForm({ bookingId, customerName }: {
@@ -12,6 +13,7 @@ export function SendMessageForm({ bookingId, customerName }: {
   const [state, setState]       = useState<'idle' | 'success' | 'error'>('idle')
   const [error, setError]       = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,7 +24,8 @@ export function SendMessageForm({ bookingId, customerName }: {
       if (result.success) {
         setState('success')
         setMessage('')
-        setTimeout(() => { setState('idle'); setOpen(false) }, 3000)
+        router.refresh()
+        setTimeout(() => { setState('idle'); setOpen(false) }, 2000)
       } else {
         setState('error')
         setError(result.error ?? 'Noe gikk galt')
@@ -45,7 +48,7 @@ export function SendMessageForm({ bookingId, customerName }: {
     <form onSubmit={handleSubmit} className="space-y-3">
       {state === 'success' && (
         <p className="text-xs font-semibold text-green-700 bg-green-50 rounded-lg px-3 py-2">
-          Meldingen ble sendt til {customerName} på e-post ✓
+          Meldingen ble sendt til {customerName} ✓
         </p>
       )}
       {state === 'error' && (

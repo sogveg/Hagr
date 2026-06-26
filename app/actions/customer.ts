@@ -128,6 +128,11 @@ export async function sendMessageToCustomer(
       }),
     })
 
+    // Lagre meldingen i databasen
+    await (supabase as any)
+      .from('booking_messages')
+      .insert({ booking_id: bookingId, sender: 'admin', body: message })
+
     return { success: true }
   } catch (e) {
     return { success: false, error: (e as Error).message }

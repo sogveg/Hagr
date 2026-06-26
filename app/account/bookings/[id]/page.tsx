@@ -65,6 +65,7 @@ export default async function CustomerBookingPage({
     { data: bookingItems },
     { data: location },
     damageReports,
+    messages,
   ] = await Promise.all([
     supabase
       .from('booking_items')
@@ -77,6 +78,11 @@ export default async function CustomerBookingPage({
       .select('*')
       .eq('booking_id', id)
       .order('created_at', { ascending: false })
+      .then((r: any) => r.data ?? []),
+    (authClient.from as any)('booking_messages')
+      .select('id, sender, body, created_at')
+      .eq('booking_id', id)
+      .order('created_at', { ascending: true })
       .then((r: any) => r.data ?? []),
   ])
 
@@ -198,6 +204,37 @@ export default async function CustomerBookingPage({
             </div>
           )}
         </div>
+
+        {/* Meldinger fra TinyRent */}
+        {(messages as any[]).length > 0 && (
+          <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden mb-4">
+            <div className="px-5 pt-5 pb-4 border-b border-[var(--color-border)]">
+              <p className="text-xs font-bold text-[var(--color-muted)] uppercase tracking-widest">
+                Meldinger
+              </p>
+            </div>
+            <div className="divide-y divide-[var(--color-border)]">
+              {(messages as any[]).map((msg: any) => (
+                <div key={msg.id} className={`px-5 py-4 ${msg.sender === 'customer' ? 'bg-[var(--color-sand)]/30' : ''}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-[var(--color-primary)]">
+                      {msg.sender === 'admin' ? 'TinyRent' : 'Du'}
+                    </span>
+                    <span className="text-xs text-[var(--color-muted)]">
+                      {new Date(msg.created_at).toLocaleDateString('nb-NO', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-[var(--color-foreground)] whitespace-pre-wrap leading-relaxed">
+                    {msg.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Skaderapporter */}
         <div className="bg-white rounded-2xl border border-[var(--color-border)] overflow-hidden">
