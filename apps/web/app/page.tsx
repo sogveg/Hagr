@@ -94,7 +94,7 @@ export default function HomePage() {
             <span className="whitespace-nowrap">
               —{' '}
               <span className={`${caveat.className} text-violet-500 text-[1.15em] font-semibold not-italic align-baseline`}>
-                antaglig
+                antagligvis
               </span>
               {' '}—
             </span>
