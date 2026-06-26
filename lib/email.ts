@@ -53,7 +53,7 @@ export async function sendEmail({
     to,
     subject:  stripInvisible(subject),
     react,
-    reply_to: replyTo ?? 'hei@tinyrent.no',
+    replyTo:  replyTo ?? 'hei@tinyrent.no',
   })
 
   if (error) {
