@@ -5,6 +5,9 @@ import {
   ChevronRight, CheckCircle, ArrowRight, BarChart3, Shield, Zap,
 } from 'lucide-react'
 import ThemeToggle from '@/components/ThemeToggle'
+import { Caveat } from 'next/font/google'
+
+const caveat = Caveat({ subsets: ['latin'], weight: ['600'] })
 
 export const metadata: Metadata = {
   title: 'Hagr — Skatt for AS-eiere som vil gjøre det riktig',
@@ -88,6 +91,14 @@ export default function HomePage() {
 
           <h1 className="text-6xl sm:text-7xl font-extrabold leading-[1.05] tracking-tight mb-6 text-gray-900 dark:text-white">
             Du betaler{' '}
+            <span className="whitespace-nowrap">
+              —{' '}
+              <span className={`${caveat.className} text-violet-500 text-[1.15em] font-semibold not-italic align-baseline`}>
+                antaglig
+              </span>
+              {' '}—
+            </span>
+            {' '}
             <span className="bg-gradient-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">
               for mye skatt
             </span>
