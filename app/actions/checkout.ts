@@ -137,7 +137,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       .insert({
         customer_id:    customer.id,
         location_id:    rental.locationId,
-        status:         isVipps ? 'pending_payment' : 'draft',
+        status:         isVipps ? 'pending_payment' : 'confirmed',
         start_date:     rental.startDate,
         end_date:       rental.endDate,
         rental_amount:  rentalAmount,
@@ -246,7 +246,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
         endDate:       fmt(firstRental.endDate),
         totalAmount:   totalAll,
         depositAmount: input.rentals.reduce((s, r) => s + r.depositAmount, 0),
-        adminUrl:      `https://www.tinyrent.no/admin/bookings/${bookingIds[0]}`,
+        adminUrl:      bookingIds.map(id => `https://www.tinyrent.no/admin/bookings/${id}`).join('\n'),
       }),
     })
   } catch (e) {
