@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { createServiceClient } from '@/lib/supabase-server'
+import Link from 'next/link'
 
 export default async function AdminCustomers() {
   const supabase = createServiceClient()
@@ -44,24 +45,37 @@ export default async function AdminCustomers() {
             </thead>
             <tbody className="divide-y divide-black/[0.04]">
               {customers.map(customer => (
-                <tr key={customer.id} className="hover:bg-[#F8F7F4] transition-colors">
+                <tr
+                  key={customer.id}
+                  className="hover:bg-[#F8F7F4] transition-colors cursor-pointer"
+                >
                   <td className="px-6 py-4">
-                    <p className="font-semibold text-[#2B2B2B]">
-                      {customer.first_name || customer.last_name
-                        ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim()
-                        : '—'}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(customer.created_at).toLocaleDateString('nb-NO')}
-                    </p>
+                    <Link href={`/admin/customers/${customer.id}`} className="block">
+                      <p className="font-semibold text-[#2B2B2B]">
+                        {customer.first_name || customer.last_name
+                          ? `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim()
+                          : '—'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(customer.created_at).toLocaleDateString('nb-NO')}
+                      </p>
+                    </Link>
                   </td>
-                  <td className="px-4 py-4 text-gray-600">{customer.email}</td>
-                  <td className="px-4 py-4 text-gray-600">{customer.phone ?? '—'}</td>
-                  <td className="px-4 py-4 text-gray-600">{customer.city ?? '—'}</td>
+                  <td className="px-4 py-4 text-gray-600">
+                    <Link href={`/admin/customers/${customer.id}`} className="block">{customer.email}</Link>
+                  </td>
+                  <td className="px-4 py-4 text-gray-600">
+                    <Link href={`/admin/customers/${customer.id}`} className="block">{customer.phone ?? '—'}</Link>
+                  </td>
+                  <td className="px-4 py-4 text-gray-600">
+                    <Link href={`/admin/customers/${customer.id}`} className="block">{customer.city ?? '—'}</Link>
+                  </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="font-semibold text-[#2B2B2B]">
-                      {bookingCountMap.get(customer.id) ?? 0}
-                    </span>
+                    <Link href={`/admin/customers/${customer.id}`} className="block">
+                      <span className="font-semibold text-[#2B2B2B]">
+                        {bookingCountMap.get(customer.id) ?? 0}
+                      </span>
+                    </Link>
                   </td>
                 </tr>
               ))}
