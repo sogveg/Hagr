@@ -417,7 +417,7 @@ export default function CarPage() {
     if (age >= 3) basis = basis * 0.75
     const rate = age >= 3 ? 0.20 : 0.30
     let annual = basis * rate
-    if (isElectric) annual = annual * 0.50
+    if (isElectric) annual = annual * 0.80  // 20% reduksjon på beregningsgrunnlag (2026)
     if ((parseFloat(businessKm) || 0) >= 40000) annual = annual * 0.75
     annual = annual * (parseInt(monthsAvailable) / 12)
     return {
@@ -733,7 +733,7 @@ export default function CarPage() {
 
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={isElectric} onChange={e => setIsElectric(e.target.checked)} className="w-4 h-4 rounded accent-violet-600" />
-              <span className="text-sm text-gray-700">El-bil (50% reduksjon)</span>
+              <span className="text-sm text-gray-700">El-bil (20% reduksjon på grunnlag)</span>
             </label>
           </div>
 
@@ -758,7 +758,7 @@ export default function CarPage() {
             <p className="font-semibold text-amber-800">💡 Firmabilregler 2026</p>
             <p>• Under 3 år: 30% av listepris</p>
             <p>• Over 3 år: 20% av 75% av listepris</p>
-            <p>• El-bil: 50% rabatt på grunnlag</p>
+            <p>• El-bil: 20% reduksjon på beregningsgrunnlaget (gjelder fra 2023)</p>
             <p>• Over 40 000 km yrke: 25% reduksjon</p>
             <p>• Uten kjørebok = all kjøring regnes privat</p>
           </div>
