@@ -34,7 +34,7 @@ export function CartContent() {
   const [loading,      setLoading]      = useState(false)
   const [error,        setError]        = useState<string | null>(null)
   const [success,      setSuccess]      = useState(false)
-  const [bookingIds,   setBookingIds]   = useState<string[]>([])
+  const [bookingId,    setBookingId]    = useState<string | null>(null)
 
   // Delivery state
   const [deliveryType,    setDeliveryType]    = useState<DeliveryOption['type']>('pickup')
@@ -125,7 +125,7 @@ export function CartContent() {
     }
 
     // Pay-at-pickup: show success screen
-    setBookingIds(result.bookingIds)
+    setBookingId(result.bookingId)
     setSuccess(true)
   }
 

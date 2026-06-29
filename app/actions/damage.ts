@@ -8,6 +8,7 @@ export type DamageInput = {
   severity:       'minor' | 'moderate' | 'severe'
   amount_charged?: number | null
   photo_url?:     string | null
+  product_id?:    string | null
 }
 
 // Admin: kan sette beløp, bruker service-klient
@@ -33,6 +34,7 @@ export async function addAdminDamageReport(
       severity:       input.severity,
       amount_charged: input.amount_charged ?? null,
       photo_url:      input.photo_url ?? null,
+      product_id:     input.product_id ?? null,
     })
 
     if (error) return { success: false, error: error.message }
@@ -60,6 +62,7 @@ export async function addCustomerDamageReport(
       description: input.description,
       severity:    input.severity,
       photo_url:   input.photo_url ?? null,
+      product_id:  input.product_id ?? null,
     })
 
     if (error) return { success: false, error: error.message }

@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase-server'
 import { createServiceClient } from '@/lib/supabase-server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
-import { DamageReportForm } from '@/components/ui/damage-report-form'
+import { DamageReportForm, type BookingProduct } from '@/components/ui/damage-report-form'
 import { ContactForm } from '@/components/ui/contact-form'
 
 const statusMap: Record<string, { label: string; className: string }> = {
@@ -85,6 +85,10 @@ export default async function CustomerBookingPage({
       .order('created_at', { ascending: true })
       .then((r: any) => r.data ?? []),
   ])
+
+  const bookingProducts: BookingProduct[] = (bookingItems ?? [])
+    .map((item: any) => item.products?.name ? { id: item.product_id ?? item.id, name: item.products.name } : null)
+    .filter(Boolean) as BookingProduct[]
 
   const s = statusMap[booking.status] ?? { label: booking.status, className: 'bg-gray-100 text-gray-500' }
 
@@ -299,7 +303,7 @@ export default async function CustomerBookingPage({
               <p className="text-xs text-[var(--color-muted)] mb-4">
                 Oppdaget en skade? Registrer den her for å dokumentere tilstanden.
               </p>
-              <DamageReportForm bookingId={id} isAdmin={false} />
+              <DamageReportForm bookingId={id} isAdmin={false} products={bookingProducts} />
             </div>
           ) : (
             <div className="px-5 py-4 text-sm text-[var(--color-muted)]">

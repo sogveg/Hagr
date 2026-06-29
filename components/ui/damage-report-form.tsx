@@ -11,20 +11,26 @@ const SEVERITY_OPTIONS = [
 
 type Severity = typeof SEVERITY_OPTIONS[number]['value']
 
+export type BookingProduct = { id: string; name: string }
+
 interface DamageReportFormProps {
-  bookingId: string
-  isAdmin:   boolean
-  onSuccess?: () => void
+  bookingId:      string
+  isAdmin:        boolean
+  products?:      BookingProduct[]   // products in this booking for the dropdown
+  onSuccess?:     () => void
 }
 
-export function DamageReportForm({ bookingId, isAdmin, onSuccess }: DamageReportFormProps) {
+export function DamageReportForm({ bookingId, isAdmin, products, onSuccess }: DamageReportFormProps) {
   const [isPending, startTransition] = useTransition()
+  const [productId,   setProductId]  = useState<string>(products?.[0]?.id ?? '')
   const [description, setDescription] = useState('')
   const [severity,    setSeverity]    = useState<Severity>('minor')
   const [amount,      setAmount]      = useState('')
   const [photoUrl,    setPhotoUrl]    = useState('')
   const [error,       setError]       = useState<string | null>(null)
   const [success,     setSuccess]     = useState(false)
+
+  const showProductSelect = products && products.length > 1
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -38,11 +44,13 @@ export function DamageReportForm({ bookingId, isAdmin, onSuccess }: DamageReport
             severity,
             amount_charged: amount ? parseFloat(amount) : null,
             photo_url:      photoUrl || null,
+            product_id:     productId || null,
           })
         : await addCustomerDamageReport(bookingId, {
             description,
             severity,
-            photo_url: photoUrl || null,
+            photo_url:  photoUrl || null,
+            product_id: productId || null,
           })
 
       if (result.success) {
@@ -65,6 +73,26 @@ export function DamageReportForm({ bookingId, isAdmin, onSuccess }: DamageReport
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+
+      {/* Produktvelger — kun vis om det er flere produkter i bookingen */}
+      {showProductSelect && (
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            Gjelder produkt
+          </label>
+          <select
+            className={inputCls}
+            value={productId}
+            onChange={e => setProductId(e.target.value)}
+          >
+            <option value="">Alle produkter / Uspesifisert</option>
+            {products.map(p => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Alvorlighet */}
       <div>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Alvorlighetsgrad</p>
@@ -147,7 +175,7 @@ export function DamageReportForm({ bookingId, isAdmin, onSuccess }: DamageReport
       )}
 
       {success && (
-        <p className="text-sm text-[#5A7A55] font-medium">✓ Skaderapport registrert</p>
+        <p className="text-sm text-[#5A7A55] font-medium">Skaderapport registrert</p>
       )}
 
       <button

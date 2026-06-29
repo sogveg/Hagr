@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import { createServiceClient } from '@/lib/supabase-server'
 import { updateBookingStatus } from '@/app/actions/admin'
-import { DamageReportForm } from '@/components/ui/damage-report-form'
+import { DamageReportForm, type BookingProduct } from '@/components/ui/damage-report-form'
 import { SendMessageForm } from '@/components/admin/send-message-form'
 import Link from 'next/link'
 
@@ -72,6 +72,10 @@ export default async function BookingDetailPage({
       .order('created_at', { ascending: true })
       .then((r: any) => r.data ?? []),
   ])
+
+  const bookingProducts: BookingProduct[] = (bookingItems ?? [])
+    .map((item: any) => item.products?.name ? { id: item.product_id, name: item.products.name } : null)
+    .filter(Boolean) as BookingProduct[]
 
   const statusInfo = STATUS_FLOW[booking.status] ?? { label: booking.status, next: null, color: 'bg-gray-100 text-gray-500' }
   const nextStatus = statusInfo.next
@@ -318,6 +322,7 @@ export default async function BookingDetailPage({
             <SendMessageForm
               bookingId={id}
               customerName={`${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email}
+              products={bookingProducts}
             />
           </div>
         </div>
@@ -352,7 +357,7 @@ export default async function BookingDetailPage({
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
             Registrer skade
           </p>
-          <DamageReportForm bookingId={id} isAdmin={true} />
+          <DamageReportForm bookingId={id} isAdmin={true} products={bookingProducts} />
         </div>
       </div>
     </div>

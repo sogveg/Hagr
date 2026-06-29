@@ -24,7 +24,7 @@ export type CheckoutInput = {
 }
 
 export type CheckoutResult =
-  | { success: true;  bookingIds: string[]; vippsUrl?: string }
+  | { success: true;  bookingId: string; vippsUrl?: string }
   | { success: false; error: string }
 
 function bestPrice(
@@ -81,7 +81,42 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     customer = created
   }
 
-  // ── Levering som notat ─────────────────────────────────────────────────
+  // ── Beregn per-produkt priser ──────────────────────────────────────────
+  type LineItem = {
+    rental:        CartRental
+    days:          number
+    priceInfo:     { amount: number; type: string; unitPrice: number }
+    rentalAmount:  number
+    depositAmount: number
+  }
+
+  const lineItems: LineItem[] = []
+  for (const rental of input.rentals) {
+    const days = Math.ceil(
+      (new Date(rental.endDate).getTime() - new Date(rental.startDate).getTime()) / 86_400_000
+    )
+    if (days <= 0) continue
+    const priceInfo = bestPrice(days, rental.priceDay, rental.priceWeek, rental.priceMonth)
+    if (!priceInfo) continue
+    lineItems.push({ rental, days, priceInfo, rentalAmount: priceInfo.amount, depositAmount: rental.depositAmount })
+  }
+
+  if (!lineItems.length) {
+    return { success: false, error: 'Ingen gyldige leieperioder. Prøv igjen.' }
+  }
+
+  const accessoryTotal   = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
+  const totalRentalAmt   = lineItems.reduce((s, l) => s + l.rentalAmount, 0) + accessoryTotal
+  const totalDepositAmt  = lineItems.reduce((s, l) => s + l.depositAmount, 0)
+  const totalAmount      = totalRentalAmt + totalDepositAmt
+
+  // Booking-level period: min start → max end
+  const allStarts = lineItems.map(l => l.rental.startDate).sort()
+  const allEnds   = lineItems.map(l => l.rental.endDate).sort()
+  const bookingStart = allStarts[0]
+  const bookingEnd   = allEnds[allEnds.length - 1]
+
+  // ── Levering og tilbehør som notat ────────────────────────────────────
   const deliveryLabels: Record<string, string> = {
     pickup:  'Hent selv',
     home:    'Hjemlevering',
@@ -101,157 +136,118 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     }
     return base
   })()
-
-  // ── Tilbehør som notat ─────────────────────────────────────────────────
   const accessoryNote = input.accessories.length > 0
     ? 'Ønsket tilbehør: ' + input.accessories.map(a => `${a.name} ×${a.quantity}`).join(', ')
     : null
 
-  const accessoryTotal = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
-
   const isVipps = input.paymentMethod === 'vipps'
 
-  // ── Opprett én booking per leieprodukt ───────────────────────────────────
-  const bookingIds: string[] = []
-
-  for (const rental of input.rentals) {
-    const start = new Date(rental.startDate)
-    const end   = new Date(rental.endDate)
-    const days  = Math.ceil((end.getTime() - start.getTime()) / 86_400_000)
-
-    if (days <= 0) continue
-
-    const priceInfo = bestPrice(days, rental.priceDay, rental.priceWeek, rental.priceMonth)
-    if (!priceInfo) continue
-
-    // Fordel tilbehøret på første booking
-    const isFirst = bookingIds.length === 0
-    const thisAccessoryTotal = isFirst ? accessoryTotal : 0
-
-    const rentalAmount = priceInfo.amount + thisAccessoryTotal
-    const totalAmount  = rentalAmount + rental.depositAmount
-
-    // Cast to any because migration 012 columns (payment_method, vipps_order_id) aren't in generated types yet
-    const { data: booking, error: bookingErr } = await (supabase as any)
-      .from('bookings')
-      .insert({
-        customer_id:    customer.id,
-        location_id:    rental.locationId,
-        status:         isVipps ? 'pending_payment' : 'confirmed',
-        start_date:     rental.startDate,
-        end_date:       rental.endDate,
-        rental_amount:  rentalAmount,
-        deposit_amount: rental.depositAmount,
-        total_amount:   totalAmount,
-        currency:       'NOK',
-        payment_method: input.paymentMethod,  // added in migration 012
-        ...(isFirst ? {
-          notes: [deliveryNote, accessoryNote].filter(Boolean).join(' | ') || null,
-        } : {}),
-      })
-      .select('id')
-      .single()
-
-    if (bookingErr || !booking) {
-      console.error('Booking insert failed:', bookingErr)
-      continue
-    }
-
-    const { error: itemErr } = await supabase.from('booking_items').insert({
-      booking_id:  booking.id,
-      product_id:  rental.productId,
-      quantity:    1,
-      unit_price:  priceInfo.unitPrice,
-      price_type:  priceInfo.type,
+  // ── Opprett ÉN booking ────────────────────────────────────────────────
+  const { data: booking, error: bookingErr } = await (supabase as any)
+    .from('bookings')
+    .insert({
+      customer_id:    customer.id,
+      location_id:    lineItems[0].rental.locationId,
+      status:         isVipps ? 'pending_payment' : 'confirmed',
+      start_date:     bookingStart,
+      end_date:       bookingEnd,
+      rental_amount:  totalRentalAmt,
+      deposit_amount: totalDepositAmt,
+      total_amount:   totalAmount,
+      currency:       'NOK',
+      payment_method: input.paymentMethod,
+      notes:          [deliveryNote, accessoryNote].filter(Boolean).join(' | ') || null,
     })
+    .select('id')
+    .single()
 
-    if (itemErr) {
-      console.error('booking_items insert failed:', itemErr)
-      await supabase.from('bookings').delete().eq('id', booking.id)
-      continue
-    }
-
-    bookingIds.push(booking.id)
+  if (bookingErr || !booking) {
+    console.error('[checkoutCart] booking insert failed:', bookingErr)
+    return { success: false, error: 'Kunne ikke opprette bestilling. Prøv igjen.' }
   }
 
-  if (!bookingIds.length) {
-    return { success: false, error: 'Ingen bookinger kunne opprettes. Prøv igjen.' }
+  const bookingId: string = booking.id
+
+  // ── Opprett booking_items (ett per produkt) ────────────────────────────
+  const itemInserts = lineItems.map(l => ({
+    booking_id:     bookingId,
+    product_id:     l.rental.productId,
+    quantity:       1,
+    unit_price:     l.priceInfo.unitPrice,
+    price_type:     l.priceInfo.type,
+    start_date:     l.rental.startDate,
+    end_date:       l.rental.endDate,
+    rental_amount:  l.rentalAmount,
+    deposit_amount: l.depositAmount,
+  }))
+
+  const { error: itemErr } = await supabase.from('booking_items').insert(itemInserts as any)
+  if (itemErr) {
+    console.error('[checkoutCart] booking_items insert failed:', itemErr)
+    await supabase.from('bookings').delete().eq('id', bookingId)
+    return { success: false, error: 'Kunne ikke registrere produkter. Prøv igjen.' }
   }
 
-  // ── Vipps payment path ────────────────────────────────────────────────────
+  // ── Vipps payment path ────────────────────────────────────────────────
   if (isVipps) {
-    // Vipps orderId: max 30 alphanumeric chars. Strip UUID dashes and take first 30.
-    const vippsOrderId = bookingIds[0].replace(/-/g, '').slice(0, 30)
+    const vippsOrderId = bookingId.replace(/-/g, '').slice(0, 30)
 
-    // Store vipps_order_id on all bookings in this cart (column added in migration 012)
     await (supabase as any)
       .from('bookings')
       .update({ vipps_order_id: vippsOrderId })
-      .in('id', bookingIds)
+      .eq('id', bookingId)
 
-    // Total NOK for all bookings
-    const totalNok = input.rentals.reduce((s, r) => {
-      const days = Math.ceil((new Date(r.endDate).getTime() - new Date(r.startDate).getTime()) / 86_400_000)
-      return s + (bestPrice(days, r.priceDay, r.priceWeek, r.priceMonth)?.amount ?? 0) + r.depositAmount
-    }, 0) + accessoryTotal
-
-    const productNames = input.rentals.map(r => r.productName)
+    const productNames = lineItems.map(l => l.rental.productName)
     const txText = `TinyRent: ${productNames.join(', ')}`.slice(0, 100)
-
     const SITE = 'https://www.tinyrent.no'
 
     try {
       const vippsUrl = await initiateVippsPayment({
         orderId:         vippsOrderId,
-        amountNok:       totalNok,
+        amountNok:       totalAmount,
         redirectUrl:     `${SITE}/vipps/success?orderId=${vippsOrderId}`,
         callbackPrefix:  `${SITE}/api/vipps`,
         transactionText: txText,
         customerPhone:   customer.phone ?? undefined,
       })
-      return { success: true, bookingIds, vippsUrl }
+      return { success: true, bookingId, vippsUrl }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       console.error('[checkoutCart] Vipps init failed — orderId:', vippsOrderId, '— error:', msg)
-      // Mark bookings as cancelled so they don't linger as pending_payment
-      await supabase.from('bookings').update({ status: 'cancelled' }).in('id', bookingIds)
+      await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId)
       return { success: false, error: 'Kunne ikke starte Vipps-betaling. Prøv igjen.' }
     }
   }
 
-  // ── Pay-at-pickup path: e-mail admin and return ───────────────────────────
+  // ── Pay-at-pickup: e-post til admin ───────────────────────────────────
   try {
-    const productNames = input.rentals.map(r => r.productName)
+    const fmt = (d: string) =>
+      new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
+
+    const productNames = lineItems.map(l => l.rental.productName)
     const allNames = input.accessories.length > 0
       ? [...productNames, ...input.accessories.map(a => `${a.name} ×${a.quantity}`)]
       : productNames
-
-    const fmt = (d: string) => new Date(d).toLocaleDateString('nb-NO', { day: 'numeric', month: 'long', year: 'numeric' })
-    const firstRental = input.rentals[0]
-    const totalAll = input.rentals.reduce((s, r) => {
-      const days = Math.ceil((new Date(r.endDate).getTime() - new Date(r.startDate).getTime()) / 86_400_000)
-      return s + (bestPrice(days, r.priceDay, r.priceWeek, r.priceMonth)?.amount ?? 0) + r.depositAmount
-    }, 0) + accessoryTotal
 
     await sendEmail({
       to:      ADMIN_EMAIL(),
       subject: `Ny bestilling fra ${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim(),
       react:   React.createElement(AdminNewBookingEmail, {
-        bookingId:     bookingIds[0],
+        bookingId,
         customerName:  `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email,
         customerEmail: customer.email,
         customerPhone: customer.phone,
         productNames:  allNames,
-        startDate:     fmt(firstRental.startDate),
-        endDate:       fmt(firstRental.endDate),
-        totalAmount:   totalAll,
-        depositAmount: input.rentals.reduce((s, r) => s + r.depositAmount, 0),
-        adminUrl:      bookingIds.map(id => `https://www.tinyrent.no/admin/bookings/${id}`).join('\n'),
+        startDate:     fmt(bookingStart),
+        endDate:       fmt(bookingEnd),
+        totalAmount,
+        depositAmount: totalDepositAmt,
+        adminUrl:      `https://www.tinyrent.no/admin/bookings/${bookingId}`,
       }),
     })
   } catch (e) {
     console.error('[checkoutCart] Email failed:', e)
   }
 
-  return { success: true, bookingIds }
+  return { success: true, bookingId }
 }

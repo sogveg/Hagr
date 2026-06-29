@@ -88,7 +88,8 @@ export async function updateProfile(
 
 export async function sendMessageToCustomer(
   bookingId: string,
-  message: string
+  message: string,
+  productId?: string | null
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Verify admin
@@ -131,7 +132,7 @@ export async function sendMessageToCustomer(
     // Lagre meldingen i databasen
     await (supabase as any)
       .from('booking_messages')
-      .insert({ booking_id: bookingId, sender: 'admin', body: message })
+      .insert({ booking_id: bookingId, sender: 'admin', body: message, product_id: productId ?? null })
 
     return { success: true }
   } catch (e) {
