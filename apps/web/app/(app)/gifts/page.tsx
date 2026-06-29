@@ -11,6 +11,7 @@ import {
 } from '@/lib/shared'
 import { Gift, Tag, AlertTriangle, Plus, Trash2 } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
+import { useCompany } from '@/contexts/CompanyContext'
 
 function TipBox({ tips }: { tips: string[] }) {
   return (
@@ -45,11 +46,10 @@ const DISCOUNT_TIPS = [
 ]
 
 export default function GiftsPage() {
+  const { selectedCompanyId: selectedCompany } = useCompany()
   const [tab, setTab] = useState<'gifts' | 'discounts'>('gifts')
-  const [companies, setCompanies] = useState<any[]>([])
   const [gifts, setGifts] = useState<any[]>([])
   const [discounts, setDiscounts] = useState<any[]>([])
-  const [selectedCompany, setSelectedCompany] = useState('')
   const [year, setYear] = useState(new Date().getFullYear())
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -76,21 +76,6 @@ export default function GiftsPage() {
     date: new Date().toISOString().split('T')[0],
     notes: '',
   })
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
-        const ids = (data ?? []).map(r => r.company_id)
-        if (!ids.length) return
-        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
-          setCompanies(c ?? [])
-          if (c && c.length > 0) setSelectedCompany(c[0].id)
-        })
-      })
-    })
-  }, [])
 
   useEffect(() => {
     if (!selectedCompany) return
@@ -201,9 +186,6 @@ export default function GiftsPage() {
 
       {/* Filters */}
       <div className="flex gap-3 mb-5">
-        <select className="input w-48" value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
-          {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
           {(() => {
             const cy = new Date().getFullYear()

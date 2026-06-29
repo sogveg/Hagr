@@ -8,6 +8,7 @@ import {
   AlertTriangle, Trash2, Plus, ChevronDown, ChevronUp,
   Lightbulb, MapPin, Clock, RefreshCw, X,
 } from 'lucide-react'
+import { useCompany } from '@/contexts/CompanyContext'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -259,9 +260,8 @@ function OdometerCamera({
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 export default function CarPage() {
+  const { selectedCompanyId: selectedCompany } = useCompany()
   const [tab, setTab] = useState<'kjorebok' | 'history' | 'firmabil'>('kjorebok')
-  const [companies, setCompanies] = useState<any[]>([])
-  const [selectedCompany, setSelectedCompany] = useState('')
   const [trips, setTrips] = useState<MileageTrip[]>([])
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -298,30 +298,11 @@ export default function CarPage() {
       const saved = localStorage.getItem('hagr_active_trip')
       if (saved) setActiveTrip(JSON.parse(saved))
     } catch { /* ignore */ }
-
-    // Load companies + trips
-    loadData()
   }, [])
 
-  async function loadData() {
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { data: access } = await supabase
-      .from('company_access').select('company_id').eq('user_id', user.id)
-    const ids = (access ?? []).map(r => r.company_id)
-    if (!ids.length) return
-
-    const { data: companies } = await supabase.from('companies').select('*').in('id', ids)
-    setCompanies(companies ?? [])
-
-    const firstId = companies?.[0]?.id
-    if (firstId) {
-      setSelectedCompany(firstId)
-      await loadTrips(firstId)
-    }
-  }
+  useEffect(() => {
+    if (selectedCompany) loadTrips(selectedCompany)
+  }, [selectedCompany])
 
   async function loadTrips(companyId: string) {
     const supabase = createClient()
@@ -472,16 +453,6 @@ export default function CarPage() {
         <h1 className="text-2xl font-bold text-gray-900">Bil</h1>
         <p className="text-gray-500 mt-0.5 text-sm">Kjørebok og firmabilfordel</p>
       </div>
-
-      {/* Company selector */}
-      {companies.length > 1 && (
-        <select className="input w-full mb-4" value={selectedCompany} onChange={e => {
-          setSelectedCompany(e.target.value)
-          loadTrips(e.target.value)
-        }}>
-          {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-      )}
 
       {/* Tabs */}
       <div className="flex gap-1 mb-5 border-b border-gray-200">

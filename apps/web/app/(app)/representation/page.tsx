@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { evaluateRepresentation, REPRESENTATION_LIMIT_PER_PERSON_NOK } from '@/lib/shared'
 import { UtensilsCrossed, Lightbulb, ChevronDown, ChevronUp, Plus, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react'
 import GlobalTipBox from '@/components/TipBox'
+import { useCompany } from '@/contexts/CompanyContext'
 
 function TipBox({ tips }: { tips: string[] }) {
   const [open, setOpen] = useState(false)
@@ -49,9 +50,8 @@ const REP_LABELS: Record<RepType, string> = {
 }
 
 export default function RepresentationPage() {
-  const [companies, setCompanies] = useState<any[]>([])
+  const { selectedCompanyId: selectedCompany } = useCompany()
   const [events, setEvents] = useState<any[]>([])
-  const [selectedCompany, setSelectedCompany] = useState('')
   const [year, setYear] = useState(new Date().getFullYear())
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -70,21 +70,6 @@ export default function RepresentationPage() {
     purpose: '',
     notes: '',
   })
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
-        const ids = (data ?? []).map(r => r.company_id)
-        if (!ids.length) return
-        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
-          setCompanies(c ?? [])
-          if (c && c.length > 0) setSelectedCompany(c[0].id)
-        })
-      })
-    })
-  }, [])
 
   useEffect(() => {
     if (!selectedCompany) return
@@ -166,9 +151,6 @@ export default function RepresentationPage() {
       </div>
 
       <div className="flex gap-3 mb-5">
-        <select className="input w-48" value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
-          {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
         <select className="input w-28" value={year} onChange={e => setYear(parseInt(e.target.value))}>
           {(() => { const cy = new Date().getFullYear(); const sn = new Date().getMonth() >= 11; return (sn ? [cy+1,cy,cy-1,cy-2] : [cy,cy-1,cy-2]) })().map(y => <option key={y} value={y}>{y}</option>)}
         </select>

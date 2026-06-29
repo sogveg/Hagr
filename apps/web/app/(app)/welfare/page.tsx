@@ -8,6 +8,7 @@ import {
   WELFARE_RECOMMENDED_LIMIT_PER_EMPLOYEE, REPRESENTATION_FOOD_LIMIT_PER_PERSON,
   type WelfareType, type AlcoholType,
 } from '@/lib/shared'
+import { useCompany } from '@/contexts/CompanyContext'
 import {
   Heart, Lightbulb, ChevronDown, ChevronUp, AlertTriangle, CheckCircle,
   ShieldCheck, ShieldAlert, ShieldX, Save, Users, Info,
@@ -291,27 +292,11 @@ export default function WelfarePage() {
   const [notes, setNotes] = useState('')
 
   // Supabase
-  const [companies, setCompanies] = useState<any[]>([])
-  const [selectedCompany, setSelectedCompany] = useState('')
+  const { selectedCompanyId: selectedCompany } = useCompany()
   const [companyPeople, setCompanyPeople] = useState<any[]>([])
   const [saving, setSaving] = useState(false)
   const [saveOk, setSaveOk] = useState(false)
   const [history, setHistory] = useState<any[]>([])
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
-        const ids = (data ?? []).map(r => r.company_id)
-        if (!ids.length) return
-        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
-          setCompanies(c ?? [])
-          if (c && c.length > 0) setSelectedCompany(c[0].id)
-        })
-      })
-    })
-  }, [])
 
   useEffect(() => {
     if (!selectedCompany) return
@@ -433,15 +418,6 @@ export default function WelfarePage() {
         <div className="space-y-5">
           <TipBox toolHref="/welfare" title="Julebord og velferd — tips og fallgruver" maxTips={3} />
 
-          {/* Company selector */}
-          {companies.length > 0 && (
-            <div className="flex items-center gap-3">
-              <Building2 size={15} className="text-gray-400 shrink-0" />
-              <select className="input flex-1" value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
-                {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </div>
-          )}
 
           {/* Form */}
           <div className="card p-6 space-y-5">
