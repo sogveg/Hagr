@@ -35,7 +35,7 @@ const NAV_GROUPS = [
     enkel: 'Skattefrie goder',
     pro:   'Naturalytelser og fradrag',
     items: [
-      { href: '/gifts',          enkel: 'Gaver (5 000 kr/pers)',  pro: 'Gaver og personalrabatter',         icon: Gift },
+      { href: '/gifts',          enkel: 'Gaver og rabatter',      pro: 'Gaver og personalrabatter',         icon: Gift },
       { href: '/phone-internet', enkel: 'Mobil og internett',     pro: 'Elektronisk kommunikasjon (EK)',    icon: Smartphone },
       { href: '/welfare',        enkel: 'Julebord og velferd',    pro: 'Velferdstiltak',                    icon: Heart },
       { href: '/car',            enkel: 'Bil og kjørebok',        pro: 'Firmabil og kjøregodtgjørelse',     icon: Car },
@@ -46,7 +46,7 @@ const NAV_GROUPS = [
     enkel: 'Fradrag og bilag',
     pro:   'Fradragsberettigede kostnader',
     items: [
-      { href: '/representation', enkel: 'Kundemøter (560 kr)',  pro: 'Representasjon',         icon: UtensilsCrossed },
+      { href: '/representation', enkel: 'Representasjon',        pro: 'Representasjon',         icon: UtensilsCrossed },
       { href: '/company-card',   enkel: 'Firmakort',            pro: 'Firmakort',              icon: CreditCard },
       { href: '/board-meetings', enkel: 'Styremøter',           pro: 'Styreprotokoll',         icon: ClipboardList },
       { href: '/strategy',       enkel: 'Strategisamlinger',    pro: 'Faglige samlinger',      icon: Target },
