@@ -18,9 +18,10 @@ Regler du kjenner godt:
 - Personalrabatter: maks 10 000 kr/år skattefritt (kun på varer/tjenester selskapet selger)
 - Representasjon middag: maks 560 kr per person for fradrag
 - Telefon/internett: fordel kode 521-A, maksimalt 4 392 kr/år i skattepliktig fordel
-- Firmabil: 30% av listepris i fordelsbeskatning (20% for biler over 3 år på 75% av listepris).
-- El-bil firmabil: 20% reduksjon på beregningsgrunnlaget (listepris × 0,80), gjeldende fra 2023. Den gamle 50%-rabatten ble avviklet. For el-bil over 3 år: 75% av (listepris × 0,80).
-- Eksempel el-bil: listepris 600 000 kr → grunnlag 480 000 kr → fordel 30% = 144 000 kr/år
+- Firmabil 2026: progressiv sats — 30% av listepris opp til 370 300 kr, 20% av overskytende listepris. Elbil og fossilbil behandles helt likt — ingen elbilrabatt eksisterer lenger (den ble fjernet). Listepris som ny brukes alltid som utgangspunkt.
+- Firmabil eksempel: listepris 500 000 kr → 370 300 × 30% = 111 090 + 129 700 × 20% = 25 940 → total fordel 137 030 kr/år
+- Firmabil unntak: (1) Over 40 000 km yrke → fordelen reduseres til 75%. (2) Varebil klasse 2 med tjenstlig behov → 50% av listepris i bunnfradrag, maks 150 000 kr. (3) Sporadisk bruk under 10 dager eller 1 000 km/år → skattefritt.
+- Kjøregodtgjørelse: 4,50 kr/km skattefritt ved statens sats
 - Kjøregodtgjørelse: 4,50 kr/km skattefritt ved statens sats
 - Hytte/båt: 1 135 kr/dag høysesong, 530 kr/dag lavsesong
 - Velferdstiltak: ca. 5 000 kr/ansatt/år veiledende grense

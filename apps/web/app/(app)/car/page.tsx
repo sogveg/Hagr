@@ -287,8 +287,7 @@ export default function CarPage() {
 
   // Firmabil
   const [listPrice, setListPrice] = useState('')
-  const [carAge, setCarAge] = useState('0')
-  const [isElectric, setIsElectric] = useState(false)
+  const [isVarebil, setIsVarebil] = useState(false)
   const [businessKm, setBusinessKm] = useState('')
   const [monthsAvailable, setMonthsAvailable] = useState('12')
 
@@ -408,23 +407,38 @@ export default function CarPage() {
     setDeleting(null)
   }
 
-  // ── Firmabil calc ─────────────────────────────────────────────────────────
+  // ── Firmabil calc (2026 rules) ────────────────────────────────────────────
+  // Progressiv sats: 30% opp til 370 300 kr, 20% over. Ingen elbilrabatt.
+  const FIRMABIL_THRESHOLD = 370_300
   const carResult = useMemo(() => {
     const lp = parseFloat(listPrice.replace(/\s/g, ''))
     if (!lp || lp <= 0) return null
+
+    // Varebil kl. 2: 50% av listepris, maks 150 000 kr i bunnfradrag
     let basis = lp
-    const age = parseInt(carAge)
-    if (age >= 3) basis = basis * 0.75
-    const rate = age >= 3 ? 0.20 : 0.30
-    let annual = basis * rate
-    if (isElectric) annual = annual * 0.80  // 20% reduksjon på beregningsgrunnlag (2026)
-    if ((parseFloat(businessKm) || 0) >= 40000) annual = annual * 0.75
+    if (isVarebil) {
+      const reduction = Math.min(lp * 0.50, 150_000)
+      basis = lp - reduction
+    }
+
+    // Progressiv beregning
+    let annual = 0
+    if (basis <= FIRMABIL_THRESHOLD) {
+      annual = basis * 0.30
+    } else {
+      annual = FIRMABIL_THRESHOLD * 0.30 + (basis - FIRMABIL_THRESHOLD) * 0.20
+    }
+
+    // Over 40 000 km yrke → 75%
+    if ((parseFloat(businessKm) || 0) >= 40_000) annual = annual * 0.75
+
     annual = annual * (parseInt(monthsAvailable) / 12)
     return {
       annual: Math.round(annual),
       monthly: Math.round(annual / parseInt(monthsAvailable)),
+      basis: Math.round(basis),
     }
-  }, [listPrice, carAge, isElectric, businessKm, monthsAvailable])
+  }, [listPrice, isVarebil, businessKm, monthsAvailable])
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const totalKm = trips.filter(t => !t.is_home_to_work).reduce((s, t) => s + Number(t.km), 0)
@@ -707,15 +721,12 @@ export default function CarPage() {
         <div className="space-y-4">
           <div className="card p-5 space-y-4">
             <h2 className="font-semibold text-gray-900">Fordelsberegning firmabil</h2>
+            <p className="text-xs text-gray-400">Elbil og fossilbil behandles likt — ingen særskilt elbilrabatt (2026)</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className="label">Listepris ny (kr)</label>
+                <label className="label">Listepris som ny (kr)</label>
                 <input className="input" placeholder="550 000" value={listPrice} onChange={e => setListPrice(e.target.value)} />
-              </div>
-              <div>
-                <label className="label">Alder (år)</label>
-                <input className="input" type="number" min="0" value={carAge} onChange={e => setCarAge(e.target.value)} />
               </div>
               <div>
                 <label className="label">Måneder tilgjengelig</label>
@@ -732,8 +743,8 @@ export default function CarPage() {
             </div>
 
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={isElectric} onChange={e => setIsElectric(e.target.checked)} className="w-4 h-4 rounded accent-violet-600" />
-              <span className="text-sm text-gray-700">El-bil (20% reduksjon på grunnlag)</span>
+              <input type="checkbox" checked={isVarebil} onChange={e => setIsVarebil(e.target.checked)} className="w-4 h-4 rounded accent-violet-600" />
+              <span className="text-sm text-gray-700">Varebil klasse 2 (50% av listepris i bunnfradrag, maks 150 000 kr)</span>
             </label>
           </div>
 
@@ -742,7 +753,7 @@ export default function CarPage() {
               <h3 className="font-semibold text-gray-900">Resultat</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-blue-50 rounded-xl p-4 text-center">
-                  <p className="text-xs text-blue-600 font-medium mb-1">Årlig skattegrunnlag</p>
+                  <p className="text-xs text-blue-600 font-medium mb-1">Årlig skattepliktig fordel</p>
                   <p className="text-2xl font-bold text-blue-700">{carResult.annual.toLocaleString('nb-NO')} kr</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 text-center">
@@ -750,16 +761,21 @@ export default function CarPage() {
                   <p className="text-2xl font-bold text-gray-700">{carResult.monthly.toLocaleString('nb-NO')} kr</p>
                 </div>
               </div>
-              <p className="text-xs text-gray-400">Innberettes i a-meldingen (kode 113-A).</p>
+              {isVarebil && (
+                <p className="text-xs text-gray-500">Beregningsgrunnlag etter varebil-fradrag: {carResult.basis.toLocaleString('nb-NO')} kr</p>
+              )}
+              <p className="text-xs text-gray-400">Legges til lønnsinntekt og beskattes med din marginale skattesats. Innberettes i a-meldingen (kode 113-A).</p>
             </div>
           )}
 
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 space-y-1.5">
             <p className="font-semibold text-amber-800">💡 Firmabilregler 2026</p>
-            <p>• Under 3 år: 30% av listepris</p>
-            <p>• Over 3 år: 20% av 75% av listepris</p>
-            <p>• El-bil: 20% reduksjon på beregningsgrunnlaget (gjelder fra 2023)</p>
-            <p>• Over 40 000 km yrke: 25% reduksjon</p>
+            <p>• 30% av listepris opp til 370 300 kr</p>
+            <p>• 20% av listepris over 370 300 kr</p>
+            <p>• Elbil og fossilbil behandles likt — ingen elbilrabatt</p>
+            <p>• Over 40 000 km yrke → 75% av beregnet fordel</p>
+            <p>• Varebil kl. 2 med tjenstlig behov → 50% bunnfradrag (maks 150 000 kr)</p>
+            <p>• Sporadisk bruk (&lt;10 dager eller &lt;1 000 km/år) → skattefritt</p>
             <p>• Uten kjørebok = all kjøring regnes privat</p>
           </div>
         </div>
