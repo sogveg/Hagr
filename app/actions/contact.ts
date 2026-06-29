@@ -35,15 +35,25 @@ export async function sendContactMessage(input: {
       }),
     })
 
-    // Lagre kundens melding i tråden (kun om vi vet hvilken booking det gjelder)
+    const supabase = createServiceClient()
     if (input.bookingId) {
-      const supabase = createServiceClient()
+      // Lagre i booking-tråden
       await (supabase as any)
         .from('booking_messages')
         .insert({
           booking_id: input.bookingId,
           sender:     'customer',
           body:       `Emne: ${input.subject}\n\n${input.message}`,
+        })
+    } else {
+      // Lagre som generell kontakthenvendelse
+      await (supabase as any)
+        .from('contact_messages')
+        .insert({
+          name:    input.name,
+          email:   input.email,
+          subject: input.subject || null,
+          body:    input.message,
         })
     }
 
