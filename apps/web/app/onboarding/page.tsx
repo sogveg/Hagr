@@ -214,7 +214,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-lg">
         {/* Logo + progress */}
         <div className="text-center mb-6">
-          <span className="text-2xl font-bold text-brand-700">SkatteSmart</span>
+          <span className="text-2xl font-bold text-brand-700">Hagr</span>
           <p className="mt-1 text-sm text-gray-500">Steg {step} av {TOTAL_STEPS}</p>
           <StepDots current={step} total={TOTAL_STEPS} />
         </div>

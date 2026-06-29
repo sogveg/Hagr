@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { COMPANY_TYPE_LABELS } from '@/lib/shared'
 import {
@@ -43,6 +44,13 @@ export default async function DashboardPage() {
     ? await supabase.from('companies').select('*').in('id', companyIds)
     : { data: [] }
 
+  // Use cookie-selected company if valid, otherwise fall back to first
+  const cookieStore = await cookies()
+  const cookieCompanyId = cookieStore.get('hagr_company')?.value
+  const selectedCompanyId = cookieCompanyId && companyIds.includes(cookieCompanyId)
+    ? cookieCompanyId
+    : companyIds[0]
+
   const { data: subscription } = await supabase
     .from('subscriptions').select('*').eq('user_id', user!.id).single()
 
@@ -52,21 +60,23 @@ export default async function DashboardPage() {
     representation_count: 0, welfare_count: 0,
   }
 
-  if (companyIds.length) {
+  const selectedIds = selectedCompanyId ? [selectedCompanyId] : companyIds
+
+  if (selectedIds.length) {
     const [
       { count: meetings }, { count: gatherings },
       { count: gifts }, { data: giftValues },
       { count: phoneBenefits }, { count: mileageTrips },
       { count: representations }, { count: welfare },
     ] = await Promise.all([
-      supabase.from('board_meetings').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
-      supabase.from('strategy_gatherings').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
-      supabase.from('gifts').select('id', { count: 'exact', head: true }).in('company_id', companyIds).eq('year', currentYear),
-      supabase.from('gifts').select('total_value_nok').in('company_id', companyIds).eq('year', currentYear),
-      supabase.from('phone_internet_benefits').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
-      supabase.from('mileage_trips').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
-      supabase.from('representation_events').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
-      supabase.from('welfare_measures').select('id', { count: 'exact', head: true }).in('company_id', companyIds),
+      supabase.from('board_meetings').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
+      supabase.from('strategy_gatherings').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
+      supabase.from('gifts').select('id', { count: 'exact', head: true }).in('company_id', selectedIds).eq('year', currentYear),
+      supabase.from('gifts').select('total_value_nok').in('company_id', selectedIds).eq('year', currentYear),
+      supabase.from('phone_internet_benefits').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
+      supabase.from('mileage_trips').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
+      supabase.from('representation_events').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
+      supabase.from('welfare_measures').select('id', { count: 'exact', head: true }).in('company_id', selectedIds),
     ])
 
     const giftsValue = (giftValues ?? []).reduce((s: number, g: any) => s + Number(g.total_value_nok ?? 0), 0)
@@ -79,7 +89,7 @@ export default async function DashboardPage() {
     }
   }
 
-  const primaryCompany = companies && companies.length > 0 ? companies[0] as any : null
+  const primaryCompany = companies?.find((c: any) => c.id === selectedCompanyId) ?? (companies?.[0] as any) ?? null
   const ctx: CompanyContext | null = primaryCompany ? {
     owner_employed: primaryCompany.owner_employed ?? true,
     payroll_active: primaryCompany.payroll_active ?? false,

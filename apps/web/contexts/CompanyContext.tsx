@@ -65,6 +65,8 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   function setSelectedCompanyId(id: string) {
     setSelectedCompanyIdState(id)
     localStorage.setItem('hagr_selected_company', id)
+    // Also set a cookie so server components (dashboard) can read it
+    document.cookie = `hagr_company=${id};path=/;max-age=31536000;SameSite=Lax`
   }
 
   const selectedCompany = companies.find(c => c.id === selectedCompanyId) ?? null

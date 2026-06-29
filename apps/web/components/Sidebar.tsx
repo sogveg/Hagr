@@ -6,10 +6,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguageMode } from '@/contexts/LanguageMode'
 import { useCompany } from '@/contexts/CompanyContext'
+import { useState } from 'react'
 import {
   LayoutDashboard, Users, ClipboardList, Target, Gift, FileText,
   Smartphone, UtensilsCrossed, TrendingUp, CreditCard,
-  LogOut, Car, Anchor, Heart, Bot, Lightbulb, Building2, ChevronDown,
+  LogOut, Car, Anchor, Heart, Bot, Lightbulb, Building2, ChevronDown, Menu, X,
 } from 'lucide-react'
 
 // Each item has both an "enkel" (plain) and "pro" (professional) label
@@ -70,6 +71,7 @@ export default function Sidebar({ userId }: Props) {
   const router = useRouter()
   const { mode, setMode, t } = useLanguageMode()
   const { companies, selectedCompanyId, setSelectedCompanyId } = useCompany()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   async function signOut() {
     const supabase = createClient()
@@ -78,15 +80,38 @@ export default function Sidebar({ userId }: Props) {
     router.refresh()
   }
 
+  // Close mobile menu on navigation
+  const handleNavClick = () => setMobileOpen(false)
+
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col z-10">
+    <>
+      {/* Mobile top bar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+            <span className="text-white text-xs font-bold">H</span>
+          </div>
+          <span className="text-lg font-bold text-gray-900">Hagr</span>
+        </Link>
+        <button onClick={() => setMobileOpen(v => !v)} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-20 bg-black/40" onClick={() => setMobileOpen(false)} />
+      )}
+
+    <aside className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col z-20 transition-transform duration-200
+      md:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
       {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-100">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">SS</span>
+          <div className="w-7 h-7 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+            <span className="text-white text-xs font-bold">H</span>
           </div>
-          <span className="text-lg font-bold text-gray-900">SkatteSmart</span>
+          <span className="text-lg font-bold text-gray-900">Hagr</span>
         </Link>
       </div>
 
@@ -124,6 +149,7 @@ export default function Sidebar({ userId }: Props) {
                   <Link
                     key={href}
                     href={href}
+                    onClick={handleNavClick}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       active
                         ? 'bg-brand-50 text-brand-700'
@@ -186,5 +212,6 @@ export default function Sidebar({ userId }: Props) {
         </p>
       </div>
     </aside>
+    </>
   )
 }
