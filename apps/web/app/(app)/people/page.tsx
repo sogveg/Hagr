@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useCompany } from '@/contexts/CompanyContext'
 import {
   evaluateGift,
   getRemainingGiftAllowance,
@@ -61,10 +62,9 @@ const EMPTY_GIFT: GiftForm = {
 }
 
 export default function PeoplePage() {
-  const [companies, setCompanies] = useState<any[]>([])
+  const { selectedCompanyId: selectedCompany, companies } = useCompany()
   const [people, setPeople] = useState<any[]>([])
   const [giftsByPerson, setGiftsByPerson] = useState<Record<string, number>>({}) // name → used NOK this year
-  const [selectedCompany, setSelectedCompany] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -90,25 +90,8 @@ export default function PeoplePage() {
   })
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase.from('company_access').select('company_id').eq('user_id', user.id).then(({ data }) => {
-        const ids = (data ?? []).map(r => r.company_id)
-        if (!ids.length) return
-        supabase.from('companies').select('*').in('id', ids).then(({ data: c }) => {
-          setCompanies(c ?? [])
-          if (c && c.length > 0) {
-            setSelectedCompany(c[0].id)
-            setForm(prev => ({ ...prev, company_ids: [c[0].id] }))
-          }
-        })
-      })
-    })
-  }, [])
-
-  useEffect(() => {
     if (!selectedCompany) return
+    setForm(prev => ({ ...prev, company_ids: prev.company_ids.length ? prev.company_ids : [selectedCompany] }))
     loadPeople()
   }, [selectedCompany])
 
@@ -254,14 +237,6 @@ export default function PeoplePage() {
         <button onClick={() => { setShowForm(true); setError(null) }} className="btn-primary">
           + Legg til person
         </button>
-      </div>
-
-      {/* Company selector */}
-      <div className="mb-6">
-        <select className="input w-56" value={selectedCompany}
-          onChange={e => setSelectedCompany(e.target.value)}>
-          {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
       </div>
 
       {/* Ownership bar */}

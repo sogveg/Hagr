@@ -5,10 +5,11 @@ import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguageMode } from '@/contexts/LanguageMode'
+import { useCompany } from '@/contexts/CompanyContext'
 import {
   LayoutDashboard, Users, ClipboardList, Target, Gift, FileText,
   Smartphone, UtensilsCrossed, TrendingUp, CreditCard,
-  LogOut, Car, Anchor, Heart, Bot, Lightbulb,
+  LogOut, Car, Anchor, Heart, Bot, Lightbulb, Building2, ChevronDown,
 } from 'lucide-react'
 
 // Each item has both an "enkel" (plain) and "pro" (professional) label
@@ -68,6 +69,7 @@ export default function Sidebar({ userId }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const { mode, setMode, t } = useLanguageMode()
+  const { companies, selectedCompanyId, setSelectedCompanyId } = useCompany()
 
   async function signOut() {
     const supabase = createClient()
@@ -87,6 +89,26 @@ export default function Sidebar({ userId }: Props) {
           <span className="text-lg font-bold text-gray-900">SkatteSmart</span>
         </Link>
       </div>
+
+      {/* Company selector */}
+      {companies.length > 0 && (
+        <div className="px-3 py-3 border-b border-gray-100">
+          <p className="px-3 mb-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Selskap</p>
+          <div className="relative">
+            <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <select
+              value={selectedCompanyId}
+              onChange={e => setSelectedCompanyId(e.target.value)}
+              className="w-full pl-8 pr-7 py-2 text-sm font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-lg appearance-none cursor-pointer hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+            >
+              {companies.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-3 space-y-4 overflow-y-auto">
