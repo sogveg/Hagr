@@ -16,10 +16,10 @@ export const FIRMABIL_VAREBIL_DEDUCTION = 0.50    // Varebil kl. 2: 50% av liste
 export const FIRMABIL_VAREBIL_MAX_DEDUCTION = 150_000 // Maks bunnfradrag varebil kl. 2
 
 // ─── Kjøregodtgjørelse ────────────────────────────────────────────────────────
-// Statens sats 2026: 4,50 kr/km (skattefritt for alle km ved refusjon til ansatt)
-// NB: Redusert sats over 10 000 km/år er usikker for 2026 — bruk 4,50 for alle km
-export const MILEAGE_RATE_2025 = 4.50   // eksportert navn beholdes for bakoverkompatibilitet
-export const MILEAGE_RATE_ALL = 4.50    // kr/km, alle km (2026)
+// Skatteetaten 2026: 3,50 kr/km skattefri bilgodtgjørelse (uansett kjørelengde)
+// Kilde: https://www.skatteetaten.no/satser/bilgodtgjorelse-kilometergodtgjorelse/
+export const MILEAGE_RATE_2025 = 3.50   // eksportert navn beholdes for bakoverkompatibilitet
+export const MILEAGE_RATE_ALL = 3.50    // kr/km, alle km (2026)
 
 export interface CarBenefitInput {
   list_price_nok: number

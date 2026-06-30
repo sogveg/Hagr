@@ -501,7 +501,8 @@ export default function CarPage() {
             </button>
             {showTips && (
               <div className="px-4 pb-4 space-y-2 border-t border-amber-200 pt-2 text-sm text-amber-900">
-                <p>• <strong>4,50 kr/km</strong> skattefritt ved statens sats (2026)</p>
+                <p>• <strong>3,50 kr/km</strong> skattefritt (Skatteetatens sats 2026)</p>
+                <p>• +1,00 kr/km per passasjer i bilen</p>
                 <p>• Hjem ↔ fast arbeidssted er <strong>ikke</strong> godtgjørelsesberettiget</p>
                 <p>• Krev dokumentasjon: fra, til, formål og km for hvert oppdrag</p>
                 <p>• Over 10 000 km/år: vurder firmabil i stedet</p>

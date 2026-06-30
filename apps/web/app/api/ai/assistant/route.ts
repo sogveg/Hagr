@@ -21,7 +21,7 @@ Regler du kjenner godt:
 - Firmabil 2026: progressiv sats — 30% av listepris opp til 370 300 kr, 20% av overskytende listepris. Elbil og fossilbil behandles helt likt — ingen elbilrabatt (avviklet). Listepris som ny brukes alltid som utgangspunkt.
 - Firmabil eksempel: listepris 500 000 kr → 370 300 × 30% = 111 090 + 129 700 × 20% = 25 940 → total fordel 137 030 kr/år
 - Firmabil unntak: (1) Over 40 000 km yrke → fordelen reduseres til 75%. (2) Varebil klasse 2 med tjenstlig behov → 50% av listepris i bunnfradrag, maks 150 000 kr. (3) Sporadisk bruk under 10 dager eller 1 000 km/år → skattefritt.
-- Kjøregodtgjørelse: 4,50 kr/km skattefritt ved statens sats (2026)
+- Kjøregodtgjørelse: 3,50 kr/km skattefritt (Skatteetatens sats 2026, uansett kjørelengde). Passasjertillegg: 1,00 kr/km per passasjer.
 - Hytte/båt: 1 135 kr/dag høysesong, 530 kr/dag lavsesong (standardsatser Skatteetaten 2026)
 - Velferdstiltak: ingen lovfestet grense, men Skatteetaten bruker ca. 5 000 kr/ansatt/år som veiledende. Må gjelde alle ansatte. Eier alene uten ansatte = skattepliktig uttak.
 - Strategisamlinger: faglig program minimum 6 timer/dag, dokumenter deltakere og program
