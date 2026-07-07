@@ -62,7 +62,7 @@ const TRANSLATIONS = {
     home: {
       badge:               'Bergen, Norge',
       heroTitle:           'Mer tid med babyen. Mindre styr.',
-      heroSubtitle:        'Reiser du til Bergen med baby? Barnebarna kommer på besøk? Vi har det du trenger, grundig vasket og klart til henting.',
+      heroSubtitle:        'Reiser du til Bergen med baby? Barnebarna på besøk? Vil du prøve utstyret før du kjøper? Vi har det du trenger, grundig vasket og klart til henting.',
       heroCta:             'Se utstyr i Bergen',
       categoriesLabel:     'Hva trenger du?',
       categoriesTitle:     'Finn det du leter etter',
@@ -312,7 +312,7 @@ const TRANSLATIONS = {
     home: {
       badge:               'Bergen, Norway',
       heroTitle:           'More time with the baby. Less hassle.',
-      heroSubtitle:        'Visiting Bergen with a baby? Grandchildren coming to stay? We have what you need, thoroughly cleaned and ready to pick up.',
+      heroSubtitle:        'Visiting Bergen with a baby? Grandchildren coming to stay? Want to try before you buy? We have what you need, thoroughly cleaned and ready to pick up.',
       heroCta:             'See equipment in Bergen',
       categoriesLabel:     'What do you need?',
       categoriesTitle:     'Find what you\'re looking for',
