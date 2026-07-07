@@ -12,6 +12,7 @@ interface BookingConfirmedProps {
   totalAmount: number
   depositAmount: number
   bookingUrl: string
+  agreementAcceptedAt?: string
 }
 
 export function BookingConfirmedEmail({
@@ -23,6 +24,7 @@ export function BookingConfirmedEmail({
   totalAmount,
   depositAmount,
   bookingUrl,
+  agreementAcceptedAt,
 }: BookingConfirmedProps) {
   const rentalAmount = totalAmount - depositAmount
 
@@ -90,6 +92,37 @@ export function BookingConfirmedEmail({
             <Link href={bookingUrl} style={button}>
               Se booking på Min side
             </Link>
+          </Section>
+
+          <Hr style={hr} />
+
+          {/* Leieavtale */}
+          <Section style={section}>
+            <Heading as="h3" style={h3}>Din leieavtale</Heading>
+            {agreementAcceptedAt && (
+              <Text style={{ ...text, fontSize: '13px', color: '#6B7280' }}>
+                Godtatt: {agreementAcceptedAt}
+              </Text>
+            )}
+            <Text style={agreementText}>
+              <strong>Parter:</strong> Utleier er Sognefest Holding AS (org.nr. 918771719), handelsnavn TinyRent, Bergen. Leietaker er deg, bekreftet ved innlogging.
+            </Text>
+            <Text style={agreementText}>
+              <strong>Skader:</strong> Skade utover normal slitasje er leietakers ansvar og trekkes fra depositumet. Fullstendig ødeleggelse erstattes til nypris.
+            </Text>
+            <Text style={agreementText}>
+              <strong>Sen tilbakelevering:</strong> Dagspris per påbegynte dag utover avtalt dato.
+            </Text>
+            <Text style={agreementText}>
+              <strong>Skitten tilbakelevering:</strong> Standard rengjøring 200 kr, ekstra rengjøring 500 kr. Trekkes fra depositumet.
+            </Text>
+            <Text style={agreementText}>
+              <strong>Avbestilling:</strong> Mer enn 48 timer: full refusjon. Under 48 timer: leiebeløpet refunderes ikke. Depositum refunderes alltid.
+            </Text>
+            <Text style={agreementText}>
+              Full avtale er tilgjengelig på{' '}
+              <Link href={bookingUrl} style={link}>Min side under din booking</Link>.
+            </Text>
           </Section>
 
           <Hr style={hr} />
@@ -230,4 +263,12 @@ const footerText = {
 
 const link = {
   color: '#8FA68B',
+}
+
+const agreementText = {
+  color: '#4B5563',
+  fontSize: '13px',
+  lineHeight: '1.5',
+  margin: '0 0 8px',
+  padding: '0',
 }

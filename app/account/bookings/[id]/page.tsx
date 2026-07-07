@@ -9,6 +9,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { DamageReportForm, type BookingProduct } from '@/components/ui/damage-report-form'
 import { ContactForm } from '@/components/ui/contact-form'
+import { BookingAgreementView } from '@/components/booking/booking-agreement-view'
 
 const statusMap: Record<string, { label: string; className: string }> = {
   draft:           { label: 'Utkast',          className: 'bg-gray-100 text-gray-500' },
@@ -313,6 +314,14 @@ export default async function CustomerBookingPage({
               )}
             </div>
           )}
+        </div>
+
+        {/* Leieavtale */}
+        <div className="mt-4">
+          <BookingAgreementView
+            booking={booking}
+            productNames={(bookingItems ?? []).map((item: any) => item.products?.name).filter(Boolean)}
+          />
         </div>
 
         {/* Ta kontakt om denne bookingen */}
