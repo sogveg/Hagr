@@ -271,6 +271,39 @@ interface ProductSchemaProps {
   categorySlug:  string
 }
 
+// Shared merchant policy fields added to every Offer (satisfies Google Merchant Center requirements)
+const RETURN_POLICY = {
+  '@type': 'MerchantReturnPolicy',
+  applicableCountry: 'NO',
+  returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+  merchantReturnDays: 2,
+  returnMethod: 'https://schema.org/ReturnInStore',
+  returnFees: 'https://schema.org/FreeReturn',
+}
+
+const SHIPPING_DETAILS = {
+  '@type': 'OfferShippingDetails',
+  shippingDestination: {
+    '@type': 'DefinedRegion',
+    addressCountry: 'NO',
+    addressRegion: 'Vestland',
+  },
+  shippingRate: {
+    '@type': 'MonetaryAmount',
+    value: '0',
+    currency: 'NOK',
+  },
+  deliveryTime: {
+    '@type': 'ShippingDeliveryTime',
+    handlingTime: {
+      '@type': 'QuantitativeValue',
+      minValue: 0,
+      maxValue: 1,
+      unitCode: 'DAY',
+    },
+  },
+}
+
 export function ProductSchema({
   name, description, brand, imageUrl,
   priceDay, priceWeek, priceMonth, depositAmount,
@@ -279,10 +312,12 @@ export function ProductSchema({
   const url = `${BASE}/${locationSlug}/${categorySlug}/${slug}`
   const availability = isAvailable ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
 
+  const baseOffer = { availability, seller: { '@type': 'Organization', name: 'TinyRent' }, hasMerchantReturnPolicy: RETURN_POLICY, shippingDetails: SHIPPING_DETAILS }
+
   const offers: Record<string, unknown>[] = []
-  if (priceDay)   offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceDay.toString(),   priceSpecification: { '@type': 'UnitPriceSpecification', price: priceDay,   priceCurrency: 'NOK', unitText: 'DAY'   }, availability, seller: { '@type': 'Organization', name: 'TinyRent' } })
-  if (priceWeek)  offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceWeek.toString(),  priceSpecification: { '@type': 'UnitPriceSpecification', price: priceWeek,  priceCurrency: 'NOK', unitText: 'WK'    }, availability, seller: { '@type': 'Organization', name: 'TinyRent' } })
-  if (priceMonth) offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceMonth.toString(), priceSpecification: { '@type': 'UnitPriceSpecification', price: priceMonth, priceCurrency: 'NOK', unitText: 'MON'   }, availability, seller: { '@type': 'Organization', name: 'TinyRent' } })
+  if (priceDay)   offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceDay.toString(),   priceSpecification: { '@type': 'UnitPriceSpecification', price: priceDay,   priceCurrency: 'NOK', unitText: 'DAY' }, ...baseOffer })
+  if (priceWeek)  offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceWeek.toString(),  priceSpecification: { '@type': 'UnitPriceSpecification', price: priceWeek,  priceCurrency: 'NOK', unitText: 'WK'  }, ...baseOffer })
+  if (priceMonth) offers.push({ '@type': 'Offer', url, priceCurrency: 'NOK', price: priceMonth.toString(), priceSpecification: { '@type': 'UnitPriceSpecification', price: priceMonth, priceCurrency: 'NOK', unitText: 'MON' }, ...baseOffer })
 
   const fallbackImage = `${BASE}/images/products/${categorySlug}.jpg`
 
