@@ -27,8 +27,12 @@ function getResend(): Resend | null {
 }
 
 export const FROM_ADDRESS  = 'TinyRent <hei@tinyrent.no>'
-export const ADMIN_EMAIL   = () =>
-  (process.env.ADMIN_EMAILS ?? '').split(',')[0]?.trim() || 'hei@tinyrent.no'
+export const ADMIN_EMAIL = (): string | string[] => {
+  const list = (process.env.ADMIN_EMAILS ?? '')
+    .split(',').map(e => e.trim()).filter(Boolean)
+  if (list.length === 0) return 'hei@tinyrent.no'
+  return list.length === 1 ? list[0] : list
+}
 
 export async function sendEmail({
   to,
