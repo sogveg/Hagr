@@ -3,12 +3,15 @@
 import { revalidatePath } from 'next/cache'
 import { createServiceClient, createClient } from '@/lib/supabase-server'
 
+export type ReportType = 'damage' | 'cleaning' | 'extra_cleaning'
+
 export type DamageInput = {
   description:    string
   severity:       'minor' | 'moderate' | 'severe'
   amount_charged?: number | null
   photo_url?:     string | null
   product_id?:    string | null
+  report_type?:   ReportType
 }
 
 // Admin: kan sette beløp, bruker service-klient
@@ -35,6 +38,7 @@ export async function addAdminDamageReport(
       amount_charged: input.amount_charged ?? null,
       photo_url:      input.photo_url ?? null,
       product_id:     input.product_id ?? null,
+      report_type:    input.report_type ?? 'damage',
     })
 
     if (error) return { success: false, error: error.message }

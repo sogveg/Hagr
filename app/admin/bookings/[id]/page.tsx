@@ -328,11 +328,11 @@ export default async function BookingDetailPage({
         </div>
       )}
 
-      {/* Skader */}
+      {/* Depositumstrekk */}
       <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
         <div className="px-5 pt-5 pb-4 border-b border-black/[0.04] flex items-center justify-between">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-            Skaderapporter
+            Depositumstrekk
           </p>
           {(damageReports as any[]).length > 0 && (
             <span className="text-xs font-semibold bg-red-50 text-red-600 px-2 py-0.5 rounded-full">
@@ -355,7 +355,7 @@ export default async function BookingDetailPage({
         {/* Legg til ny rapport */}
         <div className="px-5 py-5 border-t border-black/[0.04] bg-[#F8F7F4]">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
-            Registrer skade
+            Registrer trekk
           </p>
           <DamageReportForm bookingId={id} isAdmin={true} products={bookingProducts} />
         </div>
@@ -370,15 +370,27 @@ function DamageReportRow({ report }: { report: any }) {
     moderate: { label: 'Moderat skade',  className: 'bg-orange-50 text-orange-600' },
     severe:   { label: 'Alvorlig skade', className: 'bg-red-50 text-red-600' },
   }
+  const typeMap: Record<string, { label: string; className: string }> = {
+    damage:         { label: 'Skade',         className: 'bg-red-50 text-red-600' },
+    cleaning:       { label: 'Skitten',        className: 'bg-yellow-50 text-yellow-700' },
+    extra_cleaning: { label: 'Ekstra skitten', className: 'bg-orange-50 text-orange-600' },
+  }
+  const reportType = report.report_type ?? 'damage'
+  const t = typeMap[reportType] ?? typeMap['damage']
   const s = severityMap[report.severity] ?? { label: report.severity, className: 'bg-gray-100 text-gray-500' }
 
   return (
     <div className="px-5 py-4">
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.className}`}>
-            {s.label}
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${t.className}`}>
+            {t.label}
           </span>
+          {reportType === 'damage' && (
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.className}`}>
+              {s.label}
+            </span>
+          )}
           <span className="text-xs text-gray-400">
             {report.reported_by === 'admin' ? '🔧 TinyRent' : '👤 Leietaker'}
           </span>
