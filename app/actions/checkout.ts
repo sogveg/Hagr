@@ -6,6 +6,7 @@ import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
 import { initiateVippsPayment } from '@/lib/vipps'
 import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
+import { DELIVERY_FEE } from '@/lib/pricing'
 
 export type DeliveryOption = {
   type:          'pickup' | 'home' | 'airport' | 'train' | 'hotel'
@@ -106,7 +107,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
   }
 
   const accessoryTotal   = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
-  const totalRentalAmt   = lineItems.reduce((s, l) => s + l.rentalAmount, 0) + accessoryTotal
+  const totalRentalAmt   = lineItems.reduce((s, l) => s + l.rentalAmount, 0) + accessoryTotal + DELIVERY_FEE
   const totalDepositAmt  = lineItems.reduce((s, l) => s + l.depositAmount, 0)
   const totalAmount      = totalRentalAmt + totalDepositAmt
 
@@ -229,6 +230,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       ? [...productNames, ...input.accessories.map(a => `${a.name} ×${a.quantity}`)]
       : productNames
 
+    const deliveryNoteWithFee = `${deliveryNote} (${DELIVERY_FEE} kr)`
+
     await sendEmail({
       to:      ADMIN_EMAIL(),
       subject: `Ny bestilling fra ${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim(),
@@ -244,7 +247,7 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
         depositAmount: totalDepositAmt,
         adminUrl:      `https://www.tinyrent.no/admin/bookings/${bookingId}`,
         paymentMethod: input.paymentMethod,
-        deliveryNote,
+        deliveryNote:  deliveryNoteWithFee,
       }),
     })
   } catch (e) {

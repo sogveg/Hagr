@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCart, calcRentalPrice } from '@/context/cart-context'
 import { checkoutCart, type DeliveryOption, type PaymentMethod } from '@/app/actions/checkout'
+import { DELIVERY_FEE } from '@/lib/pricing'
 import { useLocale } from '@/context/locale-context'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ export function CartContent() {
 
   const depositTotal   = useMemo(() => rentals.reduce((s, r) => s + r.depositAmount, 0), [rentals])
   const accessoryTotal = useMemo(() => accessories.reduce((s, a) => s + a.price * a.quantity, 0), [accessories])
-  const grandTotal     = rentalTotal + depositTotal + accessoryTotal
+  const grandTotal     = rentalTotal + depositTotal + accessoryTotal + DELIVERY_FEE
 
   // ── Checkout ─────────────────────────────────────────────────────────────────
   async function handleCheckout() {
@@ -171,8 +172,7 @@ export function CartContent() {
     )
   }
 
-  const freeLabel  = locale === 'en' ? 'Free'   : 'Gratis'
-  const agreeLabel = locale === 'en' ? 'Agreed' : 'Avtales'
+  const deliveryLabel = `${DELIVERY_FEE} kr`
 
   // ── Cart ────────────────────────────────────────────────────────────────────
   return (
@@ -395,7 +395,7 @@ export function CartContent() {
                       )}
                     </div>
                     <span className="text-xs text-[var(--color-muted)] shrink-0 mt-0.5">
-                      {opt.id === 'pickup' ? freeLabel : agreeLabel}
+                      {deliveryLabel}
                     </span>
                   </label>
                 )
@@ -507,8 +507,8 @@ export function CartContent() {
                 <span className="text-[var(--color-muted)]">
                   {DELIVERY_OPTIONS.find(o => o.id === deliveryType)?.name ?? t.cart.deliveryTitle}
                 </span>
-                <span className="font-semibold text-[#4A6741]">
-                  {deliveryType === 'pickup' ? freeLabel : agreeLabel}
+                <span className="font-semibold text-[var(--color-foreground)]">
+                  {deliveryLabel}
                 </span>
               </div>
             </div>
