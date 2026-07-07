@@ -243,6 +243,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
         totalAmount,
         depositAmount: totalDepositAmt,
         adminUrl:      `https://www.tinyrent.no/admin/bookings/${bookingId}`,
+        paymentMethod: input.paymentMethod,
+        deliveryNote,
       }),
     })
   } catch (e) {

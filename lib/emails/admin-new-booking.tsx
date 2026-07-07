@@ -14,11 +14,19 @@ interface AdminNewBookingProps {
   totalAmount:    number
   depositAmount:  number
   adminUrl:       string
+  paymentMethod?: string
+  deliveryNote?:  string
+}
+
+const PAYMENT_LABELS: Record<string, string> = {
+  vipps:          'Vipps (betalt)',
+  pay_at_pickup:  'Betal ved henting / levering',
 }
 
 export function AdminNewBookingEmail({
   bookingId, customerName, customerEmail, customerPhone,
   productNames, startDate, endDate, totalAmount, depositAmount, adminUrl,
+  paymentMethod, deliveryNote,
 }: AdminNewBookingProps) {
   const rentalAmount = totalAmount - depositAmount
 
@@ -57,6 +65,30 @@ export function AdminNewBookingEmail({
                 {rentalAmount.toLocaleString('nb-NO')} kr
               </Column>
             </Row>
+            {depositAmount > 0 && (
+              <Row style={{ marginBottom: '10px' }}>
+                <Column style={{ color: '#6B7280', fontSize: '13px', width: '40%' }}>Depositum</Column>
+                <Column style={{ color: '#2B2B2B', fontSize: '13px' }}>
+                  {depositAmount.toLocaleString('nb-NO')} kr
+                </Column>
+              </Row>
+            )}
+            {deliveryNote && (
+              <Row style={{ marginBottom: '10px' }}>
+                <Column style={{ color: '#6B7280', fontSize: '13px', width: '40%' }}>Levering</Column>
+                <Column style={{ color: '#2B2B2B', fontSize: '13px', fontWeight: '600' }}>
+                  {deliveryNote}
+                </Column>
+              </Row>
+            )}
+            {paymentMethod && (
+              <Row style={{ marginBottom: '10px' }}>
+                <Column style={{ color: '#6B7280', fontSize: '13px', width: '40%' }}>Betaling</Column>
+                <Column style={{ color: paymentMethod === 'pay_at_pickup' ? '#D97706' : '#2B2B2B', fontSize: '13px', fontWeight: '600' }}>
+                  {PAYMENT_LABELS[paymentMethod] ?? paymentMethod}
+                </Column>
+              </Row>
+            )}
 
             <Hr style={{ borderColor: '#E5E7EB', margin: '16px 0' }} />
 
