@@ -8,6 +8,7 @@ import { useCart, calcRentalPrice } from '@/context/cart-context'
 import { checkoutCart, type DeliveryOption, type PaymentMethod } from '@/app/actions/checkout'
 import { DELIVERY_FEE } from '@/lib/pricing'
 import { useLocale } from '@/context/locale-context'
+import { RentalAgreement } from '@/components/checkout/rental-agreement'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
 
@@ -45,6 +46,9 @@ export function CartContent() {
 
   // Payment method state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('vipps')
+
+  // Agreement
+  const [agreementAccepted, setAgreementAccepted] = useState(false)
 
   const today = toStr(new Date())
   const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
@@ -93,12 +97,16 @@ export function CartContent() {
     if (deliveryType === 'hotel' && !deliveryAddress.trim()) {
       setError(t.cart.errorHotelAddress); return
     }
+    if (!agreementAccepted) {
+      setError('Du må godta leieavtalen før du kan bestille.'); return
+    }
 
     setLoading(true)
     const result = await checkoutCart({
       rentals,
       accessories,
       paymentMethod,
+      agreementAccepted,
       delivery: {
         type:         deliveryType,
         address:      deliveryAddress.trim() || undefined,
@@ -464,6 +472,16 @@ export function CartContent() {
             </div>
           </div>
 
+          {/* Rental agreement */}
+          <RentalAgreement
+            rentals={rentals}
+            accessories={accessories}
+            depositTotal={depositTotal}
+            grandTotal={grandTotal}
+            checked={agreementAccepted}
+            onChange={setAgreementAccepted}
+          />
+
           {/* Continue shopping */}
           <Link href="/bergen" className="inline-flex items-center gap-1.5 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
             {t.cart.continueShopping}
@@ -524,7 +542,7 @@ export function CartContent() {
 
             <button
               onClick={handleCheckout}
-              disabled={loading || !rentals.length}
+              disabled={loading || !rentals.length || !agreementAccepted}
               className={`w-full py-4 rounded-[var(--radius-lg)] text-white text-base font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 ${
                 paymentMethod === 'vipps' ? 'bg-[#FF5B24]' : 'bg-[#4A6741]'
               }`}

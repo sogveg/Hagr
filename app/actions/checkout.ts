@@ -18,10 +18,11 @@ export type DeliveryOption = {
 export type PaymentMethod = 'vipps' | 'pay_at_pickup'
 
 export type CheckoutInput = {
-  rentals:       CartRental[]
-  accessories:   CartAccessory[]
-  delivery:      DeliveryOption
-  paymentMethod: PaymentMethod
+  rentals:            CartRental[]
+  accessories:        CartAccessory[]
+  delivery:           DeliveryOption
+  paymentMethod:      PaymentMethod
+  agreementAccepted?: boolean
 }
 
 export type CheckoutResult =
@@ -149,9 +150,10 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     .insert({
       customer_id:    customer.id,
       location_id:    lineItems[0].rental.locationId,
-      status:         isVipps ? 'pending_payment' : 'confirmed',
-      start_date:     bookingStart,
-      end_date:       bookingEnd,
+      status:                 isVipps ? 'pending_payment' : 'confirmed',
+      start_date:             bookingStart,
+      end_date:               bookingEnd,
+      agreement_accepted_at:  input.agreementAccepted ? new Date().toISOString() : null,
       rental_amount:  totalRentalAmt,
       deposit_amount: totalDepositAmt,
       total_amount:   totalAmount,
