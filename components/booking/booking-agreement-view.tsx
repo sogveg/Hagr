@@ -12,9 +12,11 @@ type Props = {
     agreement_accepted_at?: string | null
   }
   productNames: string[]
+  customerName?: string
+  customerEmail?: string
 }
 
-export function BookingAgreementView({ booking, productNames }: Props) {
+export function BookingAgreementView({ booking, productNames, customerName, customerEmail }: Props) {
   const [expanded, setExpanded] = useState(false)
 
   const fmt = (d: string) =>
@@ -51,7 +53,7 @@ export function BookingAgreementView({ booking, productNames }: Props) {
             <section>
               <p className="font-bold text-[#2B2B2B] mb-1">1. Parter</p>
               <p><strong>Utleier:</strong> Sognefest Holding AS (org.nr. 918771719), handelsnavn TinyRent, Bergen</p>
-              <p><strong>Leietaker:</strong> Bekreftet ved innlogging og bestilling</p>
+              <p><strong>Leietaker:</strong> {customerName || customerEmail || 'Bekreftet ved innlogging'}{customerName && customerEmail ? ` (${customerEmail})` : ''}</p>
             </section>
 
             <section>

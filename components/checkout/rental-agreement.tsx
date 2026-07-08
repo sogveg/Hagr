@@ -50,7 +50,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             <section>
               <p className="font-bold text-[#2B2B2B] mb-1">1. Parter</p>
               <p><strong>Utleier:</strong> Sognefest Holding AS (org.nr. 918771719), handelsnavn TinyRent, Bergen</p>
-              <p><strong>Leietaker:</strong> Bekreftet ved innlogging og bestilling</p>
+              <p><strong>Leietaker:</strong> Deg, bekreftet ved innlogging. Navn og kontaktinfo fremgår av kundeprofilen knyttet til bestillingen.</p>
             </section>
 
             <section>

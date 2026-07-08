@@ -44,7 +44,7 @@ export default async function CustomerBookingPage({
   // Hent kunde
   const { data: customer } = await authClient
     .from('customers')
-    .select('id')
+    .select('id, first_name, last_name')
     .eq('user_id', user.id)
     .single()
 
@@ -321,6 +321,8 @@ export default async function CustomerBookingPage({
           <BookingAgreementView
             booking={booking}
             productNames={(bookingItems ?? []).map((item: any) => item.products?.name).filter(Boolean)}
+            customerName={`${(customer as any).first_name ?? ''} ${(customer as any).last_name ?? ''}`.trim() || undefined}
+            customerEmail={user.email ?? undefined}
           />
         </div>
 
