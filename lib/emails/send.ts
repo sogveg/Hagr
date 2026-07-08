@@ -14,6 +14,7 @@ export async function sendBookingConfirmed(params: {
   endDate: string
   totalAmount: number
   depositAmount: number
+  agreementAcceptedAt?: string
 }) {
   const html = await render(
     BookingConfirmedEmail({
@@ -25,6 +26,7 @@ export async function sendBookingConfirmed(params: {
       totalAmount: params.totalAmount,
       depositAmount: params.depositAmount,
       bookingUrl: `${BASE_URL}/account/bookings/${params.bookingId}`,
+      agreementAcceptedAt: params.agreementAcceptedAt,
     })
   )
 

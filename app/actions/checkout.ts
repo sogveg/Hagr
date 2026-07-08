@@ -3,6 +3,7 @@
 import { createClient, createServiceClient } from '@/lib/supabase-server'
 import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
 import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
+import { sendBookingConfirmed } from '@/lib/emails/send'
 import { initiateVippsPayment } from '@/lib/vipps'
 import React from 'react'
 import type { CartRental, CartAccessory } from '@/context/cart-context'
@@ -253,7 +254,24 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       }),
     })
   } catch (e) {
-    console.error('[checkoutCart] Email failed:', e)
+    console.error('[checkoutCart] Admin email failed:', e)
+  }
+
+  // ── Bekreftelse til kunde ─────────────────────────────────────────────────
+  try {
+    await sendBookingConfirmed({
+      to:           customer.email,
+      customerName: `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email,
+      bookingId,
+      productName:  lineItems.map(l => l.rental.productName).join(', '),
+      startDate:    bookingStart,
+      endDate:      bookingEnd,
+      totalAmount,
+      depositAmount: totalDepositAmt,
+      agreementAcceptedAt: input.agreementAccepted ? new Date().toISOString() : undefined,
+    })
+  } catch (e) {
+    console.error('[checkoutCart] Customer email failed:', e)
   }
 
   return { success: true, bookingId }

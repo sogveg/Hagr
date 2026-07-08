@@ -10,6 +10,7 @@ import { createServiceClient } from '@/lib/supabase-server'
 import { captureVippsPayment } from '@/lib/vipps'
 import { sendEmail, ADMIN_EMAIL } from '@/lib/email'
 import { AdminNewBookingEmail } from '@/lib/emails/admin-new-booking'
+import { sendBookingConfirmed } from '@/lib/emails/send'
 import React from 'react'
 
 interface VippsCallbackBody {
@@ -140,6 +141,42 @@ export async function POST(
       }
     } catch (e) {
       console.error('[vipps callback] admin email failed:', e)
+    }
+
+    // Send bekreftelse til kunde
+    try {
+      const { data: bookings } = await (supabase as any)
+        .from('bookings')
+        .select(`
+          id, total_amount, deposit_amount, start_date, end_date,
+          booking_items ( products ( name ) ),
+          customers ( first_name, last_name, email )
+        `)
+        .eq('vipps_order_id', orderId)
+        .limit(1)
+
+      if (bookings && (bookings as any[]).length > 0) {
+        const b        = (bookings as any[])[0]
+        const customer = b.customers as { first_name?: string; last_name?: string; email: string } | null
+        if (customer?.email) {
+          const productNames: string[] = (b.booking_items ?? [])
+            .map((i: any) => i.products?.name).filter(Boolean)
+          const customerName = `${customer.first_name ?? ''} ${customer.last_name ?? ''}`.trim() || customer.email
+
+          await sendBookingConfirmed({
+            to:            customer.email,
+            customerName,
+            bookingId:     b.id,
+            productName:   productNames.join(', ') || 'Ukjent produkt',
+            startDate:     b.start_date,
+            endDate:       b.end_date,
+            totalAmount:   b.total_amount ?? 0,
+            depositAmount: b.deposit_amount ?? 0,
+          })
+        }
+      }
+    } catch (e) {
+      console.error('[vipps callback] customer email failed:', e)
     }
   }
 
