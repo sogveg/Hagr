@@ -9,6 +9,7 @@ import { checkoutCart, type DeliveryOption, type PaymentMethod } from '@/app/act
 import { DELIVERY_FEE } from '@/lib/pricing'
 import { useLocale } from '@/context/locale-context'
 import { RentalAgreement } from '@/components/checkout/rental-agreement'
+import { validateDiscountCode, type DiscountResult } from '@/app/actions/discount'
 
 // ─── Accessories catalogue ────────────────────────────────────────────────────
 
@@ -50,6 +51,11 @@ export function CartContent() {
   // Agreement
   const [agreementAccepted, setAgreementAccepted] = useState(false)
 
+  // Discount code
+  const [discountInput,   setDiscountInput]   = useState('')
+  const [discountLoading, setDiscountLoading] = useState(false)
+  const [discountResult,  setDiscountResult]  = useState<DiscountResult | null>(null)
+
   const today = toStr(new Date())
   const dateLocale = locale === 'en' ? 'en-GB' : 'nb-NO'
 
@@ -79,7 +85,16 @@ export function CartContent() {
 
   const depositTotal   = useMemo(() => rentals.reduce((s, r) => s + r.depositAmount, 0), [rentals])
   const accessoryTotal = useMemo(() => accessories.reduce((s, a) => s + a.price * a.quantity, 0), [accessories])
-  const grandTotal     = rentalTotal + depositTotal + accessoryTotal + DELIVERY_FEE
+  const appliedDiscount = discountResult?.valid ? discountResult.discount : 0
+  const grandTotal     = Math.max(0, rentalTotal + accessoryTotal + DELIVERY_FEE - appliedDiscount) + depositTotal
+
+  async function applyDiscountCode() {
+    setDiscountLoading(true)
+    const subtotal = rentalTotal + accessoryTotal + DELIVERY_FEE
+    const result = await validateDiscountCode(discountInput, subtotal)
+    setDiscountResult(result)
+    setDiscountLoading(false)
+  }
 
   // ── Checkout ─────────────────────────────────────────────────────────────────
   async function handleCheckout() {
@@ -107,6 +122,8 @@ export function CartContent() {
       accessories,
       paymentMethod,
       agreementAccepted,
+      discountCodeId:  discountResult?.valid ? discountResult.id : undefined,
+      discountAmount:  discountResult?.valid ? discountResult.discount : undefined,
       delivery: {
         type:         deliveryType,
         address:      deliveryAddress.trim() || undefined,
@@ -472,6 +489,43 @@ export function CartContent() {
             </div>
           </div>
 
+          {/* Rabattkode */}
+          <div className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden">
+            <div className="px-6 py-4 border-b border-black/[0.04]">
+              <h2 className="text-sm font-bold text-[var(--color-foreground)]">Rabattkode</h2>
+            </div>
+            <div className="px-6 py-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={discountInput}
+                  onChange={e => {
+                    setDiscountInput(e.target.value.toUpperCase())
+                    setDiscountResult(null)
+                  }}
+                  onKeyDown={e => e.key === 'Enter' && applyDiscountCode()}
+                  placeholder="KODE"
+                  className="flex-1 text-sm font-mono border border-black/10 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4A6741]/20 uppercase"
+                />
+                <button
+                  type="button"
+                  onClick={applyDiscountCode}
+                  disabled={!discountInput.trim() || discountLoading}
+                  className="text-sm font-semibold px-4 py-2.5 rounded-xl bg-[#2B2B2B] text-white hover:bg-black disabled:opacity-40 transition-colors"
+                >
+                  {discountLoading ? '...' : 'Bruk'}
+                </button>
+              </div>
+              {discountResult && (
+                <p className={`text-xs mt-2 font-medium ${discountResult.valid ? 'text-green-700' : 'text-red-500'}`}>
+                  {discountResult.valid
+                    ? `${discountResult.label} er brukt (-${discountResult.discount} kr)`
+                    : discountResult.error}
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Rental agreement */}
           <RentalAgreement
             rentals={rentals}
@@ -529,6 +583,15 @@ export function CartContent() {
                   {deliveryLabel}
                 </span>
               </div>
+
+              {appliedDiscount > 0 && (
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <span className="text-green-700 font-medium">
+                    Rabatt {discountResult?.valid ? `(${discountResult.label})` : ''}
+                  </span>
+                  <span className="font-semibold text-green-700">-{appliedDiscount} kr</span>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-black/[0.06] pt-4 flex items-center justify-between mb-6">

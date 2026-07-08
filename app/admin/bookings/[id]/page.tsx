@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase-server'
 import { updateBookingStatus } from '@/app/actions/admin'
 import { DamageReportForm, type BookingProduct } from '@/components/ui/damage-report-form'
 import { SendMessageForm } from '@/components/admin/send-message-form'
+import { SendReviewButton } from '@/components/admin/send-review-button'
 import Link from 'next/link'
 
 const STATUS_FLOW: Record<string, { label: string; next: string | null; color: string }> = {
@@ -145,6 +146,10 @@ export default async function BookingDetailPage({
                 Gjenopprett som bekreftet
               </button>
             </form>
+          )}
+
+          {['returned', 'completed'].includes(booking.status) && customer?.email && (
+            <SendReviewButton bookingId={booking.id} />
           )}
         </div>
       )}

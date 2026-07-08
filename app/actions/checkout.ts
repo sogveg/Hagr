@@ -24,6 +24,8 @@ export type CheckoutInput = {
   delivery:           DeliveryOption
   paymentMethod:      PaymentMethod
   agreementAccepted?: boolean
+  discountCodeId?:    string
+  discountAmount?:    number
 }
 
 export type CheckoutResult =
@@ -109,7 +111,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
   }
 
   const accessoryTotal   = input.accessories.reduce((s, a) => s + a.price * a.quantity, 0)
-  const totalRentalAmt   = lineItems.reduce((s, l) => s + l.rentalAmount, 0) + accessoryTotal + DELIVERY_FEE
+  const discount         = Math.max(0, input.discountAmount ?? 0)
+  const totalRentalAmt   = Math.max(0, lineItems.reduce((s, l) => s + l.rentalAmount, 0) + accessoryTotal + DELIVERY_FEE - discount)
   const totalDepositAmt  = lineItems.reduce((s, l) => s + l.depositAmount, 0)
   const totalAmount      = totalRentalAmt + totalDepositAmt
 
@@ -155,6 +158,8 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
       start_date:             bookingStart,
       end_date:               bookingEnd,
       agreement_accepted_at:  input.agreementAccepted ? new Date().toISOString() : null,
+      discount_code_id: input.discountCodeId ?? null,
+      discount_amount:  discount,
       rental_amount:  totalRentalAmt,
       deposit_amount: totalDepositAmt,
       total_amount:   totalAmount,
@@ -190,6 +195,22 @@ export async function checkoutCart(input: CheckoutInput): Promise<CheckoutResult
     console.error('[checkoutCart] booking_items insert failed:', itemErr)
     await supabase.from('bookings').delete().eq('id', bookingId)
     return { success: false, error: 'Kunne ikke registrere produkter. Prøv igjen.' }
+  }
+
+  // ── Inkrement rabattkode-teller ────────────────────────────────────────
+  if (input.discountCodeId) {
+    try {
+      const { data: codeRow } = await (supabase as any)
+        .from('discount_codes').select('uses').eq('id', input.discountCodeId).single()
+      if (codeRow != null) {
+        await (supabase as any)
+          .from('discount_codes')
+          .update({ uses: (codeRow.uses ?? 0) + 1 })
+          .eq('id', input.discountCodeId)
+      }
+    } catch (e) {
+      console.error('[checkoutCart] discount increment failed:', e)
+    }
   }
 
   // ── Vipps payment path ────────────────────────────────────────────────
