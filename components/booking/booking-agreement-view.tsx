@@ -88,32 +88,51 @@ export function BookingAgreementView({ booking, productNames, customerName, cust
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">5. Skader</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">5. Montering, installasjon og brukerkontroll</p>
+              <p className="mb-1">Leietaker er selv ansvarlig for å kontrollere at utstyret er riktig montert og installert før bruk. TinyRent utleverer utstyret funksjonsdyktig, men kan ikke kontrollere montering eller installasjon hos leietaker. Leietaker plikter å lese og følge medfølgende monteringsanvisninger og brukerveiledninger.</p>
+              <ul className="list-disc list-inside space-y-0.5 mb-1">
+                <li><strong>Bilstoler:</strong> Leietaker skal kontrollere at stolen er korrekt festet i kjøretøyet, at barnet er riktig størrelse for stolen, og at alle spenner og festebeslag er i orden i henhold til produsentens anvisning, før kjøring påbegynnes.</li>
+                <li><strong>Sovemøbler og barnesenger:</strong> Monter i henhold til medfølgende anvisning og kontroller at alle låser, skruer og sikkerhetselementer er korrekt festet før bruk.</li>
+                <li><strong>Barnevogner og trillestoler:</strong> Kontroller at alle låsemekanismer, brems og sikkerhetsspenner fungerer korrekt ved henting og løpende gjennom leieperioden.</li>
+                <li><strong>Øvrig utstyr:</strong> Monter og bruk i samsvar med produsentens anvisninger og gjeldende sikkerhetsforskrifter.</li>
+              </ul>
+              <p>Feil montering, feil installasjon eller bruk i strid med produsentens anvisninger er leietakers ansvar og risiko.</p>
+            </section>
+
+            <section>
+              <p className="font-bold text-[#2B2B2B] mb-1">6. Ansvarsfraskrivelse</p>
+              <p className="mb-1">TinyRent fraskriver seg ethvert ansvar for person- eller tingskade som oppstår som følge av feil bruk, feil montering, feil installasjon, manglende kontroll eller bruk i strid med produsentens anvisninger.</p>
+              <p className="mb-1">TinyRent er ikke ansvarlig for indirekte skader, følgeskader, tapt fortjeneste eller andre tap som oppstår i tilknytning til leieforholdet.</p>
+              <p>TinyRents ansvar er i alle tilfeller begrenset til det innbetalte leiebeløpet, eksklusive depositum.</p>
+            </section>
+
+            <section>
+              <p className="font-bold text-[#2B2B2B] mb-1">7. Skader</p>
               <p>Skade utover normal slitasje er leietakers ansvar og trekkes fra depositumet. Overstiger kostnadene depositumet, faktureres differansen separat.</p>
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">6. Ødeleggelse eller tap</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">8. Ødeleggelse eller tap</p>
               <p>Leietaker er ansvarlig for erstatning tilsvarende gjeldende nypris.</p>
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">7. Sen tilbakelevering</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">9. Sen tilbakelevering</p>
               <p>Belastes med dagspris per påbegynte dag utover avtalt dato.</p>
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">8. Skitten tilbakelevering</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">10. Skitten tilbakelevering</p>
               <p>Standard rengjøring: 200 kr. Ekstra rengjøring: 500 kr. Trekkes fra depositumet.</p>
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">9. Avbestilling</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">11. Avbestilling</p>
               <p>Mer enn 48 timer før henting: full refusjon. Under 48 timer: leiebeløpet refunderes ikke. Depositum refunderes alltid.</p>
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">10. Tvister</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">12. Tvister</p>
               <p>Klager rettes til hei@tinyrent.no. Uløste tvister behandles ved Bergen tingrett.</p>
             </section>
 

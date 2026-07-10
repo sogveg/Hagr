@@ -91,7 +91,50 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">5. Skader</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">5. Montering, installasjon og brukerkontroll</p>
+              <p className="mb-1">
+                Leietaker er selv ansvarlig for å kontrollere at utstyret er riktig montert og installert
+                før bruk. TinyRent utleverer utstyret funksjonsdyktig, men kan ikke kontrollere montering
+                eller installasjon hos leietaker.
+              </p>
+              <p className="mb-1">
+                Leietaker plikter å lese og følge medfølgende monteringsanvisninger og brukerveiledninger.
+                Spesielt gjelder:
+              </p>
+              <ul className="list-disc list-inside space-y-0.5 mb-1">
+                <li><strong>Bilstoler:</strong> Leietaker skal selv kontrollere at stolen er korrekt festet i kjøretøyet, at barnet er riktig størrelse for stolen, og at alle spenner og festebeslag er i orden og i henhold til produsentens anvisning, før kjøring påbegynnes.</li>
+                <li><strong>Sovemøbler og barnesenger:</strong> Leietaker skal montere i henhold til medfølgende anvisning og kontrollere at alle låser, skruer og sikkerhetselementer er korrekt festet før bruk.</li>
+                <li><strong>Barnevogner og trillestoler:</strong> Leietaker skal kontrollere at alle låsemekanismer, brems og sikkerhetsspenner fungerer korrekt ved henting og løpende gjennom leieperioden.</li>
+                <li><strong>Øvrig utstyr:</strong> Leietaker skal påse at alt utstyr monteres og brukes i samsvar med produsentens anvisninger og gjeldende sikkerhetsforskrifter.</li>
+              </ul>
+              <p>
+                Feil montering, feil installasjon eller bruk i strid med produsentens anvisninger er
+                leietakers ansvar og risiko.
+              </p>
+            </section>
+
+            <section>
+              <p className="font-bold text-[#2B2B2B] mb-1">6. Ansvarsfraskrivelse</p>
+              <p className="mb-1">
+                TinyRent fraskriver seg ethvert ansvar for person- eller tingskade som oppstår som følge
+                av feil bruk, feil montering, feil installasjon, manglende kontroll eller bruk i strid
+                med produsentens anvisninger.
+              </p>
+              <p className="mb-1">
+                TinyRent er ikke ansvarlig for indirekte skader, følgeskader, tapt fortjeneste eller
+                andre tap som oppstår i tilknytning til leieforholdet.
+              </p>
+              <p>
+                Leietaker bekrefter ved aksept av denne avtalen å ha forstått sitt ansvar for korrekt
+                montering, installasjon og bruk av leid utstyr, og fraskriver seg retten til å holde
+                TinyRent ansvarlig for skader på person eller eiendom som skyldes leietakers egne
+                handlinger eller unnlatelser. TinyRents ansvar er i alle tilfeller begrenset til det
+                innbetalte leiebeløpet, eksklusive depositum.
+              </p>
+            </section>
+
+            <section>
+              <p className="font-bold text-[#2B2B2B] mb-1">7. Skader</p>
               <p>
                 Skade som oppstår utover normal slitasje er leietakers ansvar. Kostnader for reparasjon
                 trekkes fra depositumet. Overstiger kostnadene depositumet, faktureres differansen separat.
@@ -100,7 +143,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">6. Ødeleggelse eller tap</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">8. Ødeleggelse eller tap</p>
               <p>
                 Dersom utstyr ødelegges fullstendig eller mistes, er leietaker ansvarlig for erstatning
                 tilsvarende gjeldende nypris. TinyRent varsler leietaker skriftlig om beløpet.
@@ -108,7 +151,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">7. Sen tilbakelevering</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">9. Sen tilbakelevering</p>
               <p>
                 Utstyr som leveres tilbake etter avtalt dato belastes med dagspris per påbegynte dag,
                 i henhold til produktets gjeldende dagspris. TinyRent forbeholder seg retten til å
@@ -117,7 +160,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">8. Skitten tilbakelevering</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">10. Skitten tilbakelevering</p>
               <p>
                 Utstyr skal returneres i tilsvarende stand som ved utlevering, med unntak av normal
                 bruksslitasje. Utstyr som krever rengjøring utover standard etterarbeid belastes med:
@@ -130,7 +173,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">9. Avbestilling</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">11. Avbestilling</p>
               <p>
                 Avbestilling mer enn 48 timer før avtalt henting: full refusjon.
                 Avbestilling under 48 timer: leiebeløpet refunderes ikke. Depositum refunderes alltid.
@@ -138,7 +181,7 @@ export function RentalAgreement({ rentals, accessories, depositTotal, grandTotal
             </section>
 
             <section>
-              <p className="font-bold text-[#2B2B2B] mb-1">10. Reklamasjon og tvister</p>
+              <p className="font-bold text-[#2B2B2B] mb-1">12. Reklamasjon og tvister</p>
               <p>
                 Eventuelle klager rettes skriftlig til hei@tinyrent.no. Tvister søkes løst i minnelighet.
                 Kan partene ikke bli enige, behandles saken ved Bergen tingrett etter norsk rett.

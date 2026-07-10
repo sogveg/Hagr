@@ -108,6 +108,12 @@ export function BookingConfirmedEmail({
               <strong>Parter:</strong> Utleier er Sognefest Holding AS (org.nr. 918771719), handelsnavn TinyRent, Bergen. Leietaker er deg, bekreftet ved innlogging.
             </Text>
             <Text style={agreementText}>
+              <strong>Montering og installasjon:</strong> Du er selv ansvarlig for å kontrollere at utstyret er riktig montert og installert før bruk. For bilstoler: kontroller at stolen er korrekt festet og at barnet er riktig størrelse for stolen. For sovemøbler og barnevogner: følg medfølgende monteringsanvisning og kontroller låser, brems og sikkerhetsspenner. Feil montering er leietakers ansvar og risiko.
+            </Text>
+            <Text style={agreementText}>
+              <strong>Ansvarsfraskrivelse:</strong> TinyRent fraskriver seg ethvert ansvar for person- eller tingskade som oppstår som følge av feil bruk, feil montering, feil installasjon eller manglende kontroll. TinyRents ansvar er begrenset til det innbetalte leiebeløpet, eksklusive depositum.
+            </Text>
+            <Text style={agreementText}>
               <strong>Skader:</strong> Skade utover normal slitasje er leietakers ansvar og trekkes fra depositumet. Fullstendig ødeleggelse erstattes til nypris.
             </Text>
             <Text style={agreementText}>
