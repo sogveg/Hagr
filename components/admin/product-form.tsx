@@ -64,9 +64,34 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
   const [desc,         setDesc]         = useState(product?.description ?? '')
   const [descEn,       setDescEn]       = useState(product?.description_en ?? '')
   const [deleting,     setDeleting]     = useState(false)
-  const [priceDay,   setPriceDay]   = useState(product?.price_day?.toString()   ?? '')
-  const [priceWeek,  setPriceWeek]  = useState(product?.price_week?.toString()  ?? '')
-  const [priceMonth, setPriceMonth] = useState(product?.price_month?.toString() ?? '')
+  const [priceDay,        setPriceDay]        = useState(product?.price_day?.toString()   ?? '')
+  const [priceWeek,       setPriceWeek]       = useState(product?.price_week?.toString()  ?? '')
+  const [priceMonth,      setPriceMonth]      = useState(product?.price_month?.toString() ?? '')
+  // dayPriceManual = true means the user has overridden the auto-calculation
+  const [dayPriceManual,  setDayPriceManual]  = useState(!!product?.price_day)
+
+  function calcSuggestedDay(weekVal: string): string {
+    const w = parseFloat(weekVal)
+    if (!w || w <= 0) return ''
+    return String(Math.ceil(w / 5))
+  }
+
+  function handleWeekPriceChange(val: string) {
+    setPriceWeek(val)
+    if (!dayPriceManual) {
+      setPriceDay(calcSuggestedDay(val))
+    }
+  }
+
+  function handleDayPriceChange(val: string) {
+    setPriceDay(val)
+    setDayPriceManual(true)
+  }
+
+  function resetDayPriceToAuto() {
+    setDayPriceManual(false)
+    setPriceDay(calcSuggestedDay(priceWeek))
+  }
   const [deposit,    setDeposit]    = useState(product?.deposit_amount?.toString()      ?? '500')
   const [minDays,    setMinDays]    = useState(product?.minimum_rental_days?.toString() ?? '1')
   const [published,  setPublished]  = useState(product?.published ?? false)
@@ -241,13 +266,34 @@ export function ProductForm({ categories, locations, currentCategoryId, product,
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <label className={labelCls}>Per dag (kr)</label>
-            <input className={inputCls} type="number" min="0" step="1"
-              value={priceDay} onChange={e => setPriceDay(e.target.value)} placeholder="—" />
+            <input
+              className={`${inputCls} ${!dayPriceManual && priceDay ? 'border-[#8FA68B]/60 bg-[#F5F8F4]' : ''}`}
+              type="number" min="0" step="1"
+              value={priceDay}
+              onChange={e => handleDayPriceChange(e.target.value)}
+              placeholder="—"
+            />
+            <p className="text-[10px] mt-1 min-h-[14px]">
+              {!dayPriceManual && priceDay ? (
+                <span className="text-[#4A6741] font-medium">Auto (uke / 5)</span>
+              ) : dayPriceManual && priceWeek ? (
+                <button
+                  type="button"
+                  onClick={resetDayPriceToAuto}
+                  className="text-gray-400 hover:text-[#4A6741] underline transition-colors"
+                >
+                  Tilbakestill til {calcSuggestedDay(priceWeek)} kr (uke / 5)
+                </button>
+              ) : null}
+            </p>
           </div>
           <div>
             <label className={labelCls}>Per uke (kr)</label>
             <input className={inputCls} type="number" min="0" step="1"
-              value={priceWeek} onChange={e => setPriceWeek(e.target.value)} placeholder="—" />
+              value={priceWeek} onChange={e => handleWeekPriceChange(e.target.value)} placeholder="—" />
+            <p className="text-[10px] mt-1 text-gray-400 min-h-[14px]">
+              {priceWeek ? `Dagspris settes til ${calcSuggestedDay(priceWeek)} kr ved auto` : ''}
+            </p>
           </div>
           <div>
             <label className={labelCls}>Per måned (kr)</label>
