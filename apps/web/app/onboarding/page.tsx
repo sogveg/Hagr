@@ -472,7 +472,7 @@ export default function OnboardingPage() {
                 <YesNo value={form.has_client_entertainment} onChange={v => set('has_client_entertainment', v)} />
                 {form.has_client_entertainment && (
                   <p className="text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2 mt-2">
-                    💡 Middag: maks 560 kr/person eks. mva er fradragsberettiget. Lunsj i arbeidstid: fullt fradrag.
+                    💡 Middag: maks 592 kr/person eks. mva er fradragsberettiget. Lunsj i arbeidstid: fullt fradrag.
                   </p>
                 )}
               </div>

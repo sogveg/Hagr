@@ -159,13 +159,13 @@ export const RULE_CARDS: RuleCard[] = [
     limit_period: 'event',
     limit_unit: 'kr per person (middag)',
     base_risk: 'green',
-    summary: 'Ekstern representasjon med kunder/leverandører er fradragsberettiget inntil 560 kr per person eks. mva for middag. Lunsj i arbeidstid er fullt fradragsberettiget.',
+    summary: 'Ekstern representasjon med kunder/leverandører er fradragsberettiget inntil 592 kr per person eks. mva for middag. Lunsj i arbeidstid er fullt fradragsberettiget.',
     green_examples: [
       'Lunsj med kunde i arbeidstid, 450 kr per person',
       'Middag med tre kunder, totalt 1 500 kr (= 500 kr/person, under grensen)',
     ],
     yellow_examples: [
-      'Middagsutgift akkumulert til nær 560 kr/person-grensen',
+      'Middagsutgift akkumulert til nær 592 kr/person-grensen',
       'Alkohol inkludert i regningen',
     ],
     red_examples: [

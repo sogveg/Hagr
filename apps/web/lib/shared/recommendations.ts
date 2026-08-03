@@ -161,7 +161,7 @@ export function generateRecommendations(ctx: CompanyContext): Recommendation[] {
     recs.push({
       id: 'representation',
       title: 'Registrer ekstern representasjon',
-      description: 'Middag med kunder: 560 kr/person eks. mva gir skattefradrag. Lunsj i arbeidstid: fullt fradrag. Uten bilag = tapt fradrag.',
+      description: 'Middag med kunder: 592 kr/person eks. mva gir skattefradrag. Lunsj i arbeidstid: fullt fradrag. Uten bilag = tapt fradrag.',
       priority: 'medium',
       href: '/representation',
       cta: 'Registrer representasjon',
@@ -318,7 +318,7 @@ export function estimateAnnualSavings(ctx: CompanyContext): {
   if (ctx.has_client_entertainment) {
     items.push({
       label: 'Representasjon',
-      amount: Math.round(12 * 560 * 0.22), // 12 events × 560 kr × 22%
+      amount: Math.round(12 * 560 * 0.22), // 12 events × 592 kr × 22%
       activated: ctx.representation_count > 0,
     })
   }

@@ -562,7 +562,7 @@ export default function NewBoardMeetingPage() {
             <TipBox tips={[
               'Styrehonorar er <strong>fradragsberettiget for selskapet</strong> og skattepliktig som lønn for mottakeren — husk å innberette på a-meldingen.',
               '<strong>Kaffe, lunsj og enkel servering</strong> under møtet: 100% fradragsberettiget — ta vare på kvitteringen.',
-              'Middagsrepresentasjon etter møtet: maks <strong>560 kr per person eks. mva.</strong> er fradragsberettiget (2026).',
+              'Middagsrepresentasjon etter møtet: maks <strong>592 kr per person eks. mva.</strong> er fradragsberettiget (2026).',
               'Leie av møterom: 100% fradragsberettiget — bruk faktura som bilag.',
             ]} />
             <div>

@@ -1,9 +1,9 @@
 // Norwegian representation rules 2026
-// Ekstern representasjon: maks 560 kr per person eks. mva (lunsj/middag)
+// Ekstern representasjon: maks 592 kr per person eks. mva (lunsj/middag, 2026)
 // Intern (ansatte kun): ikke fradragsberettiget representasjon — bruk velferdstiltak-regler
 // Alkohol: aldri MVA-fradrag, ikke inkludert i representasjonsgrensen
 
-export const REPRESENTATION_LIMIT_PER_PERSON_NOK = 560 // 2026, eks. mva
+export const REPRESENTATION_LIMIT_PER_PERSON_NOK = 592 // 2026, eks. mva (kilde: Lovdata FOR-2025-11-07-2216 § 10)
 export const REPRESENTATION_LUNCH_FULLY_DEDUCTIBLE = true // lunsj i arbeidstid = fullt fradrag
 
 export type RepresentationType = 'dinner' | 'lunch' | 'coffee' | 'other'
@@ -55,7 +55,7 @@ export function evaluateRepresentation(input: RepresentationInput): Representati
     }
   }
 
-  // Middag/annen representasjon: grense 560 kr/person
+  // Middag/annen representasjon: grense 592 kr/person
   const limit = REPRESENTATION_LIMIT_PER_PERSON_NOK * input.person_count
   const deductible = Math.min(input.amount_nok, limit)
   const non_deductible = input.amount_nok - deductible

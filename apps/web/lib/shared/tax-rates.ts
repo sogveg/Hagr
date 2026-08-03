@@ -55,13 +55,13 @@ export interface DynamicTaxRates {
 //     Marginal lønnsskatt trinn 5 = 22 + 7,6 + 16,8 = 46,4% > breakeven 44,7%
 //     Marginal lønnsskatt trinn 4 = 22 + 7,6 + 13,7 = 43,3% < breakeven 44,7%
 export const DEFAULT_TAX_RATES: DynamicTaxRates = {
-  g_value: 130656,           // G 2026 (fastsatt 1. mai 2026)
+  g_value: 136549,           // G 2026 (fastsatt 1. mai 2026, kilde: NAV)
   pension_max_g: 7.1,
   sick_pay_max_g: 6.0,
   min_benefits_g: 0.5,
-  pension_max_nok: Math.round(130656 * 7.1),   // 927 658
-  sick_pay_max_nok: Math.round(130656 * 6.0),  // 783 936
-  min_benefits_nok: Math.round(130656 * 0.5),  // 65 328
+  pension_max_nok: Math.round(136549 * 7.1),   // 969 498
+  sick_pay_max_nok: Math.round(136549 * 6.0),  // 819 294
+  min_benefits_nok: Math.round(136549 * 0.5),  // 68 275
 
   personfradrag: 114540,
   minstefradrag_rate: 0.46,
@@ -92,13 +92,13 @@ export const DEFAULT_TAX_RATES: DynamicTaxRates = {
 
 // ─── 2025-satser (for referanse / historiske beregninger) ─────────────────────
 export const TAX_RATES_2025: DynamicTaxRates = {
-  g_value: 124028,
+  g_value: 130160,           // G 2025 (fastsatt 1. mai 2025, kilde: NAV)
   pension_max_g: 7.1,
   sick_pay_max_g: 6.0,
   min_benefits_g: 0.5,
-  pension_max_nok: Math.round(124028 * 7.1),   // 881 599
-  sick_pay_max_nok: Math.round(124028 * 6.0),  // 744 168
-  min_benefits_nok: Math.round(124028 * 0.5),  // 62 014
+  pension_max_nok: Math.round(130160 * 7.1),   // 924 136
+  sick_pay_max_nok: Math.round(130160 * 6.0),  // 780 960
+  min_benefits_nok: Math.round(130160 * 0.5),  // 65 080
 
   personfradrag: 114540,
   minstefradrag_rate: 0.46,

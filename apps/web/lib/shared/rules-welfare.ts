@@ -5,10 +5,10 @@
 // Generell akseptert ramme: ca. 5 000 kr per ansatt per år totalt
 export const WELFARE_RECOMMENDED_LIMIT_PER_EMPLOYEE = 5000 // kr/år, veiledende
 
-// 560 kr/person er representasjonsgrensen for mat+drikke.
+// 592 kr/person er representasjonsgrensen for mat+drikke.
 // Over dette kan mat+drikke-delen omklassifiseres til representasjon.
 // Representasjon med brennevin/sprit er ALDRI fradragsberettiget.
-export const REPRESENTATION_FOOD_LIMIT_PER_PERSON = 560 // kr/person, eks. mva
+export const REPRESENTATION_FOOD_LIMIT_PER_PERSON = 592 // kr/person, eks. mva (2026, kilde: Lovdata FOR-2025-11-07-2216 § 10)
 
 export type WelfareType =
   | 'christmas_party'      // Julebord
@@ -99,7 +99,7 @@ export function evaluateWelfare(input: WelfareInput): WelfareResult {
 
   // ─── Brennevin / sprit ──────────────────────────────────────────────────────
   // Representasjon med sprit er aldri fradragsberettiget (sktl § 6-21).
-  // Dersom mat+drikke overskrider 560 kr/person klassifiseres det som representasjon
+  // Dersom mat+drikke overskrider 592 kr/person klassifiseres det som representasjon
   // og sprit gjør da hele mat+drikke-delen ikke-fradragsberettiget.
   // Som velferd er det en gråsone — tryggeste råd: unngå sprit.
   const spiritsKillsDeduction = alcohol === 'spirits'
@@ -109,17 +109,17 @@ export function evaluateWelfare(input: WelfareInput): WelfareResult {
     riskLevel = 'red'
   }
 
-  // ─── Mat + drikke over 560 kr/person ───────────────────────────────────────
+  // ─── Mat + drikke over 592 kr/person ───────────────────────────────────────
   const foodExceedsRepLimit = foodPerPerson > 0 && foodPerPerson > REPRESENTATION_FOOD_LIMIT_PER_PERSON
   if (foodExceedsRepLimit) {
     if (alcohol === 'spirits') {
-      flags.push(`🚨 Mat+drikke ${Math.round(foodPerPerson)} kr/person overskrider representasjonsgrensen på 560 kr/person, OG det serveres sprit — fradraget faller helt bort.`)
+      flags.push(`🚨 Mat+drikke ${Math.round(foodPerPerson)} kr/person overskrider representasjonsgrensen på 592 kr/person, OG det serveres sprit — fradraget faller helt bort.`)
     } else {
-      flags.push(`⚠️ Mat+drikke (${Math.round(foodPerPerson)} kr/person) overskrider representasjonsgrensen på 560 kr/person. Mat+drikke-delen kan omklassifiseres til representasjon. Sørg for at det ikke serveres sprit.`)
+      flags.push(`⚠️ Mat+drikke (${Math.round(foodPerPerson)} kr/person) overskrider representasjonsgrensen på 592 kr/person. Mat+drikke-delen kan omklassifiseres til representasjon. Sørg for at det ikke serveres sprit.`)
       if (riskLevel === 'green') riskLevel = 'yellow'
     }
   } else if (foodPerPerson > 0 && foodPerPerson <= REPRESENTATION_FOOD_LIMIT_PER_PERSON) {
-    flags.push(`✅ Mat+drikke (${Math.round(foodPerPerson)} kr/person) er under 560 kr-grensen — arrangementet behandles trygt som velferdstiltak.`)
+    flags.push(`✅ Mat+drikke (${Math.round(foodPerPerson)} kr/person) er under 592 kr-grensen — arrangementet behandles trygt som velferdstiltak.`)
   }
 
   // ─── Totalkostnad per ansatt over veiledende grense ────────────────────────

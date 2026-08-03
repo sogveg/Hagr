@@ -139,7 +139,7 @@ export const TIPS: Tip[] = [
     id: 'rep_no_spirits',
     source_url: 'https://lovdata.no/lov/1999-03-26-14/§6-21',
     title: 'Brennevin på kundemiddag: alt fradraget faller bort',
-    body: 'Bestilles det brennevin/sprit på en representasjonsmiddag, mister du fradragsretten på hele utgiften — inkludert mat. Ikke bare spritdelen, men alt. Dette er en absolutt regel i skatteloven § 6-21. Holder du deg til øl, vin og mat er du trygg innenfor 560 kr-grensen.',
+    body: 'Bestilles det brennevin/sprit på en representasjonsmiddag, mister du fradragsretten på hele utgiften — inkludert mat. Ikke bare spritdelen, men alt. Dette er en absolutt regel i skatteloven § 6-21. Holder du deg til øl, vin og mat er du trygg innenfor 592 kr-grensen.',
     body_enkel: 'Bestiller noen sprit (whisky, akevitt, vodka o.l.) på kundemiddagen, mister selskapet fradraget på HELE regningen — ikke bare spritglasset. Bestill øl og vin, spar fradraget.',
     category: 'representasjon',
     tags: ['representasjon', 'sprit', 'brennevin'],
