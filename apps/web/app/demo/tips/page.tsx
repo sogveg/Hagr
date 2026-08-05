@@ -192,28 +192,7 @@ export default function DemoTipsPage() {
   const savingCount = TIPS.filter(t => t.type === 'saving').length
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top bar */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white text-xs font-bold">H</span>
-            </div>
-            <span className="text-lg font-bold text-gray-900">Hagr</span>
-            <span className="text-gray-300 mx-1">·</span>
-            <span className="text-sm text-gray-500">Regelbibliotek & tips</span>
-          </div>
-          <Link
-            href="/login"
-            className="text-sm bg-violet-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-violet-700 transition-colors"
-          >
-            Logg inn
-          </Link>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -356,18 +335,6 @@ export default function DemoTipsPage() {
           </>
         )}
 
-        {/* CTA */}
-        <div className="mt-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl p-8 text-center text-white">
-          <h2 className="text-xl font-bold mb-2">Få full tilgang til Hagr</h2>
-          <p className="text-violet-200 text-sm mb-5">Firmabilkalkulator, kjørebok, lønn vs. utbytte, AI-skatteassistent og mer.</p>
-          <Link
-            href="/signup"
-            className="inline-block bg-white text-violet-700 font-bold px-6 py-3 rounded-xl hover:bg-violet-50 transition-colors"
-          >
-            Kom i gang gratis
-          </Link>
-        </div>
-      </div>
     </div>
   )
 }
