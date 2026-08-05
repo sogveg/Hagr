@@ -469,7 +469,7 @@ export default function WelfarePage() {
               <input className="input" placeholder="F.eks. 450" value={foodCostPerPerson} onChange={e => setFoodCostPerPerson(e.target.value)} />
               <p className="text-xs text-gray-400 mt-1">
                 Kun kostnad for mat og drikke eks. mva. Lokale, underholdning og transport regnes ikke med.
-                Grense: {REPRESENTATION_FOOD_LIMIT_PER_PERSON} kr/person.
+                Over {REPRESENTATION_FOOD_LIMIT_PER_PERSON} kr/person øker risikoen for at arrangementet omklassifiseres som representasjon — det er ingen fast grense for rene ansattarrangementer.
               </p>
             </div>
 
