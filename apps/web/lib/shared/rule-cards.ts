@@ -109,7 +109,7 @@ export const RULE_CARDS: RuleCard[] = [
     category: 'Dokumentasjon',
     company_types: ['AS', 'Holding-AS'],
     base_risk: 'green',
-    summary: 'Styremøte er lovpålagt for AS. Protokoll er obligatorisk. Kostnader til styremøtet (møterom, servering, reise) er fradragsberettiget.',
+    summary: 'Styresaker i AS skal behandles betryggende og protokolleres. Aksjeloven krever ikke et bestemt antall fysiske styremøter, men all styrebehandling skal dokumenteres i protokoll. Kostnader til styremøtet (møterom, servering, reise) er fradragsberettiget.',
     green_examples: [
       'Ordinært styremøte med agenda, deltakerliste og signert protokoll',
       'Digitalt styremøte med Teams-link og deltakerliste',
@@ -155,18 +155,18 @@ export const RULE_CARDS: RuleCard[] = [
     title: 'Representasjon (middag/lunsj)',
     category: 'Representasjon og samlinger',
     company_types: ['AS', 'ENK', 'Holding-AS', 'ANS'],
-    limit_amount: 560,
+    limit_amount: 592,
     limit_period: 'event',
-    limit_unit: 'kr per person (middag)',
-    base_risk: 'green',
-    summary: 'Ekstern representasjon med kunder/leverandører er fradragsberettiget inntil 592 kr per person eks. mva for middag. Lunsj i arbeidstid er fullt fradragsberettiget.',
+    limit_unit: 'kr per person — overskridelse = hele fradraget bort',
+    base_risk: 'yellow',
+    summary: 'Enkel servering av kunder og forretningsforbindelser kan gi fradrag — men bare hvis kostnaden ikke overstiger 592 kr per person eks. mva. (2026). Overskrides grensen faller hele fradraget bort, ikke bare overskytende. I tillegg gjelder krav til tidspunkt, sted og formål. Kilde: Skatteetaten.',
     green_examples: [
-      'Lunsj med kunde i arbeidstid, 450 kr per person',
-      'Middag med tre kunder, totalt 1 500 kr (= 500 kr/person, under grensen)',
+      'Lunsj med kunde i arbeidstid på arbeidsstedet, 450 kr per person — alle vilkår oppfylt',
+      'Varedemonstrasjon med enkel servering, 550 kr per person',
     ],
     yellow_examples: [
-      'Middagsutgift akkumulert til nær 592 kr/person-grensen',
-      'Alkohol inkludert i regningen',
+      'Kostnad nær 592 kr/person-grensen — liten margin for feil',
+      'Kveldsmiddag på restaurant: krav til forretningsformål og deltakere må dokumenteres nøye',
     ],
     red_examples: [
       'Privat middag registrert som representasjon',
@@ -234,16 +234,19 @@ export const RULE_CARDS: RuleCard[] = [
     category: 'Risiko',
     company_types: ['AS', 'Holding-AS'],
     base_risk: 'red',
-    summary: 'Lån fra AS til aksjonær beskattes som utbytte i det året lånet tas opp. Dette ble innstrammet i 2022. Slike lån er i praksis avskaffet som skattemessig planleggingsverktøy.',
-    green_examples: [],
+    summary: 'Lån fra AS til personlig aksjonær beskattes som utbytte i det år lånet tas opp (innstrammet 2022). Unntak: lån under 100 000 kr samlet saldo som tilbakebetales innen 60 dager utløser normalt ikke utbyttebeskatning. Kilde: Skatteloven § 10-11 (4) og Skatteetaten.',
+    green_examples: [
+      'Kortvarig trekk under 100 000 kr samlet saldo, tilbakebetalt innen 60 dager — lovlig unntak',
+    ],
     yellow_examples: [
-      'Kortvarig mellomregning som tilbakebetales innen regnskapsårets slutt',
+      'Saldo som nærmer seg 100 000 kr-grensen — hele beløpet kan bli skattepliktig',
     ],
     red_examples: [
-      'Lån fra AS til privatperson/aksjonær — beskattes som utbytte',
+      'Lån over 100 000 kr til aksjonær — beskattes som utbytte',
       'Mellomregning som vokser år for år uten tilbakebetaling',
+      'Tilbakebetaling som overstiger 60-dagersfristen',
     ],
-    required_documentation: ['Tilbakebetalingsplan', 'Styrevedtak', 'Renteberegning til markedsrente'],
+    required_documentation: ['Tilbakebetalingsdato (maks 60 dager)', 'Saldooversikt per dato', 'Renteberegning til markedsrente'],
     law_reference: 'Skatteloven § 10-11 (4)',
     updated_year: 2026,
   },
@@ -256,7 +259,7 @@ export const RULE_CARDS: RuleCard[] = [
     summary: 'Optimal fordeling mellom lønn og utbytte avhenger av overskudd, pensjonsønsker og sykepenger-rettigheter. Kombinasjonen gir som regel lavest skatt og best trygdedekning.',
     green_examples: [
       'Lønn på ca. 600 000–700 000 kr + utbytte av restoverskudd',
-      'Lønn tilpasset 7,1 G for full sykepenger-rettighet',
+      'Lønn opp til 6 G (~819 294 kr) for full sykepengedekning, opp til 7,1 G for full pensjonsopptjening',
     ],
     yellow_examples: [
       'Svært lav lønn (under 300 000 kr) med høy utbytteuttak',
@@ -274,7 +277,7 @@ export const RULE_CARDS: RuleCard[] = [
     category: 'Naturalytelser',
     company_types: ['AS', 'ENK', 'Holding-AS'],
     base_risk: 'green',
-    summary: 'Arbeidsgiver kan dekke kurs og videreutdanning skattefritt for den ansatte — forutsatt at utdanningen har tilknytning til arbeidet. Ingen øvre beløpsgrense. Selskapet får fullt fradrag. Intern opplæring er alltid skattefri.',
+    summary: 'Arbeidsgiver kan dekke kurs og videreutdanning skattefritt for den ansatte — forutsatt tilknytning til nåværende stilling eller selskapets virksomhet. Intern opplæring er normalt skattefri med lavere krav til dokumentasjon. Lengre ekstern utdanning (mastergrad m.m.) har tilleggsvilkår. Ingen øvre beløpsgrense. Selskapet får fullt fradrag. Kilde: FSFIN §§ 5-15-10 til 5-15-14.',
     green_examples: [
       'MBA relevant for lederrollen din — dekket av selskapet',
       'Fagkurs og bransjesertifiseringer (IT, økonomi, jus)',
