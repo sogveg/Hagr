@@ -1,4 +1,4 @@
-export type RuleCardRiskLevel = 'green' | 'yellow' | 'red'
+export type RuleCardRiskLevel = 'green' | 'yellow' | 'orange' | 'red'
 export type RuleCompanyType = 'AS' | 'ENK' | 'Holding-AS' | 'ANS' | 'other'
 
 export interface RuleCard {

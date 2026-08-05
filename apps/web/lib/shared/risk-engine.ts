@@ -1,7 +1,7 @@
 import type { CompanyType } from './company'
 import type { EventType } from './events'
 
-export type RiskLevel = 'green' | 'yellow' | 'red'
+export type RiskLevel = 'green' | 'yellow' | 'orange' | 'red'
 
 export interface RiskInput {
   company_type: CompanyType
@@ -119,7 +119,7 @@ export function assessRisk(input: RiskInput): RiskResult {
   // Clamp score
   score = Math.min(100, score)
 
-  const level: RiskLevel = score >= 60 ? 'red' : score >= 30 ? 'yellow' : 'green'
+  const level: RiskLevel = score >= 75 ? 'red' : score >= 50 ? 'orange' : score >= 25 ? 'yellow' : 'green'
 
   return { level, score, reasons, required_documentation, risk_reducing_actions }
 }

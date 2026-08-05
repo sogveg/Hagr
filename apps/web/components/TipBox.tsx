@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Lightbulb, ChevronDown, ChevronUp, ArrowRight, X } from 'lucide-react'
 // ChevronDown/Up used for show-more/less, ArrowRight for tool link
-import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, getTipBody, getTipTitle, type Tip, type TipCategory } from '@/lib/shared'
+import { getTipsByTool, getTipsByCategory, TIPS, TIP_TYPE_LABELS, getTipBody, getTipTitle, type Tip, type TipCategory, type RiskLevel } from '@/lib/shared'
 import { useLanguageMode } from '@/contexts/LanguageMode'
 
 interface TipBoxProps {
@@ -30,6 +30,13 @@ const TYPE_TEXT: Record<string, string> = {
 }
 
 const TYPE_ORDER: Record<string, number> = { saving: 0, gotcha: 1, rule: 2, planning: 3 }
+
+const RISK_BADGE: Record<RiskLevel, { label: string; cls: string }> = {
+  green:  { label: 'Lav risiko',    cls: 'bg-green-100 text-green-700' },
+  yellow: { label: 'Vurder nøye',   cls: 'bg-yellow-100 text-yellow-700' },
+  orange: { label: 'Faglig råd',    cls: 'bg-orange-100 text-orange-700' },
+  red:    { label: 'Høy risiko',    cls: 'bg-red-100 text-red-700' },
+}
 
 // Plain-language labels for "enkel" mode
 const TYPE_LABELS_ENKEL: Record<string, string> = {
@@ -56,6 +63,11 @@ function SingleTip({ tip, currentPath, mode }: { tip: Tip; currentPath: string; 
         <span className={`text-xs font-semibold ${TYPE_TEXT[tip.type] ?? 'text-gray-600'}`}>
           {mode === 'enkel' ? (TYPE_LABELS_ENKEL[tip.type] ?? TIP_TYPE_LABELS[tip.type]) : TIP_TYPE_LABELS[tip.type]}
         </span>
+        {tip.risk_level && tip.risk_level !== 'green' && (
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${RISK_BADGE[tip.risk_level].cls}`}>
+            {RISK_BADGE[tip.risk_level].label}
+          </span>
+        )}
         {tip.impact && (
           <span className="text-xs bg-white/70 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
             {tip.impact}
@@ -64,6 +76,15 @@ function SingleTip({ tip, currentPath, mode }: { tip: Tip; currentPath: string; 
       </div>
       <p className="text-sm font-semibold text-gray-900 leading-snug mb-1">{getTipTitle(tip, mode)}</p>
       <p className="text-sm text-gray-700 leading-relaxed">{getTipBody(tip, mode)}</p>
+      {tip.escalation_rule && tip.risk_level !== 'green' && (
+        <p className={`text-xs mt-2 px-2 py-1.5 rounded-lg ${
+          tip.risk_level === 'red'    ? 'bg-red-50 text-red-700' :
+          tip.risk_level === 'orange' ? 'bg-orange-50 text-orange-700' :
+                                        'bg-yellow-50 text-yellow-700'
+        }`}>
+          ⚠ {tip.escalation_rule}
+        </p>
+      )}
       {(tip.law_ref || tip.source_url) && (
         <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5 flex-wrap">
           {tip.law_ref && <span>{tip.law_ref}</span>}

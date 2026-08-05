@@ -13,7 +13,8 @@ const CONFIG: Record<RiskLevel, {
   Icon: typeof ShieldCheck
 }> = {
   green:  { label: 'Lav risiko',      className: 'bg-green-50  text-green-700  border border-green-200',  Icon: ShieldCheck },
-  yellow: { label: 'Moderat risiko',  className: 'bg-yellow-50 text-yellow-700 border border-yellow-200', Icon: ShieldAlert },
+  yellow: { label: 'Vurder nøye',     className: 'bg-yellow-50 text-yellow-700 border border-yellow-200', Icon: ShieldAlert },
+  orange: { label: 'Faglig råd',      className: 'bg-orange-50 text-orange-700 border border-orange-200', Icon: ShieldAlert },
   red:    { label: 'Høy risiko',      className: 'bg-red-50    text-red-700    border border-red-200',    Icon: ShieldX },
 }
 

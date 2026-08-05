@@ -1,8 +1,12 @@
-// SkatteSmart Tip Library — 2026
+// Hagr Tip Library — 2026
 // Dette er innholdet brukerne betaler for: konkrete tips, triks og gotchas
-// som en regnskapsfører ikke alltid gidder å fortelle deg.
+// Alle tips har risikonivå (green/yellow/orange/red) fra RISK_CLASSIFICATION.md
+
+import type { RiskLevel } from './risk-engine'
+export type { RiskLevel }
 
 export type TipType = 'saving' | 'gotcha' | 'rule' | 'planning'
+
 export type TipCategory =
   | 'velferd'
   | 'representasjon'
@@ -25,16 +29,21 @@ export type TipCategory =
 export interface Tip {
   id: string
   title: string
-  title_enkel?: string  // Friendly plain-language title (optional, falls back to title)
-  body: string          // Default body (professional / neutral)
-  body_enkel?: string   // Plain-language version for "enkel" mode
+  title_enkel?: string
+  body: string
+  body_enkel?: string
   category: TipCategory
   tags: string[]
   type: TipType
-  impact?: string       // "Spar inntil 11 000 kr"
+  risk_level: RiskLevel
+  impact?: string
   law_ref?: string
-  source_url?: string   // Kilde-URL (Skatteetaten, Lovdata el.)
-  tool_href?: string    // lenke til relevant verktøy
+  source_url?: string
+  tool_href?: string
+  // Vises ved gul/oransje/rød: hvem bør kontaktes og når
+  escalation_rule?: string
+  documentation_required?: string[]
+  who_it_applies_to?: Array<'AS' | 'ENK' | 'arbeidsgiver' | 'aksjonær' | 'MVA-reg' | 'med-ansatte'>
 }
 
 /** Returns the appropriate title/body based on language mode */
@@ -58,11 +67,15 @@ export const TIPS: Tip[] = [
     category: 'velferd',
     tags: ['julebord', 'julebord-guide', 'velferd', 'rimelighet'],
     type: 'saving',
+    risk_level: 'yellow',
+    escalation_rule: 'Kostnad over 2 000 kr per person eller tvilsom sammensetning: vurder faglig gjennomgang.',
     impact: 'Ingen fast kronergrense for ansattjulebord',
     tool_href: '/welfare',
   },
   {
     id: 'welfare_no_spirits',
+    risk_level: 'yellow',
+    escalation_rule: 'Dersom kunder deltar og brennevin serveres: høy risiko for omklassifisering til representasjon — få vurdert av regnskapsfører.',
     title: 'Brennevin på julebord: rødt flagg, men ikke automatisk nullfradrag',
     body: 'For et rent ansattjulebord (velferdstiltak) gjelder ikke representasjonsregelen om at brennevin nuller ut hele fradraget. Den regelen (skatteloven § 6-21) gjelder kun representasjon — altså enkel servering for kunder og forretningsforbindelser. Men brennevin øker risikoen dersom arrangementet er i grenseland: hvis kunder/leverandører deltar, eller arrangementet er kostbart og luksuspreget, kan Skatteetaten omklassifisere det til representasjon — og da faller hele fradraget bort.',
     body_enkel: 'Brennevin på ansattjulebordet er ikke automatisk forbudt, men øker risikoen. Hvis julebordet kan minne om et kundearrangement (kunder er med, svært dyrt, luksuspreget) kan myndighetene omklassifisere det — og da nuller brennevinet ut hele fradraget. Ren ansattfest med rimelig kostnad: ok. Halvpart kunder og sprit: høy risiko.',
@@ -80,6 +93,8 @@ export const TIPS: Tip[] = [
     category: 'velferd',
     tags: ['julebord', 'alle-ansatte', 'skattefrihet'],
     type: 'rule',
+    risk_level: 'yellow',
+    escalation_rule: 'Avgrensning av gruppe uten klar saklig grunn: konferér med regnskapsfører.',
     tool_href: '/welfare',
   },
   {
@@ -90,6 +105,7 @@ export const TIPS: Tip[] = [
     category: 'velferd',
     tags: ['velferd', '5000-kr', 'rimelighet'],
     type: 'rule',
+    risk_level: 'yellow',
     tool_href: '/welfare',
   },
   {
@@ -99,10 +115,12 @@ export const TIPS: Tip[] = [
     category: 'velferd',
     tags: ['julebord', 'ektefelle', 'velferd'],
     type: 'saving',
+    risk_level: 'green',
     tool_href: '/welfare',
   },
   {
     id: 'welfare_participant_list',
+    risk_level: 'green',
     title: 'Deltakerliste er det sterkeste beviset ved bokettersyn',
     body: 'Skatteetaten kan be om dokumentasjon på at alle ansatte ble invitert. Ha to ting klart: (1) kopi av invitasjonen eller utsendingslisten, og (2) faktisk deltakerliste over hvem som møtte opp. Deltakerliste alene er ikke tilstrekkelig bevis for at alle fikk tilbudet. Skatteetaten vurderer også kostnadsnivå, formål og hvem tiltaket retter seg mot. To minutter med et Word-dokument eller en regnearkfane kan spare deg for mye bry.',
     category: 'velferd',
@@ -112,6 +130,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'welfare_solo_owner',
+    risk_level: 'green',
     title: 'Eier alene? Julebord for deg selv er uttak — ikke velferd',
     body: 'Et AS uten ansatte (kun eier) kan ikke avholde skattefritt julebord for eieren alene. Utgiften behandles normalt som uttak eller utbytte avhengig av omstendighetene — ikke som et skattefritt velferdstiltak. Har selskapet ansatte, må tiltaket likevel tilbys alle på reelle vilkår for å kvalifisere som velferd.',
     category: 'velferd',
@@ -124,6 +143,8 @@ export const TIPS: Tip[] = [
 
   {
     id: 'rep_560_middag',
+    risk_level: 'yellow',
+    escalation_rule: 'Kostnad per person nær eller over grensen, eller alkohol servert: sjekk vilkår og dokumentasjon med regnskapsfører.',
     source_url: 'https://www.skatteetaten.no/satser/representasjonskostnader/',
     title: 'Servering med kunder: overskrid 592 kr/person og hele fradraget faller bort (2026)',
     body: 'Ved enkel servering av kunder og forretningsforbindelser kan selskapet få skattemessig fradrag — men kun dersom kostnaden ikke overstiger 592 kr per person eks. mva. (2026). Overskrides beløpsgrensen, faller hele fradraget for serveringen bort — ikke bare overskytende. I tillegg må serveringen skje i arbeidstiden eller i forbindelse med forhandlinger/varepresentasjon, og normalt på arbeidsstedet eller i nærheten. Kilde: Skatteetaten.',
@@ -137,6 +158,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'rep_no_spirits',
+    risk_level: 'green',
     source_url: 'https://lovdata.no/lov/1999-03-26-14/§6-21',
     title: 'Brennevin på kundemiddag: alt fradraget faller bort',
     body: 'Bestilles det brennevin/sprit på en representasjonsmiddag, mister du fradragsretten på hele utgiften — inkludert mat. Ikke bare spritdelen, men alt. Dette er en absolutt regel i skatteloven § 6-21. Øl og vin til maten stenger ikke i seg selv for fradrag, men alle øvrige vilkår for enkel servering (tidspunkt, sted, formål, deltakere) må likevel være oppfylt.',
@@ -149,6 +171,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'rep_documentation',
+    risk_level: 'green',
     title: 'Representasjonsbilag uten navn på deltakerne blir avvist',
     body: 'Kvittering alene er ikke nok. For representasjon krever Skatteetaten: dato, sted, navn og selskap på ALLE deltakere, og det forretningsmessige formålet. Mangler du dette kan revisor eller Skatteetaten nekte fradraget. Skriv det på kvitteringen med en gang — glem det ikke dagen etter.',
     body_enkel: 'En kvittering er ikke nok. Du må skrive på kvitteringen: hvem var med, hvilke selskaper de er fra, og hva dere møttes for. Gjør det på stedet med telefonen — det er lett å glemme neste dag.',
@@ -159,6 +182,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'rep_internal_only',
+    risk_level: 'green',
     title: 'Kun interne ansatte? Det er velferd — ikke representasjon',
     body: 'Representasjon er for eksternt bruk: kunder, leverandører, samarbeidspartnere. Interne arrangement (kun ansatte) heter velferdstiltak og har egne, gunstigere regler. Blander du de to opp i bilagene risikerer du feil skattebehandling begge veier.',
     body_enkel: 'Er alle med på middagen fra din bedrift? Da er det "velferd", ikke "representasjon" — og det er faktisk gunstigere! Representasjon er kun for når du har kunder, leverandører eller samarbeidspartnere med.',
@@ -172,6 +196,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'salary_optimal_2026',
+    risk_level: 'green',
     title: '2026: Optimal lønn for AS-eier er opp til ca. 980 100 kr (sone I)',
     body: 'Skattemessig krysningspunkt i 2026 er 980 100 kr for sone I (14,1% AGA). Under dette er lønn billigere enn utbytte — marginalraten er 50,3% mot utbyttets 51,5%. Over krysningspunktet er lønn dyrere (53,0–53,9%). Vil du også ha full pensjonsopptjening, er 7,1 G (927 900 kr) det anbefalte nivået. Bruk kalkulatoren for å finne ditt eksakte optimum.',
     title_enkel: '2026: Ta lønn opp til ca. 980 000 kr — resten som utbytte',
@@ -184,6 +209,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'salary_pension_right',
+    risk_level: 'green',
     title: 'Lønn og trygderettigheter: 6 G for sykepenger, 7,1 G for pensjon',
     body: 'Det er to ulike G-grenser å kjenne til: (1) Sykepenger fra NAV beregnes av lønn, men er begrenset oppad til 6 G (ca. 819 294 kr i 2026). Tar du ingen lønn og blir syk, får du ingenting. (2) Pensjonsopptjening i folketrygden skjer opp til 7,1 G. I tillegg avhenger retten til sykepenger av arbeidsforhold, opptjeningstid og inntektsgrunnlag — ikke bare lønnsbeløpet alene. Mange eiere undervurderer verdien av sykepengeretten.',
     body_enkel: 'Tar du ingen lønn, har du ingen sykepenger-rettighet fra NAV. Sykepenger dekkes maksimalt opp til 6 G (819 294 kr i 2026). Pensjonsopptjening i folketrygden er begrenset til 7,1 G — en separat og høyere grense.',
@@ -195,6 +221,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'salary_aga_cost',
+    risk_level: 'green',
     title: 'AGA koster selskapet 14,1% ekstra — ta det med i regnestykket',
     body: 'Arbeidsgiveravgift (AGA) er 14,1% av lønn i sone I (Oslo/sørøst). En lønn på 980 100 kr koster selskapet 1 118 294 kr (980 100 + 138 194 kr AGA). AGA er fradragsberettiget for selskapet, men øker selskapskostnaden betydelig. Kalkulatoren viser alltid total selskapskostnad inkl. AGA.',
     category: 'lønn-utbytte',
@@ -204,6 +231,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'salary_crossover',
+    risk_level: 'green',
     title: 'Over 980 100 kr i lønn? Marginalskatt 52,4% — vurder utbytte',
     body: 'I 2026 er crossoverpunktet der utbytteskatt og marginalskatten på lønn møtes omtrent 980 100 kr. Lønn over dette punktet beskattes hardere enn utbytte (hensyn tatt til selskapsskatt). Har du høyt overskudd: ta lønn opp til 980 100 kr, resten som utbytte.',
     category: 'lønn-utbytte',
@@ -213,6 +241,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'salary_skattepliktig_fordel',
+    risk_level: 'yellow',
+    escalation_rule: 'Markedsverdi vanskelig å dokumentere, eller lønn over 500 000 kr til familiemedlem: konferér med regnskapsfører.',
     title: 'Lønn til familiemedlemmer: lavere enn markedslønn = skattepliktig utbytte',
     body: 'Betaler du ektefellen eller barnet ditt lønn, må lønnen svare til markedsverdi for jobben de faktisk gjør. Betales for mye anses overskuddet som skattepliktig utbytte/gave. Betales for lite (eller ingenting) og Skatteetaten kan omklassifisere som arbeidsutleie til eier. Dokumenter arbeidsoppgaver og timer.',
     category: 'lønn-utbytte',
@@ -222,6 +252,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'salary_dividend_timing',
+    risk_level: 'green',
     title: 'Utbytte tas ut etter godkjent regnskap — ikke bare når du vil',
     body: 'Utbytte kan bare utdeles etter at årsregnskapet er godkjent av generalforsamlingen. I tillegg må selskapet ha tilstrekkelig fri egenkapital. Utbytte vedtatt uten generalforsamlingsprotokoll eller uten dekning i egenkapitalen er ugyldig — og kan bli behandlet som aksjonærlån.',
     category: 'lønn-utbytte',
@@ -234,6 +265,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'gift_5000_limit',
+    risk_level: 'green',
     title: 'Gaver til ansatte: 5 000 kr er grensen — og gavekort ER skattefritt',
     body: 'Gaver til ansatte er skattefrie inntil 5 000 kr per person per år. Kontanter og Vipps er alltid skattepliktig. Gavekort som KAN løses inn i penger (saldo-gavekort) er alltid skattepliktig. Men gavekort som IKKE kan løses inn i penger — f.eks. gavekort til én butikk, hotell eller opplevelse, eller flerbruksgavekort som Glede.no — er skattefritt på lik linje med en fysisk gave, innenfor 5 000 kr-grensen.',
     category: 'gaver',
@@ -243,6 +275,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'gift_jubilee',
+    risk_level: 'green',
     source_url: 'https://www.skatteetaten.no/bedrift-og-organisasjon/skatt/skattemelding-naringsdrivende/fradrag/representasjon-velferdstiltak-reklame-og-gaver/gaver-til-ansatte/',
     title: 'Jubileumsgave ved 20 år (deretter hvert 10. år) kan gis ekstra skattefritt',
     body: 'Ved ansattjubileum etter 20 år i selskapet — og deretter hvert 10. år (30, 40, 50 år) — kan det gis en ekstra skattefri gave på inntil 8 000 kr utover de ordinære 5 000 kr. Kilde: Skatteetaten. Dette er en fin mulighet til å belønne lojale ansatte skatteeffektivt.',
@@ -254,6 +287,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'gift_customer_limit',
+    risk_level: 'green',
     source_url: 'https://www.skatteetaten.no/satser/representasjonskostnader/',
     title: 'Kundegaver 2026: 324 kr for reklamegjenstander og oppmerksomheter',
     body: 'Skatteetaten opererer i 2026 med ulike grenser avhengig av type kundegave: (1) Reklamegjenstander med fast firmamerke/firmanavn — fradrag inntil 324 kr per gjenstand, forutsatt at de deles ut i større antall og er laget med reklameformål. (2) Oppmerksomhet overfor forretningsforbindelse (f.eks. blomster, vinflaske) — fradrag inntil 324 kr per tilfelle. (3) Servering/uteservering — følger representasjonsgrensen på 592 kr per person. Over disse grensene er utgiften ikke fradragsberettiget. Mva-fradrag må vurderes separat.',
@@ -269,6 +303,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'phone_flat_rate',
+    risk_level: 'green',
     title: 'Mobil og internett: fast sjablongbeløp på 4 392 kr — uansett faktisk kostnad',
     body: 'Har du tjenstlig behov (nesten alle gjør det), beskattes mobil og internett dekket av selskapet med en sjablong på 4 392 kr per år (2026) — uansett om abonnementet koster 3 000 eller 15 000 kr. Selskapet trekker fra hele utgiften, ansatt beskattes av sjablongen. Dette er en av de enkleste og sikrest gunstige ytelsene.',
     category: 'telefon-internett',
@@ -279,6 +314,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'phone_streaming',
+    risk_level: 'green',
     title: 'Netflix/Spotify inkludert i "internett" — Skatteetaten aksepterer ikke det',
     body: 'Streamingpakker som Netflix, Spotify og TV-tjenester er privat forbruk — selv om de er bundlet i et bredbåndsabonnement. Dekker selskapet dette, er den delen skattepliktig lønn utover sjablongen. Velg abonnementer uten streamingpakker, eller be om detaljert faktura der streamingdelen er atskilt.',
     category: 'telefon-internett',
@@ -288,6 +324,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'phone_need_documentation',
+    risk_level: 'green',
     title: 'Tjenstlig behov for mobil er krav — men terskelen er lav',
     body: 'For at mobil/internett-dekning skal behandles som naturalytelse (ikke ren lønn), må du ha et tjenstlig behov. I praksis: trenger du å nå kunder, leverandører eller kolleger utenfor kontoret? Det holder. Skriv en setning i kontrakten eller en e-post om det tjenstlige behovet — det er dokumentasjon nok.',
     category: 'telefon-internett',
@@ -300,6 +337,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'car_logbook_required',
+    risk_level: 'green',
     title: 'Kjørebok: uten den mister du bilens fradrag',
     body: 'Bruker du bil i næring MÅ du føre kjørebok for å dokumentere yrkeskjøring. Uten kjørebok kan Skatteetaten avvise bilens andel av fradraget. Kjøreboken skal inneholde: dato, startsted, endested, kilometer, formål med turen. Det holder med en enkel app eller et Excel-ark.',
     category: 'bil',
@@ -309,6 +347,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'car_private_use_taxation',
+    risk_level: 'yellow',
+    escalation_rule: 'Usikkerhet om disposisjonsrett, 40 000 km-grensen, eller varebil klasse 2: verifiser med regnskapsfører.',
     title: 'Privat disposisjonsrett til firmabil utløser full sjablongbeskatning',
     body: 'Det er disposisjonsretten — ikke antall faktisk kjørte private kilometer — som utløser sjablongbeskatning for firmabil. Har bilen stått til din private disposisjon gjennom året, beskattes du av sjablongen uavhengig av om du brukte den lite privat. I 2026 er sjablongen 30% av listepris inntil 370 300 kr + 20% av overskytende. For en bil til 500 000 kr gir dette ca. 137 030 kr skattepliktig inntekt (ikke skatten, men grunnlaget). Er bilen eldre enn 3 år per 1. januar: sett grunnlaget til 75% av listepris. Er i tillegg yrkeskjøringen over 40 000 km: ytterligere 75% (dvs. 56,25% av listepris). Kilde: Skatteetaten.',
     category: 'bil',
@@ -318,6 +358,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'car_electric_no_discount',
+    risk_level: 'green',
     title: 'El-firmabil 2026: ingen rabatt på listeprisen — samme sjablong som fossil',
     body: 'Fra og med 2026 er den særskilte rabatten på elbilers listepris ved firmabilbeskatning fjernet. Sjablongen beregnes nå på 100% av el-bilens listepris som ny, på lik linje med fossile biler: 30% av listepris inntil 370 300 kr + 20% av overskytende. Kilde: Skatteetaten, bilsatser 2026.',
     body_enkel: 'Hadde du hørt at elbiler beskattes av lavere listepris? Det gjaldt ikke i 2026. El- og fossilbiler behandles likt — full listepris som utgangspunkt.',
@@ -328,6 +369,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'car_mileage_rate',
+    risk_level: 'green',
     title: 'Privat bil i næring: 3,50 kr per km er skattefri godtgjørelse',
     body: 'Bruker du privat bil i jobben, kan du få 3,50 kr per km skattefritt (2026) — uansett samlet kjørelengde. Arbeidsgiver kan utbetale dette uten at det er lønn — men du MÅ føre kjørebok. Reiser med passasjer gir 1,00 kr ekstra per km per passasjer. Tilhenger eller særlig tungt utstyr kan også gi tillegg. Kilde: Skatteetaten.',
     category: 'bil',
@@ -341,6 +383,8 @@ export const TIPS: Tip[] = [
 
   {
     id: 'cabin_all_employees',
+    risk_level: 'orange',
+    escalation_rule: 'Eiendelen brukes primært av eier, eller alle-ansatte-vilkåret er usikkert: få løsningen vurdert av regnskapsfører eller skatteadvokat.',
     title: 'Bedriftshytte: alle ansatte MÅ ha tilgang — ellers er det utbytte',
     body: 'Har selskapet hytte som kun eieren bruker, behandles bruken som utbytte — beskattet med 37,84% (2026) + selskapsskatt. Sørg for at alle ansatte har reell tilgang og at dette er dokumentert (bookingsystem e.l.). Brukes hytten av alle ansatte, er det velferd og fullt fradragsberettiget.',
     category: 'hytte-båt',
@@ -350,6 +394,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'cabin_boat_taxable',
+    risk_level: 'orange',
+    escalation_rule: 'Båt eid av selskap med privat bruk av eier: få løsningen vurdert av regnskapsfører — mulig utbyttevurdering.',
     title: 'Firmabåt til privat bruk: sjablongbeskatning fra dag én',
     body: 'En båt eid av selskapet og brukt privat beskattes som naturalytelse. Sjablongen er basert på båtens verdi. Det er vanskelig å argumentere for forretningsmessig bruk av fritidsbåt — det er i praksis alltid privatbruk.',
     category: 'hytte-båt',
@@ -362,6 +408,8 @@ export const TIPS: Tip[] = [
 
   {
     id: 'shareholder_loan_taxed',
+    risk_level: 'red',
+    escalation_rule: 'Dersom mellomregning er positiv (selskapet skylder deg penger): ta kontakt med regnskapsfører umiddelbart.',
     source_url: 'https://lovdata.no/lov/1999-03-26-14/§10-11',
     title: 'Lån fra AS til eier beskattes som utbytte — umiddelbart',
     body: 'Siden 2022 er lån fra AS til aksjonær (deg som eier) skattepliktig som utbytte i det år lånet tas opp — uavhengig av om du betaler det tilbake. Dette er en av de vanligste og dyreste fallgruvene for AS-eiere. Mellomregning som vokser = skattesmell. Hold mellomregningen på null.',
@@ -372,6 +420,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'shareholder_loan_60days',
+    risk_level: 'yellow',
+    escalation_rule: 'Samlet saldo nær 100 000 kr, tilbakebetaling usikker, eller gjentatte kortvarige lån: konferér med regnskapsfører.',
     source_url: 'https://www.skatteetaten.no/bedrift-og-organisasjon/starte-og-drive/rutiner-regnskap-og-kassasystem/lonn-lan-og-utbytte/lan-til-aksjonar/mindre-og-kortvarige-lan-til-personlig-aksjonar/',
     title: 'Lån under 100 000 kr som tilbakebetales innen 60 dager: eget unntak',
     body: 'Det finnes et uttrykkelig unntak fra utbyttebeskatning for lån til personlig aksjonær: dersom hvert låneopptak tilbakebetales innen 60 dager og samlet saldo ikke når 100 000 kr, utløses normalt ikke utbyttebeskatning. Beløpsgrensen gjelder samlet saldo — når den passerer 100 000 kr kan hele beløpet bli skattepliktig. Markedsrente må fortsatt beregnes. Kilde: Skatteetaten.',
@@ -387,6 +437,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'pension_obligation',
+    risk_level: 'green',
     source_url: 'https://lovdata.no/lov/2005-12-21-124/§4',
     title: 'AS med ansatte: obligatorisk tjenestepensjon fra ansatte dag 1',
     body: 'Alle AS med ansatte plikter å ha tjenestepensjonsordning (OTP). Minimum er 2% av lønn opp til 12 G. Retten til OTP inntrer ved lønn over 2 000 kr (ikke ved 1 G). Manglende OTP er brudd på lov om obligatorisk tjenestepensjon og kan gi bøter. Ansetter du noen — sett opp pensjon med en gang.',
@@ -397,6 +448,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'pension_owner_ips',
+    risk_level: 'green',
     source_url: 'https://lovdata.no/lov/1999-03-26-14/§6-47',
     title: 'IPS 2026: sett av inntil 25 000 kr med skattefradrag',
     body: 'Individuell pensjonssparing (IPS) lar deg sette av inntil 25 000 kr per år i 2026 (økt fra 15 000 kr i 2025) og få fradrag i alminnelig inntekt. Kilde: Skatteetaten og Skatteloven § 6-47. Er du lønnstaker i eget AS kan du i tillegg ha innskuddspensjon gjennom selskapet. Kombinasjonen gir god trygdedekning og pensjonssparing.',
@@ -411,6 +463,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'company_card_private_use',
+    risk_level: 'green',
     title: 'Firmakort til private kjøp: det er lønn — ikke fradrag',
     body: 'Bruker du firmakortet til private kjøp, er det skattepliktig lønn for deg som ansatt/eier. Selskapet skal innberette det i a-meldingen og trekke forskuddsskatt. Mange hopper over dette og oppdager det først ved bokettersyn — med rentetillegg og tilleggsskatt.',
     category: 'firmakort',
@@ -420,6 +473,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'company_card_documentation',
+    risk_level: 'green',
     title: 'Bilagsplikt: alle kvitteringer må arkiveres i 5 år',
     body: 'Alle utgifter betalt med firmakort krever bilag (kvittering). Bilag skal arkiveres i minimum 5 år. Manglende bilag = nektet fradrag. Fotografer kvitteringen med en gang med en bilagsapp — ikke tøm lommene sent på kvelden og håp på det beste.',
     category: 'firmakort',
@@ -432,6 +486,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'board_meeting_mandatory',
+    risk_level: 'green',
     title: 'AS uten styremøteprotokoll: bot og personlig ansvar',
     body: 'Styresaker i AS skal behandles betryggende og protokolleres (aksjeloven § 6-29). Mangelfull dokumentasjon svekker bevisgrunnlaget ved tvister og kan inngå i en ansvarsvurdering — men personlig ansvar oppstår ikke automatisk av én manglende protokoll. Skatteetaten kan avvise kostnader fra udokumenterte styremøter. En digital protokoll tar 10 minutter og gir god dokumentasjon.',
     category: 'styremøter',
@@ -442,6 +497,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'board_meeting_expenses',
+    risk_level: 'green',
     title: 'Kostnader til styremøtet er fullt fradragsberettiget',
     body: 'Møterom, servering, reise for styremedlemmer og eventuelle honorar er fullt fradragsberettiget for selskapet. Styrehonorar er lønn og innberettes i a-meldingen. Styremøtets kostnader er blant de enkleste og sikreste fradragene du har — men du MÅ ha protokoll.',
     category: 'styremøter',
@@ -451,6 +507,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'board_meeting_strategy',
+    risk_level: 'yellow',
+    escalation_rule: 'Samling på feriested, kostnad over 15 000 kr per person, eller svakt faglig program: konferér med regnskapsfører.',
     title: 'Strategisamling på hytte: det er et styremøte — ikke en ferie',
     body: 'Offsite-møter og strategisamlinger er fradragsberettiget, men Skatteetaten er skeptisk til samlinger på feriesteder uten faglig program. Det avgjørende er arrangementets reelle hovedformål, program, varighet, deltakere og kostnadsnivå. Dokumenter det faglige innholdet (agenda, referat, beslutningspunkter) — jo tydeligere det faglige formålet fremgår, jo tryggere er fradragsretten.',
     category: 'styremøter',
@@ -463,6 +521,8 @@ export const TIPS: Tip[] = [
 
   {
     id: 'education_work_related',
+    risk_level: 'yellow',
+    escalation_rule: 'MBA, lederutdanning eller lengre ekstern utdanning over 100 000 kr: anbefalt faglig gjennomgang med regnskapsfører.',
     title: 'Selskapet kan dekke utdanning skattefritt — men den må være jobberelevant',
     body: 'Arbeidsgiver kan dekke kurs, studier og videreutdanning skattefritt for den ansatte — forutsatt at utdanningen har tilknytning til nåværende jobb eller selskapets virksomhet. Det er ingen øvre beløpsgrense. Fagkurs, bransjesertifiseringer, programmeringskurs og relevante studier er eksempler. En MBA kan kvalifisere dersom den er direkte relevant for din nåværende lederrolle — men lengre utdanning reiser spørsmål om bindingstid og tilknytning som må vurderes konkret. Selskapet får fullt fradrag for godkjente utgifter. Kilde: FSFIN §§ 5-15-10 til 5-15-14.',
     category: 'utdanning',
@@ -473,6 +533,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'education_internal',
+    risk_level: 'green',
     title: 'Intern opplæring: normalt skattefri, men tilknytning til arbeidet gjelder også her',
     body: 'Intern utdanning og opplæring (kurs du arrangerer selv, interne workshops, systemopplæring) er normalt skattefri for den ansatte og krever ikke den samme strenge dokumentasjonen som ekstern utdanning. Men det er ingen automatikk — opplæringen bør kunne knyttes til virksomheten eller den ansattes stilling. Et privat hobby-kurs internt arrangert gir ikke automatisk skattefrihet. Kilde: Skatteetaten, FSFIN § 5-15-13.',
     category: 'utdanning',
@@ -482,6 +543,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'education_private_benefit',
+    risk_level: 'green',
     title: 'Utdanning uten jobberelevans er skattepliktig lønn',
     body: 'Dekker selskapet en utdanning som ikke har tilknytning til arbeidet — f.eks. et hobbyspråkkurs, en livscoachutdanning, eller en bachelor i et helt annet felt — er dette en skattepliktig fordel for deg. Verdien legges til lønnen og innberettes i a-meldingen. "Relevant" er nøkkelordet: kan du argumentere for at det gjør deg bedre i jobben du har nå?',
     category: 'utdanning',
@@ -491,6 +553,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'education_what_covered',
+    risk_level: 'green',
     title: 'Hva kan dekkes skattefritt: kursavgift, bøker, reise — og lønn under studietid',
     body: 'Når utdanningen kvalifiserer som skattefri kan selskapet dekke: kursavgifter og studiemateriell, reise og overnatting til samlinger, og til og med lønn under studietid (permisjon med lønn). Alt dette er fradragsberettiget for selskapet og skattefritt for den ansatte. Dokumentér sammenhengen mellom utdanningen og jobben.',
     category: 'utdanning',
@@ -500,6 +563,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'education_language',
+    risk_level: 'yellow',
+    escalation_rule: 'Jobbrelevansen er uklar, eller kurset er dyrt: skriv ned begrunnelsen før du kostnadsbehandler.',
     title: 'Språkkurs: skattefritt hvis nødvendig for jobben — ellers skattepliktig',
     body: 'Engelsk for AS-eier med internasjonale kunder: grønn sone. Spansk for eksportsjef: skattefritt. Japansk uten jobbrelevans: skattepliktig. Terskelen er ikke høy, men du må kunne forklare hvorfor akkurat dette språket er nødvendig for din stilling. En setning i formålsnoten holder som dokumentasjon.',
     category: 'utdanning',
@@ -508,6 +573,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'education_quit_risk',
+    risk_level: 'orange',
+    escalation_rule: 'Utdanning over 50 000 kr og ansatte slutter innen 2 år: anbefal faglig gjennomgang med regnskapsfører.',
     title: 'Dyr utdanning like før oppsigelse? Skatteetaten ser på det',
     body: 'Dekker selskapet en dyr utdanning (f.eks. mastergrad) rett før du slutter, kan Skatteetaten hevde at fordelen primært er til nytte for neste arbeidsgiver — og dermed skattepliktig. Særlig risikabelt der utdanningen er generell og du slutter kort tid etter. God dokumentasjon på det faglige formålet og tilknytningen til nåværende stilling er avgjørende.',
     category: 'utdanning',
@@ -519,6 +586,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'family_employee_frikort',
+    risk_level: 'green',
     source_url: 'https://www.skatteetaten.no/person/skatt/skattekort/',
     title: 'Barn i selskapet: tjener under 100 000 kr = betaler ingen skatt (frikort 2025/2026)',
     body: 'Frikortgrensen er 100 000 kr per år (Skatteetaten, 2025/2026). Tjener barnet ditt under dette i selskapet, betaler de ingen skatt. For selskapet er lønnen fullt fradragsberettiget og reduserer selskapsskatten (22%). En win-win: du overfører verdier skatteeffektivt, og barnet tjener penger skattefritt. Husk at selskapet betaler AGA (14,1%) på toppen.',
@@ -529,6 +597,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'family_employee_market_wage',
+    risk_level: 'yellow',
+    escalation_rule: 'Lønn over 200 kr/t for barn under 20 år, eller vanskelig å dokumentere markedsverdi: konferér med regnskapsfører.',
     title: 'Barns lønn MÅ tilsvare markedsverdi for jobben de faktisk gjør',
     body: 'Betaler du barnet mer enn en ekstern person ville fått for samme jobb, anser Skatteetaten overskuddet som utbytte eller gave — og det beskattes deretter. Betaler du for lite for reelt arbeid, kan det omklassifiseres. Typisk godkjent: 100–200 kr timen for praktiske oppgaver som sosiale medier, lagerhjelp, pakking, rydding, enkel saksbehandling.',
     category: 'familieansatte',
@@ -537,6 +607,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'family_employee_age',
+    risk_level: 'green',
     title: 'Alder og arbeidsmiljøloven: barn under 15 år har strenge begrensninger',
     body: 'Under 13 år: ikke tillatt å ansette. 13–14 år: kun lett arbeid som ikke skader skolegang — maks 2 timer på skoledager, 7 timer på fridager, ikke farlig arbeid. 15–17 år: kan ansettes mer fleksibelt, men ikke farlig arbeid og ikke nattarbeid. Fra 18 år: ordinært ansettelsesforhold på lik linje med alle andre. Ansettelseskontrakt og timeregistrering er krav.',
     category: 'familieansatte',
@@ -546,6 +617,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'family_employee_real_work',
+    risk_level: 'yellow',
+    escalation_rule: 'Vanskelig å dokumentere timeantall eller konkrete oppgaver: sørg for skriftlig arbeidslogg.',
     title: 'Arbeidet MÅ være reelt og dokumentert — lønn for ingenting er uttak',
     body: 'Skatteetaten sjekker at lønn til familiemedlemmer svarer til reelt utført arbeid. Dokumentér: hvilke oppgaver, timer jobbet, hvem som har kontrollert arbeidet. Eksempler på godkjente oppgaver: sosiale medier og content, lagerhjelp og pakking, rydding og rengjøring, enkel administrasjon og arkivering, fotografering av produkter.',
     category: 'familieansatte',
@@ -554,6 +627,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'family_employee_aga_math',
+    risk_level: 'green',
     title: 'Regnestykket: 100 000 kr til barnet koster selskapet ca. 89 000 kr netto',
     body: 'Betaler selskapet 100 000 kr i lønn til barnet: AGA 14,1% = 14 100 kr. Totalkostnad selskap = 114 100 kr. Men: lønn + AGA gir 22% selskapsskattefradrag = 25 100 kr spart i selskapsskatt. Nettokostnad selskapet: ca. 89 000 kr. Barnet mottar 100 000 kr helt skattefritt (frikort). Dette er ett av de mest skatteeffektive tiltakene for familier med AS.',
     category: 'familieansatte',
@@ -563,6 +637,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'family_employee_spouse',
+    risk_level: 'yellow',
+    escalation_rule: 'Lønn til ektefelle over 500 000 kr, eller manglende skriftlig ansettelsesavtale: konferér med regnskapsfører.',
     title: 'Ektefelle i selskapet: økt oppmerksomhet fra Skatteetaten ved bokettersyn',
     body: 'Ektefelle kan ansettes på vanlige vilkår, men Skatteetaten ser grundigere på transaksjoner mellom nærstående. Markedslønn, reelt arbeid, skriftlig ansettelseskontrakt og timeregistrering er ekstra viktig. Sørg for at ektefellens arbeidsoppgaver er klart definert og adskilt fra det du selv gjør. SkatteSmart lar deg merke ansatte som familierelasjon.',
     category: 'familieansatte',
@@ -575,6 +651,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'home_office_enk',
+    risk_level: 'green',
     title: 'ENK med hjemmekontor: sjablong 2 000 kr eller faktisk kostnad',
     body: 'ENK-eiere kan velge mellom sjablongfradrag (2 000 kr/år, ingen krav til dokumentasjon) eller faktiske kostnader basert på arealdelen av hjemmet brukt til næring. Faktisk kostnad krever at rommet brukes utelukkende til næring. For mange er sjablongen enklest — men bor du stort og leier dyrt, kan faktisk kostnad gi mer.',
     category: 'hjemmekontor',
@@ -584,6 +661,8 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'home_office_as_owner',
+    risk_level: 'orange',
+    escalation_rule: 'Leiekontrakt AS–eier over 100 000 kr/år, eller manglende markedsprisvurdering: nødvendig med regnskapsfører og mulig faglig gjennomgang.',
     title: 'AS-eier med hjemmekontor: ingen hjemmekontorfradrag i AS',
     body: 'AS kan leie kontorlokaler av eieren (deg), men dette krever en reell leiekontrakt til markedsleie, styrevedtak og separat utbetaling. Det er komplisert og kontrolleres hardt. Enklere: sørg for at selskapet betaler for internett og mobil — det er sikre skattefordeler som dekker hjemmekontorbehovet for de fleste.',
     category: 'hjemmekontor',
@@ -595,6 +674,7 @@ export const TIPS: Tip[] = [
 
   {
     id: 'tax_audit_documentation',
+    risk_level: 'green',
     title: 'Bokettersyn: de ser alltid på representasjon, firmakort og velferd',
     body: 'Ved bokettersyn ser Skatteetaten typisk på: representasjonsbilag (deltakerinfo og formål), firmakortbruk (private kjøp?), velferdstiltak (alle invitert?), og mellomregning/aksjonærlån. Har du god dokumentasjon på disse fire områdene er du trygg. Bruk 1 time i januar på å samle bilag for fjoråret.',
     category: 'generelt',
@@ -603,6 +683,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'tax_5year_rule',
+    risk_level: 'green',
     source_url: 'https://lovdata.no/lov/2004-11-19-73/§13',
     title: 'Bilag oppbevares i 3,5 år — årsregnskap og protokoller i 5 år',
     body: 'Bokføringsloven § 13 skiller mellom to grupper: (1) Støttedokumenter/bilag, kontrakter og korrespondanse: 3 år og 6 måneder etter regnskapsårets slutt. (2) Årsregnskap, pliktig regnskapsrapportering og revisorkorrespondanse: 5 år. Digital lagring (PDF, foto) er fullt godkjent for begge. Mister du bilag, mister du fradraget.',
@@ -613,6 +694,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'tax_january_checklist',
+    risk_level: 'green',
     title: 'Januar-sjekklisten: 5 ting å gjøre i januar for et tryggere skatteår',
     body: '1) Arkiver alle desemberbilag. 2) Kontroller mellomregning med selskapet. 3) Se over årets velferdstiltak — har du deltakerliste? 4) Sjekk at alle gaver er innberettet korrekt. 5) Vurder lønn/utbytte-optimalisering for inneværende år.',
     category: 'generelt',
@@ -621,6 +703,7 @@ export const TIPS: Tip[] = [
   },
   {
     id: 'tax_deductibility_test',
+    risk_level: 'green',
     title: 'En enkel test for om noe er fradragsberettiget: ville du gjort det uten selskapet?',
     body: 'Tommelfingerregelen: ville du betalt for det av egne penger hvis du ikke hadde selskapet? Hvis svaret er nei, er det sannsynligvis fradragsberettiget. Er svaret ja (f.eks. mat, klær, ferie), er det sannsynligvis ikke fradragsberettiget. Det er åpenbart en forenkling, men det er et godt startpunkt.',
     category: 'generelt',
