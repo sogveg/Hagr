@@ -8,17 +8,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  // TEMP: auth bypass for demo — remove when done
+  // if (!user) redirect('/login')
 
   // Redirect to onboarding if user has no companies yet
-  const { data: access } = await supabase
-    .from('company_access')
-    .select('company_id')
-    .eq('user_id', user.id)
-    .limit(1)
+  if (user) {
+    const { data: access } = await supabase
+      .from('company_access')
+      .select('company_id')
+      .eq('user_id', user.id)
+      .limit(1)
 
-  if (!access || access.length === 0) {
-    redirect('/onboarding')
+    if (!access || access.length === 0) {
+      redirect('/onboarding')
+    }
   }
 
   return (
