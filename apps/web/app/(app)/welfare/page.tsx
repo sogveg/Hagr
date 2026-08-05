@@ -274,6 +274,7 @@ const POPULAR_MEASURES = [
 
 export default function WelfarePage() {
   const [tab, setTab] = useState<'calculator' | 'guide' | 'history'>('calculator')
+  const [arrangementCategory, setArrangementCategory] = useState<'welfare' | 'representation'>('welfare')
 
   // Calculator state
   const [welfareType, setWelfareType] = useState<WelfareType>('christmas_party')
@@ -418,7 +419,83 @@ export default function WelfarePage() {
         <div className="space-y-5">
           <TipBox toolHref="/welfare" title="Julebord og velferd — tips og fallgruver" maxTips={3} />
 
+          {/* Kategori-velger */}
+          <div className="card p-4">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Hva slags arrangement?</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setArrangementCategory('welfare')}
+                className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-colors ${
+                  arrangementCategory === 'welfare'
+                    ? 'border-brand-500 bg-brand-50 text-brand-800'
+                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <span className="text-xl shrink-0">🏢</span>
+                <div>
+                  <p className="text-sm font-semibold">Firmarangement</p>
+                  <p className="text-xs opacity-70 mt-0.5">Julebord, sommerfest, teambuilding — kun ansatte</p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setArrangementCategory('representation')}
+                className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-colors ${
+                  arrangementCategory === 'representation'
+                    ? 'border-amber-400 bg-amber-50 text-amber-800'
+                    : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                }`}
+              >
+                <span className="text-xl shrink-0">🤝</span>
+                <div>
+                  <p className="text-sm font-semibold">Kundearrangement</p>
+                  <p className="text-xs opacity-70 mt-0.5">Kunder, leverandører eller forretningsforbindelser deltar</p>
+                </div>
+              </button>
+            </div>
+          </div>
 
+          {/* Representasjon-redirect */}
+          {arrangementCategory === 'representation' && (
+            <div className="card p-6 border-2 border-amber-200 bg-amber-50">
+              <div className="flex items-start gap-3 mb-4">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <h3 className="font-semibold text-amber-900">Dette er representasjon — andre regler gjelder</h3>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Når kunder, leverandører eller andre eksterne parter deltar, brukes representasjonsreglene — ikke velferdreglene.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white rounded-xl border border-amber-200 p-4 mb-4 space-y-2 text-sm text-gray-700">
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 text-red-500 mt-0.5">❌</span>
+                  <span><strong>Grense mat+drikke: 592 kr/person eks. mva</strong> — overskridelse = ingen fradrag på hele mat+drikke-posten</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 text-red-500 mt-0.5">❌</span>
+                  <span><strong>Alkohol er aldri fradragsberettiget</strong> — be om separat alkoholnota</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 text-blue-500 mt-0.5">ℹ️</span>
+                  <span><strong>Lunsj i arbeidstid</strong> med ekstern part: 100% fradragsberettiget, ingen beløpsgrense</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 text-blue-500 mt-0.5">ℹ️</span>
+                  <span>Dokumentasjonskrav: dato, sted, alle deltakere med navn og selskap, forretningsmessig formål</span>
+                </div>
+              </div>
+              <a
+                href="/representation"
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700 transition-colors"
+              >
+                Gå til representasjonskalkulatoren →
+              </a>
+            </div>
+          )}
+
+          {arrangementCategory === 'welfare' && (<>
           {/* Form */}
           <div className="card p-6 space-y-5">
             <h2 className="font-semibold text-gray-900">Registrer velferdstiltak</h2>
@@ -657,6 +734,7 @@ export default function WelfarePage() {
               )}
             </div>
           )}
+          </>)}
         </div>
       )}
 
