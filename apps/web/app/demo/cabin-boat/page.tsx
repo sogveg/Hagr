@@ -173,21 +173,21 @@ export default function DemoCabinBoatPage() {
               <span>Brutto fordel</span>
               <span>{result.gross_benefit_nok.toLocaleString('nb-NO')} kr</span>
             </div>
-            {result.employee_paid_nok > 0 && (
+            {parseFloat(employeePaid) > 0 && (
               <div className="flex justify-between text-gray-500">
                 <span>Betalt av ansatt</span>
-                <span>− {result.employee_paid_nok.toLocaleString('nb-NO')} kr</span>
+                <span>− {parseFloat(employeePaid).toLocaleString('nb-NO')} kr</span>
               </div>
             )}
             <div className="border-t border-gray-100 my-2" />
             <div className="flex justify-between font-bold text-base">
               <span className="text-gray-800">Skattepliktig fordel</span>
-              <span className={result.taxable_benefit_nok > 0 ? 'text-orange-600' : 'text-green-600'}>
-                {result.taxable_benefit_nok.toLocaleString('nb-NO')} kr
+              <span className={result.net_taxable_nok > 0 ? 'text-orange-600' : 'text-green-600'}>
+                {result.net_taxable_nok.toLocaleString('nb-NO')} kr
               </span>
             </div>
-            {result.notes.map((n, i) => (
-              <p key={i} className="text-xs text-gray-400 mt-1">{n}</p>
+            {result.flags.map((n, i) => (
+              <p key={i} className="text-xs text-gray-400 mt-1">• {n}</p>
             ))}
           </div>
         </div>

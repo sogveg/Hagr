@@ -6,6 +6,7 @@ import {
   AGA_ZONE_KEYS,
   type AGAZone,
   type SalaryDividendScenario,
+  type PensionImpact,
 } from '@/lib/shared'
 import { DEFAULT_TAX_RATES } from '@/lib/shared/tax-rates'
 import {
@@ -21,7 +22,7 @@ const AGA_ZONE_LABELS: Record<AGAZone, string> = {
   zone5: 'Sone V — 0% (Finnmark m.fl.)',
 }
 
-function PensionBar({ pension }: { pension: SalaryDividendScenario['pension'] }) {
+function PensionBar({ pension }: { pension: PensionImpact }) {
   const pct = Math.min(100, Math.round(pension.pension_coverage_pct * 100))
   return (
     <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
@@ -242,41 +243,43 @@ export default function DemoSalaryDividendPage() {
       </div>
 
       {/* Resultater */}
-      {result && (
-        <div className="space-y-6">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {result.scenarios.map((s, i) => (
-              <ScenarioCard
-                key={s.label}
-                label={s.label}
-                sublabel={s.sublabel}
-                s={s}
-                highlight={i === result.recommended_index}
-              />
-            ))}
-          </div>
+      {result && (() => {
+        const scenarioList = [
+          { label: 'Kun utbytte', sublabel: 'Ingen lønn', s: result.scenario_low_salary },
+          { label: 'Nåværende lønn', sublabel: `${currentSalaryVal.toLocaleString('nb-NO')} kr`, s: result.scenario_current },
+          { label: '7,1 G (anbefalt)', sublabel: 'Full pensjonsopptjening', s: result.scenario_7_1g, highlight: true },
+          { label: 'Skatteoptimal', sublabel: 'Maks netto privat', s: result.scenario_tax_optimal },
+          { label: 'Alt som lønn', sublabel: 'Ingen utbytte', s: result.scenario_max_salary },
+        ]
+        return (
+          <div className="space-y-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {scenarioList.map(({ label, sublabel, s, highlight }) => (
+                <ScenarioCard key={label} label={label} sublabel={sublabel} s={s} highlight={highlight} />
+              ))}
+            </div>
 
-          {/* Anbefaling */}
-          {result.recommended_index >= 0 && (
             <div className="bg-violet-50 border border-violet-200 rounded-xl p-5">
               <div className="flex items-start gap-3">
                 <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
                   <TrendingUp size={14} className="text-white" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="font-semibold text-violet-900 text-sm">Anbefalt: {result.scenarios[result.recommended_index]?.label}</p>
-                  <p className="text-sm text-violet-700 mt-1">{result.recommendation_text}</p>
+                  <p className="font-semibold text-violet-900 text-sm">
+                    Anbefalt lønn: {result.recommended_salary_nok.toLocaleString('nb-NO')} kr
+                  </p>
+                  <p className="text-sm text-violet-700 mt-1">{result.recommendation}</p>
                 </div>
               </div>
             </div>
-          )}
 
-          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800 flex items-start gap-2">
-            <Lightbulb size={13} className="shrink-0 mt-0.5 text-amber-500" />
-            <span>Dette er en demo med standardsatser for 2026. Logg inn for å lagre beregninger, justere skjermingsfradrag, og se marginalskattabellen.</span>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800 flex items-start gap-2">
+              <Lightbulb size={13} className="shrink-0 mt-0.5 text-amber-500" />
+              <span>Dette er en demo med standardsatser for 2026. Logg inn for å lagre beregninger, justere skjermingsfradrag, og se marginalskattabellen.</span>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

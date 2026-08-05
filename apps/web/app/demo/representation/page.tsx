@@ -59,10 +59,12 @@ export default function DemoRepresentationPage() {
     if (!total || total <= 0) return null
     return evaluateRepresentation({
       rep_type: repType,
-      total_cost_nok: total,
-      num_persons: persons,
-      has_spirits: hasSpirits,
-      has_external_guest: hasExternalGuest,
+      amount_nok: total,
+      person_count: persons,
+      includes_alcohol: hasSpirits,
+      has_external_participant: hasExternalGuest,
+      during_work_hours: repType === 'lunch',
+      purpose: 'demo',
     })
   }, [repType, total, persons, hasSpirits, hasExternalGuest])
 
@@ -171,14 +173,14 @@ export default function DemoRepresentationPage() {
 
       {result && (
         <div className={`mt-4 bg-white rounded-xl border shadow-sm p-6 ${
-          result.is_deductible ? 'border-green-200' : 'border-red-200'
+          result.deductible_amount > 0 ? 'border-green-200' : 'border-red-200'
         }`}>
           <div className="flex items-center gap-2 mb-4">
-            {result.is_deductible
+            {result.deductible_amount > 0
               ? <CheckCircle size={18} className="text-green-600" />
               : <AlertTriangle size={18} className="text-red-500" />}
-            <span className={`font-semibold text-sm ${result.is_deductible ? 'text-green-700' : 'text-red-600'}`}>
-              {result.is_deductible ? 'Fradragsberettiget' : 'Ikke fradragsberettiget'}
+            <span className={`font-semibold text-sm ${result.deductible_amount > 0 ? 'text-green-700' : 'text-red-600'}`}>
+              {result.deductible_amount > 0 ? 'Fradragsberettiget' : 'Ikke fradragsberettiget'}
             </span>
           </div>
           <div className="space-y-2 text-sm">
@@ -186,13 +188,17 @@ export default function DemoRepresentationPage() {
               <span>Total kostnad</span>
               <span>{total.toLocaleString('nb-NO')} kr</span>
             </div>
+            <div className="flex justify-between text-gray-500">
+              <span>Ikke fradragsberettiget</span>
+              <span>{result.non_deductible_amount.toLocaleString('nb-NO')} kr</span>
+            </div>
             <div className="flex justify-between font-bold text-base border-t border-gray-100 pt-2 mt-2">
               <span className="text-gray-800">Fradragsberettiget beløp</span>
-              <span className={result.deductible_nok > 0 ? 'text-green-600' : 'text-red-600'}>
-                {result.deductible_nok.toLocaleString('nb-NO')} kr
+              <span className={result.deductible_amount > 0 ? 'text-green-600' : 'text-red-600'}>
+                {result.deductible_amount.toLocaleString('nb-NO')} kr
               </span>
             </div>
-            {result.notes.map((n, i) => (
+            {result.flags.map((n, i) => (
               <p key={i} className="text-xs text-gray-500 mt-1 flex gap-1">
                 <span className="shrink-0">•</span>{n}
               </p>
