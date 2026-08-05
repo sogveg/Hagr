@@ -7,6 +7,8 @@ import {
   FIRMABIL_RATE_LOW,
   FIRMABIL_RATE_HIGH,
   FIRMABIL_HIGH_USAGE_KM,
+  DEFAULT_TAX_RATES,
+  TAX_RATES_2025,
 } from '@/lib/shared'
 import { Car, Lightbulb, ChevronDown, ChevronUp, Info } from 'lucide-react'
 
@@ -35,45 +37,91 @@ function TipBox({ tips }: { tips: string[] }) {
   )
 }
 
+const FINNMARK_FLAT_RATE = 0.185
+
+function getMarginalRate(
+  bruttoinntekt: number,
+  isFinnmark: boolean,
+  rates: typeof DEFAULT_TAX_RATES,
+): number {
+  const flatRate = isFinnmark ? FINNMARK_FLAT_RATE : rates.flat_tax_rate
+  let trinnskatt = 0
+  if (bruttoinntekt >= rates.bracket_5_from) trinnskatt = rates.bracket_5_rate
+  else if (bruttoinntekt >= rates.bracket_4_from) trinnskatt = rates.bracket_4_rate
+  else if (bruttoinntekt >= rates.bracket_3_from) trinnskatt = rates.bracket_3_rate
+  else if (bruttoinntekt >= rates.bracket_2_from) trinnskatt = rates.bracket_2_rate
+  else if (bruttoinntekt >= rates.bracket_1_from) trinnskatt = rates.bracket_1_rate
+  return flatRate + rates.trygdeavgift_rate + trinnskatt
+}
+
 const TIPS = [
-  `<strong>Progressiv sjablong 2026:</strong> 30% av listepris opp til ${FIRMABIL_THRESHOLD_NOK.toLocaleString('nb-NO')} kr, 20% av overskytende.`,
+  `<strong>Progressiv sjablong:</strong> ${(FIRMABIL_RATE_LOW * 100).toFixed(0)}% av listepris opp til ${FIRMABIL_THRESHOLD_NOK.toLocaleString('nb-NO')} kr, ${(FIRMABIL_RATE_HIGH * 100).toFixed(0)}% av overskytende.`,
   '<strong>El-biler behandles likt fossilbiler i 2026</strong> — særrabatten på elbilers listepris er avviklet.',
-  `<strong>Bilen eldre enn 3 år per 1. januar?</strong> Grunnlaget settes til 75% av listepris. Er i tillegg yrkeskjøringen over ${FIRMABIL_HIGH_USAGE_KM.toLocaleString('nb-NO')} km, settes grunnlaget til 56,25% (75% × 75%).`,
-  '<strong>Disposisjonsretten utløser beskatning</strong> — ikke antall faktisk kjørte private kilometer. Har bilen stått til din private disposisjon, beskattes du av sjablongen uavhengig av privat bruk.',
+  `<strong>Bilen eldre enn 3 år per 1. januar?</strong> Grunnlaget settes til 75% av listepris. Med over ${FIRMABIL_HIGH_USAGE_KM.toLocaleString('nb-NO')} km yrkeskjøring i tillegg settes grunnlaget til 56,25% (75% × 75%).`,
+  '<strong>Disposisjonsretten utløser beskatning</strong> — ikke antall faktisk kjørte private kilometer.',
   '<strong>Varebil klasse 2:</strong> Bunnfradrag på 50% av listepris (maks 150 000 kr) ved dokumentert yrkesbruk og elektronisk kjørebok.',
-  'Resultatet er <strong>skattepliktig inntekt</strong> (fordelsbeløpet) — ikke skatten. Gang med din effektive skattesats (~33–47%) for faktisk skattebelastning.',
+  '<strong>Skatteøkningen fordeles over 10,5 måneder</strong> i trekkopplegget — du slipper trekk i feriemåned og halv skatt i desember.',
 ]
 
 export default function DemoFirmabilPage() {
+  const [year, setYear] = useState<'2026' | '2025'>('2026')
+  const [bruttoinntekt, setBruttoinntekt] = useState('')
   const [listPrice, setListPrice] = useState('')
-  const [businessKm, setBusinessKm] = useState('')
-  const [isOldCar, setIsOldCar] = useState(false)
-  const [isVarebil, setIsVarebil] = useState(false)
   const [monthsAvailable, setMonthsAvailable] = useState('12')
+  const [isOldCar, setIsOldCar] = useState(false)
+  const [highBusinessKm, setHighBusinessKm] = useState(false)
+  const [isFinnmark, setIsFinnmark] = useState(false)
+  const [isVarebil, setIsVarebil] = useState(false)
+
+  const rates = year === '2026' ? DEFAULT_TAX_RATES : TAX_RATES_2025
 
   const result = useMemo(() => {
     const lp = parseFloat(listPrice.replace(/\s/g, '').replace(',', '.'))
     if (!lp || lp <= 0) return null
-    return evaluateCarBenefit({
+
+    const benefit = evaluateCarBenefit({
       list_price_nok: isOldCar ? lp * 0.75 : lp,
       is_varebil_class2: isVarebil,
-      annual_business_km: parseFloat(businessKm) || 0,
+      annual_business_km: highBusinessKm ? FIRMABIL_HIGH_USAGE_KM : 0,
       months_available: parseInt(monthsAvailable) || 12,
     })
-  }, [listPrice, businessKm, isOldCar, isVarebil, monthsAvailable])
+
+    const brutto = parseFloat(bruttoinntekt.replace(/\s/g, '').replace(',', '.'))
+    if (!brutto || brutto <= 0) {
+      return { ...benefit, marginalRate: null, annualTaxIncrease: null, monthlyTaxIncrease: null }
+    }
+
+    const marginalRate = getMarginalRate(brutto, isFinnmark, rates)
+    const annualTaxIncrease = Math.round(benefit.annual_benefit_nok * marginalRate)
+    const monthlyTaxIncrease = Math.round(annualTaxIncrease / 10.5)
+
+    return { ...benefit, marginalRate, annualTaxIncrease, monthlyTaxIncrease }
+  }, [listPrice, bruttoinntekt, isOldCar, isVarebil, highBusinessKm, monthsAvailable, isFinnmark, rates])
 
   const lp = parseFloat(listPrice.replace(/\s/g, '').replace(',', '.')) || 0
   const effectiveBasis = isOldCar ? lp * 0.75 : lp
 
+  const inputClass = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'
+
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Car size={22} className="text-violet-600" strokeWidth={2} />
-          Firmabilkalkulator
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Car size={22} className="text-violet-600" strokeWidth={2} />
+            Firmabilkalkulator
+          </h1>
+          <select
+            value={year}
+            onChange={e => setYear(e.target.value as '2026' | '2025')}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+          >
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+          </select>
+        </div>
         <p className="text-gray-500 mt-1 text-sm">
-          Beregn skattepliktig fordel ved privat disposisjonsrett til firmabil — 2026-satser
+          Beregn skattepliktig fordel og faktisk skatteøkning ved privat disposisjonsrett til firmabil
         </p>
       </div>
 
@@ -81,51 +129,46 @@ export default function DemoFirmabilPage() {
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Listepris som ny (kr)
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Bruttoinntekt (kr/år)</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="700 000"
+            value={bruttoinntekt}
+            onChange={e => setBruttoinntekt(e.target.value)}
+            className={inputClass}
+          />
+          <p className="text-xs text-gray-400 mt-1">Brukes for å beregne marginal skattesats og faktisk skatteøkning</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Listepris som ny (kr)</label>
           <input
             type="text"
             inputMode="numeric"
             placeholder="500 000"
             value={listPrice}
             onChange={e => setListPrice(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className={inputClass}
           />
           <p className="text-xs text-gray-400 mt-1">Brukes alltid som grunnlag — uavhengig av innkjøpspris eller alder</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Yrkeskjøring per år (km)
-            </label>
-            <input
-              type="number"
-              placeholder="0"
-              value={businessKm}
-              onChange={e => setBusinessKm(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Måneder til disposisjon
-            </label>
-            <select
-              value={monthsAvailable}
-              onChange={e => setMonthsAvailable(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
-            >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-                <option key={m} value={m}>{m} mnd</option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Måneder til disposisjon</label>
+          <select
+            value={monthsAvailable}
+            onChange={e => setMonthsAvailable(e.target.value)}
+            className={inputClass}
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+              <option key={m} value={m}>{m} mnd</option>
+            ))}
+          </select>
         </div>
 
         <div className="space-y-3">
-          <label className="flex items-start gap-3 cursor-pointer group">
+          <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={isOldCar}
@@ -137,7 +180,31 @@ export default function DemoFirmabilPage() {
               <p className="text-xs text-gray-400">Grunnlaget settes til 75% av listepris</p>
             </div>
           </label>
-          <label className="flex items-start gap-3 cursor-pointer group">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={highBusinessKm}
+              onChange={e => setHighBusinessKm(e.target.checked)}
+              className="mt-0.5 accent-violet-600"
+            />
+            <div>
+              <p className="text-sm font-medium text-gray-700">Over {FIRMABIL_HIGH_USAGE_KM.toLocaleString('nb-NO')} km yrkeskjøring per år</p>
+              <p className="text-xs text-gray-400">Fordelen reduseres til 75% — krever elektronisk kjørebok</p>
+            </div>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isFinnmark}
+              onChange={e => setIsFinnmark(e.target.checked)}
+              className="mt-0.5 accent-violet-600"
+            />
+            <div>
+              <p className="text-sm font-medium text-gray-700">Finnmark / Nord-Troms (tiltakssone)</p>
+              <p className="text-xs text-gray-400">Flat skattesats 18,5% i stedet for 22%</p>
+            </div>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={isVarebil}
@@ -151,30 +218,29 @@ export default function DemoFirmabilPage() {
           </label>
         </div>
 
-        {/* Beregningssteg */}
         {lp > 0 && (
           <div className="bg-gray-50 rounded-lg p-4 text-sm space-y-2 border border-gray-100">
-            <p className="font-medium text-gray-700 text-xs uppercase tracking-wide mb-2">Beregning</p>
+            <p className="font-medium text-gray-700 text-xs uppercase tracking-wide mb-2">Beregning av inntektstillegg</p>
             {isOldCar && (
               <div className="flex justify-between text-gray-500">
                 <span>Listepris × 75% (eldre enn 3 år)</span>
-                <span>{effectiveBasis.toLocaleString('nb-NO')} kr</span>
+                <span>{Math.round(effectiveBasis).toLocaleString('nb-NO')} kr</span>
               </div>
             )}
             {effectiveBasis <= FIRMABIL_THRESHOLD_NOK ? (
               <div className="flex justify-between text-gray-500">
-                <span>{effectiveBasis.toLocaleString('nb-NO')} kr × {(FIRMABIL_RATE_LOW * 100).toFixed(0)}%</span>
-                <span>{(effectiveBasis * FIRMABIL_RATE_LOW).toLocaleString('nb-NO')} kr</span>
+                <span>{Math.round(effectiveBasis).toLocaleString('nb-NO')} kr × {(FIRMABIL_RATE_LOW * 100).toFixed(0)}%</span>
+                <span>{Math.round(effectiveBasis * FIRMABIL_RATE_LOW).toLocaleString('nb-NO')} kr</span>
               </div>
             ) : (
               <>
                 <div className="flex justify-between text-gray-500">
                   <span>{FIRMABIL_THRESHOLD_NOK.toLocaleString('nb-NO')} kr × {(FIRMABIL_RATE_LOW * 100).toFixed(0)}%</span>
-                  <span>{(FIRMABIL_THRESHOLD_NOK * FIRMABIL_RATE_LOW).toLocaleString('nb-NO')} kr</span>
+                  <span>{Math.round(FIRMABIL_THRESHOLD_NOK * FIRMABIL_RATE_LOW).toLocaleString('nb-NO')} kr</span>
                 </div>
                 <div className="flex justify-between text-gray-500">
-                  <span>{(effectiveBasis - FIRMABIL_THRESHOLD_NOK).toLocaleString('nb-NO')} kr × {(FIRMABIL_RATE_HIGH * 100).toFixed(0)}%</span>
-                  <span>{((effectiveBasis - FIRMABIL_THRESHOLD_NOK) * FIRMABIL_RATE_HIGH).toLocaleString('nb-NO')} kr</span>
+                  <span>{Math.round(effectiveBasis - FIRMABIL_THRESHOLD_NOK).toLocaleString('nb-NO')} kr × {(FIRMABIL_RATE_HIGH * 100).toFixed(0)}%</span>
+                  <span>{Math.round((effectiveBasis - FIRMABIL_THRESHOLD_NOK) * FIRMABIL_RATE_HIGH).toLocaleString('nb-NO')} kr</span>
                 </div>
               </>
             )}
@@ -193,17 +259,46 @@ export default function DemoFirmabilPage() {
               </div>
             ))}
             <div className="flex justify-between items-center py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-500">Skattepliktig fordel per måned</span>
-              <span className="font-semibold text-gray-800">{result.monthly_benefit_nok.toLocaleString('nb-NO')} kr</span>
+              <span className="text-sm text-gray-500">Inntektstillegg (skattepliktig fordel)</span>
+              <span className="font-semibold text-gray-800">{result.annual_benefit_nok.toLocaleString('nb-NO')} kr/år</span>
             </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm font-semibold text-gray-700">Skattepliktig fordel per år</span>
-              <span className="text-xl font-bold text-violet-700">{result.annual_benefit_nok.toLocaleString('nb-NO')} kr</span>
-            </div>
-            <p className="text-xs text-gray-400 flex items-center gap-1">
-              <Info size={11} />
-              Dette er skattepliktig inntekt — ikke skatten. Gang med din marginale skattesats for faktisk belastning.
-            </p>
+            {result.marginalRate !== null && result.annualTaxIncrease !== null && result.monthlyTaxIncrease !== null ? (
+              <>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <div>
+                    <span className="text-sm text-gray-500">Marginal skattesats</span>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {((isFinnmark ? FINNMARK_FLAT_RATE : rates.flat_tax_rate) * 100).toFixed(1)}% flat
+                      + {(rates.trygdeavgift_rate * 100).toFixed(1)}% trygd
+                      + trinnskatt
+                    </p>
+                  </div>
+                  <span className="font-semibold text-gray-800">{(result.marginalRate * 100).toFixed(1)}%</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-sm font-semibold text-gray-700">Økning i skatt per år</span>
+                  <span className="text-xl font-bold text-violet-700">{result.annualTaxIncrease.toLocaleString('nb-NO')} kr</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <div>
+                    <span className="text-sm font-semibold text-gray-700">Skatt per måned</span>
+                    <p className="text-xs text-gray-400 mt-0.5">Fordelt over 10,5 mnd (uten ferie + halv skatt des.)</p>
+                  </div>
+                  <span className="text-xl font-bold text-violet-700">{result.monthlyTaxIncrease.toLocaleString('nb-NO')} kr</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-sm font-semibold text-gray-700">Skattepliktig fordel per år</span>
+                  <span className="text-xl font-bold text-violet-700">{result.annual_benefit_nok.toLocaleString('nb-NO')} kr</span>
+                </div>
+                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                  <Info size={11} />
+                  Oppgi bruttoinntekt for å beregne faktisk skatteøkning og månedlig trekk
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}

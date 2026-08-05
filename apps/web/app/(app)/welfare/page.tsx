@@ -255,11 +255,16 @@ const POPULAR_MEASURES = [
     tips: ['Alternativ: Betal bedriftsabonnement direkte til treningssenter for alle'],
   },
   {
-    name: 'Utenlandsreise (uten faglig formål)',
+    name: 'Utenlandsreise',
     emoji: '✈️',
-    limit: 'Høy risiko — nesten alltid skattepliktig. Vesentlig privat element.',
-    safe: false,
-    tips: ['Kun akseptabelt ved klar faglig begrunnelse (konferanse, bransjemesse etc.)', 'Rene ferieturer = lønn'],
+    limit: 'Kan fungere — enten som skattefritt velferdstiltak for alle ansatte, eller som fradragsberettiget strategisamling med faglig innhold. Rene ferieturer er skattepliktige.',
+    safe: true,
+    tips: [
+      'Fellestur til utlandet (alle inviteres, rimelig kostnad, sosialt formål): samme regler som innenlands velferdstiltak — kan være skattefritt',
+      'Strategisamling med dokumentert faglig program (agenda, referat, deltagerliste): fradragsberettiget forretningskostnad',
+      'Unngå steder med tydelig ferieprofil uten faglig innhold (resort, cruise, badeland) — risikoen for skatteplikt øker markant',
+      'Rene ferieturer uten velferdsmessig eller faglig begrunnelse = lønn for deltakerne',
+    ],
   },
   {
     name: 'Billett til konsert / sportsarrangement',
